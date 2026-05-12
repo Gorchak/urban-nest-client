@@ -1,0 +1,604 @@
+<p-toast></p-toast>
+
+<p-dialog
+  [(visible)]="visible"
+  [header]="headerTitle"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '860px', maxWidth: '95vw' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="close()"
+>
+  <form [formGroup]="form" class="reference-form">
+    <!-- ─── SECTION: General ─── -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <i class="pi pi-info-circle"></i> Основна інформація
+      </h3>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="ref-name">Назва *</label>
+          <input
+            id="ref-name"
+            pInputText
+            formControlName="name"
+            placeholder="Наприклад: Колір"
+            (input)="onNameChange(form.get('name')?.value)"
+          />
+          @if (
+            form.get("name")?.touched && form.get("name")?.errors?.["required"]
+          ) {
+            <small class="error">Обов'язкове поле</small>
+          }
+          @if (
+            form.get("name")?.touched && form.get("name")?.errors?.["minlength"]
+          ) {
+            <small class="error">Мінімум 2 символи</small>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="ref-slug">Slug *</label>
+          <input
+            id="ref-slug"
+            pInputText
+            formControlName="slug"
+            placeholder="napryklad-kolir"
+            (input)="onSlugInput()"
+          />
+          @if (
+            form.get("slug")?.touched && form.get("slug")?.errors?.["required"]
+          ) {
+            <small class="error">Обов'язкове поле</small>
+          }
+          @if (
+            form.get("slug")?.touched && form.get("slug")?.errors?.["kebabCase"]
+          ) {
+            <small class="error">Тільки малі літери a-z, цифри та дефіс</small>
+          }
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="ref-description">Опис</label>
+          <textarea
+            id="ref-description"
+            pInputTextarea
+            formControlName="description"
+            rows="2"
+            placeholder="Необов'язковий опис характеристики"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label for="ref-type">Тип *</label>
+          <p-dropdown
+            inputId="ref-type"
+            formControlName="type"
+            [options]="typeOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Оберіть тип"
+            styleClass="w-full"
+          >
+            <ng-template pTemplate="selectedItem" let-item>
+              @if (item) {
+                <div class="type-option-selected">
+                  <i [class]="item.icon"></i>
+                  <span>{{ item.label }}</span>
+                </div>
+              }
+            </ng-template>
+            <ng-template pTemplate="item" let-item>
+              <div class="type-option-item">
+                <i [class]="item.icon"></i>
+                <div class="type-option-text">
+                  <span class="type-option-label">{{ item.label }}</span>
+                  <small class="type-option-desc">{{ item.description }}</small>
+                </div>
+              </div>
+            </ng-template>
+          </p-dropdown>
+        </div>
+
+        <div class="form-field">
+          <label for="ref-sortOrder">Порядок сортування</label>
+          <p-inputNumber
+            inputId="ref-sortOrder"
+            formControlName="sortOrder"
+            [showButtons]="true"
+            [min]="0"
+            styleClass="w-full"
+          ></p-inputNumber>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION: Behavior flags ─── -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <i class="pi pi-sliders-h"></i> Налаштування поведінки
+      </h3>
+      <div class="flags-row">
+        <div class="flag-item">
+          <p-checkbox
+            formControlName="isRequired"
+            [binary]="true"
+            inputId="ref-required"
+          ></p-checkbox>
+          <label for="ref-required">
+            <span class="flag-label">Обов'язкове</span>
+            <small>Поле необхідно заповнити</small>
+          </label>
+        </div>
+        <div class="flag-item">
+          <p-checkbox
+            formControlName="isFilterable"
+            [binary]="true"
+            inputId="ref-filterable"
+          ></p-checkbox>
+          <label for="ref-filterable">
+            <span class="flag-label">Фільтрується</span>
+            <small>Доступне у фільтрах каталогу</small>
+          </label>
+        </div>
+        <div class="flag-item">
+          <p-checkbox
+            formControlName="isVariant"
+            [binary]="true"
+            inputId="ref-variant"
+          ></p-checkbox>
+          <label for="ref-variant">
+            <span class="flag-label">Варіант товару</span>
+            <small>Використовується для варіацій</small>
+          </label>
+        </div>
+        <div class="flag-item">
+          <p-checkbox
+            formControlName="isActive"
+            [binary]="true"
+            inputId="ref-active"
+          ></p-checkbox>
+          <label for="ref-active">
+            <span class="flag-label">Активне</span>
+            <small>Характеристика відображається</small>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SECTION: String/Text validation ─── -->
+    @if (isStringType(selectedType())) {
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="pi pi-check-circle"></i> Валідація тексту
+        </h3>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="ref-minLength">Мінімальна довжина</label>
+            <p-inputNumber
+              inputId="ref-minLength"
+              formControlName="minLength"
+              [min]="0"
+              styleClass="w-full"
+            ></p-inputNumber>
+          </div>
+          <div class="form-field">
+            <label for="ref-maxLength">Максимальна довжина</label>
+            <p-inputNumber
+              inputId="ref-maxLength"
+              formControlName="maxLength"
+              [min]="0"
+              styleClass="w-full"
+            ></p-inputNumber>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="ref-regex">Regex паттерн</label>
+            <input
+              id="ref-regex"
+              pInputText
+              formControlName="regex"
+              placeholder="^[a-z]+$"
+            />
+            @if (
+              form.get("regex")?.touched &&
+              form.get("regex")?.errors?.["invalidRegex"]
+            ) {
+              <small class="error">Невалідний регулярний вираз</small>
+            }
+          </div>
+          <div class="form-field">
+            <label for="ref-placeholder-str">Підказка (placeholder)</label>
+            <input
+              id="ref-placeholder-str"
+              pInputText
+              formControlName="placeholder"
+            />
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="ref-helperText-str">Допоміжний текст</label>
+          <input
+            id="ref-helperText-str"
+            pInputText
+            formControlName="helperText"
+          />
+        </div>
+      </div>
+    }
+
+    <!-- ─── SECTION: Numeric constraints ─── -->
+    @if (isNumericType(selectedType())) {
+      <div class="form-section">
+        <h3 class="section-title">
+          <i class="pi pi-sort-numeric-up"></i> Числові обмеження
+        </h3>
+        <div class="form-row three-cols">
+          <div class="form-field">
+            <label for="ref-min">Мінімальне значення</label>
+            <p-inputNumber
+              inputId="ref-min"
+              formControlName="min"
+              styleClass="w-full"
+            ></p-inputNumber>
+          </div>
+          <div class="form-field">
+            <label for="ref-max">Максимальне значення</label>
+            <p-inputNumber
+              inputId="ref-max"
+              formControlName="max"
+              styleClass="w-full"
+            ></p-inputNumber>
+          </div>
+          <div class="form-field">
+            <label for="ref-unit">Одиниця виміру</label>
+            <input
+              id="ref-unit"
+              pInputText
+              formControlName="unit"
+              placeholder="кг, см, грн"
+            />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="ref-placeholder-num">Підказка (placeholder)</label>
+            <input
+              id="ref-placeholder-num"
+              pInputText
+              formControlName="placeholder"
+            />
+          </div>
+          <div class="form-field">
+            <label for="ref-helperText-num">Допоміжний текст</label>
+            <input
+              id="ref-helperText-num"
+              pInputText
+              formControlName="helperText"
+            />
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ─── SECTION: Options (select / multiselect / color) ─── -->
+    @if (isOptionsType(selectedType())) {
+      <div class="form-section options-section">
+        <div class="options-header">
+          <h3 class="section-title">
+            <i class="pi pi-list"></i> Варіанти 22
+            <span class="options-count">{{ optionsArray.length }}</span>
+          </h3>
+          <div class="options-toolbar">
+            @if (selectedType() === "color") {
+              <p-button
+                label="Кольори"
+                icon="pi pi-palette"
+                severity="secondary"
+                [text]="true"
+                size="small"
+                (onClick)="loadColorDefaults()"
+              ></p-button>
+            }
+            @if (
+              selectedType() === "select" || selectedType() === "multiselect"
+            ) {
+              <p-button
+                label="Розміри"
+                icon="pi pi-list"
+                severity="secondary"
+                [text]="true"
+                size="small"
+                (onClick)="loadSizeDefaults()"
+              ></p-button>
+            }
+            <p-button
+              label="Масовий імпорт"
+              icon="pi pi-upload"
+              severity="secondary"
+              [text]="true"
+              size="small"
+              (onClick)="showBulkImport.set(!showBulkImport())"
+            ></p-button>
+            <p-button
+              label="Додати"
+              icon="pi pi-plus"
+              size="small"
+              (onClick)="addOption()"
+            ></p-button>
+          </div>
+        </div>
+
+        @if (showBulkImport()) {
+          <div class="bulk-import-box">
+            <label>Введіть варіанти — кожен з нового рядка</label>
+            <textarea
+              pInputTextarea
+              rows="4"
+              [value]="bulkImportText"
+              (input)="onBulkImportInput($event)"
+              placeholder="чорний&#10;білий&#10;сірий"
+            ></textarea>
+            <div class="bulk-import-actions">
+              <p-button
+                label="Скасувати"
+                severity="secondary"
+                [text]="true"
+                (onClick)="showBulkImport.set(false)"
+              ></p-button>
+              <p-button
+                label="Імпортувати"
+                icon="pi pi-check"
+                (onClick)="importBulkOptions()"
+              ></p-button>
+            </div>
+          </div>
+        }
+
+        <!-- Options table header -->
+        @if (optionsArray.length > 0) {
+          <div class="options-table-header">
+            <span class="col-label">Назва</span>
+            <span class="col-value">Значення</span>
+            @if (selectedType() === "color") {
+              <span class="col-color">Колір</span>
+            }
+            <span class="col-order">Порядок</span>
+            <span class="col-active">Активне</span>
+            <span class="col-remove"></span>
+          </div>
+        }
+
+        <!-- Options rows -->
+        <ng-container formArrayName="options">
+          @for (ctrl of optionsArray.controls; track ctrl; let idx = $index) {
+            <div class="option-row" [formGroupName]="idx">
+              <div class="option-cell col-label">
+                <input
+                  pInputText
+                  formControlName="label"
+                  placeholder="Назва варіанту"
+                />
+                @if (
+                  getOptionGroup(idx).get("label")?.touched &&
+                  getOptionGroup(idx).get("label")?.errors?.["required"]
+                ) {
+                  <small class="error">Обов'язкове</small>
+                }
+              </div>
+
+              <div class="option-cell col-value">
+                <input pInputText formControlName="value" placeholder="value" />
+                @if (
+                  getOptionGroup(idx).get("value")?.touched &&
+                  getOptionGroup(idx).get("value")?.errors?.["required"]
+                ) {
+                  <small class="error">Обов'язкове</small>
+                }
+              </div>
+
+              @if (selectedType() === "color") {
+                <div class="option-cell col-color">
+                  <div class="color-picker-wrap">
+                    <p-colorPicker
+                      formControlName="colorHex"
+                      appendTo="body"
+                    ></p-colorPicker>
+                    @if (getOptionGroup(idx).get("colorHex")?.value) {
+                      <span
+                        class="color-swatch"
+                        [style.background]="
+                          getOptionGroup(idx).get('colorHex')?.value
+                        "
+                      ></span>
+                    }
+                  </div>
+                </div>
+              }
+
+              <div class="option-cell col-order">
+                <p-inputNumber
+                  formControlName="sortOrder"
+                  [min]="0"
+                  styleClass="w-full"
+                ></p-inputNumber>
+              </div>
+
+              <div class="option-cell col-active">
+                <p-checkbox
+                  formControlName="isActive"
+                  [binary]="true"
+                ></p-checkbox>
+              </div>
+
+              <div class="option-cell col-remove">
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [text]="true"
+                  [rounded]="true"
+                  size="small"
+                  (onClick)="removeOption(idx)"
+                ></p-button>
+              </div>
+            </div>
+          }
+        </ng-container>
+
+        @if (optionsArray.length === 0) {
+          <div class="options-empty">
+            <i class="pi pi-inbox"></i>
+            <p>
+              Варіантів ще немає. Додайте перший або скористайтесь шаблонами.
+            </p>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ─── SECTION: Live Preview ─── -->
+    <div class="form-section preview-section">
+      <h3 class="section-title">
+        <i class="pi pi-eye"></i> Попередній перегляд
+      </h3>
+      <div class="preview-content">
+        @switch (selectedType()) {
+          @case ("string") {
+            <input
+              pInputText
+              [placeholder]="
+                form.get('placeholder')?.value || 'Введіть текст...'
+              "
+              disabled
+              class="preview-input"
+            />
+          }
+          @case ("text") {
+            <textarea
+              pInputTextarea
+              [placeholder]="
+                form.get('placeholder')?.value || 'Введіть текст...'
+              "
+              rows="3"
+              disabled
+              class="preview-input"
+            ></textarea>
+          }
+          @case ("number") {
+            <p-inputNumber
+              [placeholder]="form.get('placeholder')?.value || '0'"
+              [suffix]="
+                form.get('unit')?.value ? ' ' + form.get('unit')?.value : ''
+              "
+              [disabled]="true"
+              styleClass="w-full"
+            ></p-inputNumber>
+          }
+          @case ("decimal") {
+            <p-inputNumber
+              mode="decimal"
+              [minFractionDigits]="2"
+              [placeholder]="form.get('placeholder')?.value || '0.00'"
+              [suffix]="
+                form.get('unit')?.value ? ' ' + form.get('unit')?.value : ''
+              "
+              [disabled]="true"
+              styleClass="w-full"
+            ></p-inputNumber>
+          }
+          @case ("boolean") {
+            <div class="preview-boolean">
+              <p-checkbox
+                [binary]="true"
+                label="Так / Ні"
+                [disabled]="true"
+              ></p-checkbox>
+            </div>
+          }
+          @case ("select") {
+            <p-dropdown
+              [options]="[]"
+              [placeholder]="
+                form.get('placeholder')?.value || 'Оберіть варіант'
+              "
+              [disabled]="true"
+              styleClass="w-full"
+            ></p-dropdown>
+          }
+          @case ("multiselect") {
+            <p-multiSelect
+              [options]="[]"
+              [placeholder]="
+                form.get('placeholder')?.value || 'Оберіть варіанти'
+              "
+              [disabled]="true"
+              styleClass="w-full"
+            ></p-multiSelect>
+          }
+          @case ("color") {
+            <div class="preview-colors">
+              @for (ctrl of optionsArray.controls; track ctrl; let idx = $index) {
+                <span
+                  class="preview-color-chip"
+                  [style.background]="
+                    getOptionGroup(idx).get('colorHex')?.value || '#e5e7eb'
+                  "
+                  [title]="getOptionGroup(idx).get('label')?.value"
+                ></span>
+              }
+              @if (optionsArray.length === 0) {
+                <span class="preview-empty-hint">Немає кольорів</span>
+              }
+            </div>
+          }
+          @case ("date") {
+            <input
+              pInputText
+              placeholder="дд/мм/рррр"
+              disabled
+              class="preview-input"
+            />
+          }
+          @case ("json") {
+            <textarea
+              pInputTextarea
+              placeholder='{ "key": "value" }'
+              rows="3"
+              disabled
+              class="preview-input"
+            ></textarea>
+          }
+        }
+        @if (form.get("helperText")?.value) {
+          <small class="preview-helper">{{
+            form.get("helperText")?.value
+          }}</small>
+        }
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Скасувати"
+      icon="pi pi-times"
+      [text]="true"
+      severity="secondary"
+      (onClick)="close()"
+    ></p-button>
+    <p-button
+      [label]="mode === 'edit' ? 'Оновити' : 'Створити'"
+      icon="pi pi-check"
+      (onClick)="onSave()"
+      [loading]="saving()"
+      [disabled]="form.invalid || saving()"
+    ></p-button>
+  </ng-template>
+</p-dialog>

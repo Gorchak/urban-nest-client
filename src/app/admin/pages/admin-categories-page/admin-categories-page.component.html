@@ -1,0 +1,93 @@
+<div class="admin-categories-page">
+  <div class="page-header">
+    <h1>Категорії</h1>
+    <p-button
+      label="Додати категорію"
+      icon="pi pi-plus"
+      (onClick)="openNew()"
+    ></p-button>
+  </div>
+
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <p-table
+    [value]="categories"
+    [loading]="loading"
+    [paginator]="true"
+    [rows]="10"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Показано {first}-{last} з {totalRecords}"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    responsiveLayout="scroll"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="name">
+          Назва <p-sortIcon field="name"></p-sortIcon>
+        </th>
+        <th>Slug</th>
+        <th>Короткий опис</th>
+        <th pSortableColumn="isActive">
+          Статус <p-sortIcon field="isActive"></p-sortIcon>
+        </th>
+        <th pSortableColumn="sortOrder">
+          Порядок <p-sortIcon field="sortOrder"></p-sortIcon>
+        </th>
+        <th>Дії</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-category>
+      <tr>
+        <td>
+          <div class="category-header">
+            <div class="category-image" *ngIf="category.image">
+              <img [src]="category.image" alt="{{ category.image }}" />
+            </div>
+            <div class="category-name">{{ category.name }}</div>
+          </div>
+        </td>
+        <td>
+          <code>{{ category.slug }}</code>
+        </td>
+        <td>{{ category.shortDescription || "-" }}</td>
+        <td>
+          <span
+            [class]="category.isActive ? 'status-active' : 'status-inactive'"
+          >
+            {{ category.isActive ? "Активна" : "Неактивна" }}
+          </span>
+        </td>
+        <td>{{ category.sortOrder }}</td>
+        <td>
+          <p-button
+            icon="pi pi-pencil"
+            [rounded]="true"
+            [outlined]="true"
+            severity="success"
+            (onClick)="openEdit(category)"
+          ></p-button>
+          <p-button
+            icon="pi pi-trash"
+            [rounded]="true"
+            [outlined]="true"
+            severity="danger"
+            (onClick)="confirmDelete(category)"
+          ></p-button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="text-center">Категорії не знайдено</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <app-add-edit-category
+    [(visible)]="showDialog"
+    [mode]="dialogMode"
+    [category]="selectedCategory"
+    (saved)="onCategorySaved()"
+  ></app-add-edit-category>
+</div>

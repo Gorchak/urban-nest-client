@@ -1,0 +1,75 @@
+.category-references-page {
+  padding: 1.5rem;
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: #1a1a2e;
+    }
+  }
+
+  .ref-name-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+
+    .ref-name {
+      font-weight: 500;
+      color: #1f2937;
+    }
+
+    .ref-description {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+  }
+
+  .ref-slug {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.8125rem;
+    background: #f3f4f6;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    color: #6366f1;
+  }
+
+  .type-tag {
+    font-size: 0.75rem;
+  }
+
+  .flag-yes {
+    color: #22c55e;
+    font-size: 1rem;
+  }
+
+  .flag-no {
+    color: #d1d5db;
+    font-size: 0.875rem;
+  }
+
+  .status-active {
+    color: #22c55e;
+    font-weight: 600;
+  }
+
+  .status-inactive {
+    color: #ef4444;
+    font-weight: 600;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 0.375rem;
+    align-items: center;
+  }
+}

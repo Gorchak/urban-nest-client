@@ -1,0 +1,584 @@
+<p-toast></p-toast>
+
+<p-dialog
+  [(visible)]="visible"
+  [header]="headerTitle"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '960px', maxWidth: '96vw' }"
+  [draggable]="false"
+  [resizable]="false"
+  (onHide)="close()"
+>
+  <form [formGroup]="form" class="category-form">
+    <p-tabView [activeIndex]="activeTabIndex()"
+               (activeIndexChange)="activeTabIndex.set($event)"
+               styleClass="cat-tabs">
+
+      <!-- ══════════════════════════════════════════════════════════
+           TAB 1 — ОСНОВНА ІНФОРМАЦІЯ
+      ══════════════════════════════════════════════════════════ -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div class="tab-header-item">
+            <i class="pi pi-info-circle"></i>
+            <span>Основна інформація</span>
+            @if (formSubmitted() && isTab1Invalid()) {
+              <i class="pi pi-exclamation-triangle tab-error-badge"></i>
+            }
+          </div>
+        </ng-template>
+
+        <div class="tab-content">
+          <!-- ── Identity ── -->
+          <div class="form-section">
+            <h4 class="section-title">Назва і ідентифікатор</h4>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="cat-name">Назва *</label>
+                <input
+                  id="cat-name"
+                  pInputText
+                  formControlName="name"
+                  placeholder="Назва категорії"
+                  (input)="onNameChange(form.get('name')?.value)"
+                />
+                @if (form.get('name')?.touched && form.get('name')?.errors?.['required']) {
+                  <small class="error">Обов'язкове поле</small>
+                }
+                @if (form.get('name')?.touched && form.get('name')?.errors?.['maxlength']) {
+                  <small class="error">Не більше 255 символів</small>
+                }
+              </div>
+              <div class="form-field">
+                <label for="cat-slug">Slug *</label>
+                <input
+                  id="cat-slug"
+                  pInputText
+                  formControlName="slug"
+                  placeholder="nazva-katehorii"
+                />
+                @if (form.get('slug')?.touched && form.get('slug')?.errors?.['required']) {
+                  <small class="error">Обов'язкове поле</small>
+                }
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label for="cat-short">Короткий опис</label>
+                <textarea
+                  id="cat-short"
+                  pInputTextarea
+                  formControlName="shortDescription"
+                  rows="2"
+                  placeholder="Короткий опис для картки категорії"
+                ></textarea>
+              </div>
+              <div class="form-field">
+                <label for="cat-desc">Опис</label>
+                <textarea
+                  id="cat-desc"
+                  pInputTextarea
+                  formControlName="description"
+                  rows="4"
+                  placeholder="Детальний опис категорії"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <p-divider></p-divider>
+
+          <!-- ── Hierarchy & order ── -->
+          <div class="form-section">
+            <h4 class="section-title">Ієрархія і порядок</h4>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="cat-parent">Батьківська категорія</label>
+                <p-autoComplete
+                  inputId="cat-parent"
+                  formControlName="parentId"
+                  [suggestions]="filteredParentCategories"
+                  (completeMethod)="filterParentCategories($event)"
+                  field="name"
+                  [dropdown]="true"
+                  placeholder="Почніть вводити назву..."
+                  [showClear]="true"
+                  styleClass="w-full"
+                ></p-autoComplete>
+              </div>
+              <div class="form-field">
+                <label for="cat-order">Порядок сортування</label>
+                <p-inputNumber
+                  inputId="cat-order"
+                  formControlName="sortOrder"
+                  [showButtons]="true"
+                  [min]="0"
+                  styleClass="w-full"
+                ></p-inputNumber>
+              </div>
+            </div>
+
+            <div class="flags-row">
+              <div class="flag-item">
+                <p-checkbox formControlName="isActive" [binary]="true" inputId="cat-active"></p-checkbox>
+                <label for="cat-active">
+                  <span class="flag-label">Активна</span>
+                  <small>Видима в каталозі</small>
+                </label>
+              </div>
+              <div class="flag-item">
+                <p-checkbox formControlName="isVisible" [binary]="true" inputId="cat-visible"></p-checkbox>
+                <label for="cat-visible">
+                  <span class="flag-label">Видима</span>
+                  <small>Показується в меню</small>
+                </label>
+              </div>
+              <div class="flag-item">
+                <p-checkbox formControlName="isFeatured" [binary]="true" inputId="cat-featured"></p-checkbox>
+                <label for="cat-featured">
+                  <span class="flag-label">Популярна</span>
+                  <small>На головній сторінці</small>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <p-divider></p-divider>
+
+          <!-- ── Images ── -->
+          <div class="form-section">
+            <h4 class="section-title">Зображення</h4>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="cat-image">Основне зображення</label>
+                <input id="cat-image" pInputText formControlName="image" placeholder="https://..." />
+              </div>
+              <div class="form-field">
+                <label for="cat-icon">Іконка</label>
+                <input id="cat-icon" pInputText formControlName="icon" placeholder="https://..." />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="cat-cover">Обкладинка</label>
+                <input id="cat-cover" pInputText formControlName="coverImage" placeholder="https://..." />
+              </div>
+              <div class="form-field">
+                <label for="cat-banner">Банер</label>
+                <input id="cat-banner" pInputText formControlName="bannerImage" placeholder="https://..." />
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-tabPanel>
+
+      <!-- ══════════════════════════════════════════════════════════
+           TAB 2 — ХАРАКТЕРИСТИКИ
+      ══════════════════════════════════════════════════════════ -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div class="tab-header-item">
+            <i class="pi pi-th-large"></i>
+            <span>Характеристики</span>
+            @if (specificationsArray.length > 0) {
+              <span class="tab-count-badge">{{ specificationsArray.length }}</span>
+            }
+          </div>
+        </ng-template>
+
+        <div class="tab-content specs-tab">
+          <div class="specs-layout">
+
+            <!-- ═══════════════════════════════════════
+                 LEFT COLUMN — Обрані характеристики
+            ═══════════════════════════════════════ -->
+            <div class="specs-col specs-col--selected">
+
+              <!-- Sticky header -->
+              <div class="specs-col-header">
+                <div class="specs-col-header-title">
+                  <i class="pi pi-check-circle specs-col-icon specs-col-icon--selected"></i>
+                  <span>Обрані характеристики</span>
+                </div>
+                <span class="col-badge col-badge--selected">{{ specificationsArray.length }}</span>
+              </div>
+
+              <!-- Scrollable content -->
+              <div class="specs-col-body">
+                @if (loadingRefs()) {
+                  <div class="specs-empty-state">
+                    <i class="pi pi-spin pi-spinner"></i>
+                    <p>Завантаження...</p>
+                  </div>
+                } @else if (selectedSpecsWithRef().length === 0) {
+                  <div class="specs-empty-state">
+                    <i class="pi pi-inbox"></i>
+                    <p>Характеристики ще не додані</p>
+                    <small>Додайте характеристики з правої панелі</small>
+                  </div>
+                } @else {
+                  <div class="specs-list">
+                    @for (item of selectedSpecsWithRef(); track item.id) {
+                      <div
+                        class="spec-card spec-card--selected"
+                        [class.spec-card--orphan]="item.isOrphan"
+                        [formGroup]="item.ctrl"
+                      >
+
+                        <!-- Header -->
+                        <div class="spec-card-header">
+                          <div class="spec-card-meta">
+                            <span class="spec-card-name">{{ item.ref.name || item.ref.slug }}</span>
+                            @if (item.ref.type) {
+                              <p-tag
+                                [value]="typeLabels[item.ref.type]"
+                                severity="secondary"
+                                styleClass="spec-type-tag"
+                              ></p-tag>
+                            }
+                            @if (item.isOrphan) {
+                              <span class="spec-orphan-badge">
+                                <i class="pi pi-exclamation-triangle"></i>
+                                Видалено з довідника
+                              </span>
+                            }
+                          </div>
+                          <p-button
+                            icon="pi pi-times"
+                            severity="danger"
+                            [text]="true"
+                            [rounded]="true"
+                            size="small"
+                            styleClass="spec-action-btn"
+                            pTooltip="Видалити характеристику"
+                            tooltipPosition="left"
+                            (onClick)="removeSpecification(item.id)"
+                          ></p-button>
+                        </div>
+
+                        <!-- Slug -->
+                        <code class="spec-card-slug">{{ item.ref.slug }}</code>
+
+                        <!-- Description -->
+                        @if (item.ref.description) {
+                          <p class="spec-card-description">{{ item.ref.description }}</p>
+                        }
+
+                        <!-- Type preview -->
+                        <div class="spec-card-preview">
+                          @if (item.ref.type === 'color' && item.ref.options?.length) {
+                            <div class="spec-preview-colors">
+                              @for (opt of (item.ref.options ?? []).slice(0, 8); track opt.id) {
+                                <span
+                                  class="spec-color-dot"
+                                  [style.background]="opt.colorHex || '#e5e7eb'"
+                                  [title]="opt.label"
+                                ></span>
+                              }
+                              @if ((item.ref.options?.length ?? 0) > 8) {
+                                <span class="spec-more-badge">+{{ (item.ref.options?.length ?? 0) - 8 }}</span>
+                              }
+                            </div>
+                          } @else if ((item.ref.type === 'select' || item.ref.type === 'multiselect') && item.ref.options?.length) {
+                            <div class="spec-preview-chips">
+                              @for (opt of (item.ref.options ?? []).slice(0, 4); track opt.id) {
+                                <span class="spec-chip">{{ opt.label }}</span>
+                              }
+                              @if ((item.ref.options?.length ?? 0) > 4) {
+                                <span class="spec-chip spec-chip--more">+{{ (item.ref.options?.length ?? 0) - 4 }}</span>
+                              }
+                            </div>
+                          } @else if (item.ref.type === 'boolean') {
+                            <span class="spec-preview-hint"><i class="pi pi-check-square"></i> Так / Ні</span>
+                          } @else if (item.ref.type === 'number' || item.ref.type === 'decimal') {
+                            <span class="spec-preview-hint">
+                              <i class="pi pi-hashtag"></i>
+                              Число{{ item.ref.unit ? ' (' + item.ref.unit + ')' : '' }}
+                            </span>
+                          } @else if (item.ref.type === 'date') {
+                            <span class="spec-preview-hint"><i class="pi pi-calendar"></i> Дата</span>
+                          } @else if (item.ref.type === 'string' || item.ref.type === 'text') {
+                            <span class="spec-preview-hint"><i class="pi pi-align-left"></i> Текст</span>
+                          } @else if (item.ref.type === 'json') {
+                            <span class="spec-preview-hint"><i class="pi pi-code"></i> JSON</span>
+                          }
+                        </div>
+
+                        <!-- Controls -->
+                        <p-divider styleClass="spec-divider"></p-divider>
+                        <div class="spec-controls-row">
+                          <div class="spec-control-item">
+                            <p-checkbox
+                              formControlName="isRequired"
+                              [binary]="true"
+                              [inputId]="'req-' + item.id"
+                            ></p-checkbox>
+                            <label [for]="'req-' + item.id" class="spec-control-label">
+                              Обов'язкове
+                            </label>
+                          </div>
+                          <div class="spec-control-item spec-control-order">
+                            <label class="spec-control-label">Порядок</label>
+                            <p-inputNumber
+                              formControlName="sortOrder"
+                              [min]="0"
+                              [showButtons]="true"
+                              styleClass="spec-order-input"
+                            ></p-inputNumber>
+                          </div>
+                        </div>
+
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════
+                 RIGHT COLUMN — Доступні характеристики
+            ═══════════════════════════════════════ -->
+            <div class="specs-col specs-col--available">
+
+              <!-- Sticky header -->
+              <div class="specs-col-header">
+                <div class="specs-col-header-title">
+                  <i class="pi pi-list specs-col-icon specs-col-icon--available"></i>
+                  <span>Доступні характеристики</span>
+                </div>
+                <span class="col-badge col-badge--available">{{ availableReferences().length }}</span>
+              </div>
+
+              <!-- Search -->
+              <div class="specs-col-search">
+                <p-iconField iconPosition="left" styleClass="w-full">
+                  <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+                  <input
+                    pInputText
+                    [value]="searchQuery()"
+                    (input)="searchQuery.set($any($event.target).value)"
+                    placeholder="Пошук за назвою або slug..."
+                    class="specs-search-input"
+                  />
+                </p-iconField>
+              </div>
+
+              <!-- Scrollable content -->
+              <div class="specs-col-body">
+                @if (loadingRefs()) {
+                  <div class="specs-empty-state">
+                    <i class="pi pi-spin pi-spinner"></i>
+                    <p>Завантаження характеристик...</p>
+                  </div>
+                } @else if (allReferences().length === 0) {
+                  <div class="specs-empty-state">
+                    <i class="pi pi-inbox"></i>
+                    <p>Немає доступних характеристик</p>
+                    <small>Спочатку створіть їх у розділі «Характеристики»</small>
+                  </div>
+                } @else if (availableReferences().length === 0 && searchQuery()) {
+                  <div class="specs-empty-state">
+                    <i class="pi pi-search"></i>
+                    <p>За запитом «{{ searchQuery() }}» нічого не знайдено</p>
+                  </div>
+                } @else if (availableReferences().length === 0) {
+                  <div class="specs-empty-state">
+                    <i class="pi pi-check-circle"></i>
+                    <p>Всі характеристики вже додані</p>
+                  </div>
+                } @else {
+                  <div class="specs-list">
+                    @for (ref of availableReferences(); track ref._id) {
+                      <div class="spec-card spec-card--available">
+
+                        <!-- Header -->
+                        <div class="spec-card-header">
+                          <div class="spec-card-meta">
+                            <span class="spec-card-name">{{ ref.name }}</span>
+                            <p-tag
+                              [value]="typeLabels[ref.type]"
+                              severity="secondary"
+                              styleClass="spec-type-tag"
+                            ></p-tag>
+                          </div>
+                          <p-button
+                            icon="pi pi-plus"
+                            severity="success"
+                            [text]="true"
+                            [rounded]="true"
+                            size="small"
+                            styleClass="spec-action-btn"
+                            pTooltip="Додати характеристику"
+                            tooltipPosition="left"
+                            (onClick)="addSpecification(ref)"
+                          ></p-button>
+                        </div>
+
+                        <!-- Slug -->
+                        <code class="spec-card-slug">{{ ref.slug }}</code>
+
+                        <!-- Description -->
+                        @if (ref.description) {
+                          <p class="spec-card-description">{{ ref.description }}</p>
+                        }
+
+                        <!-- Type preview -->
+                        <div class="spec-card-preview">
+                          @if (ref.type === 'color' && ref.options?.length) {
+                            <div class="spec-preview-colors">
+                              @for (opt of (ref.options ?? []).slice(0, 8); track opt.id) {
+                                <span
+                                  class="spec-color-dot"
+                                  [style.background]="opt.colorHex || '#e5e7eb'"
+                                  [title]="opt.label"
+                                ></span>
+                              }
+                              @if ((ref.options?.length ?? 0) > 8) {
+                                <span class="spec-more-badge">+{{ (ref.options?.length ?? 0) - 8 }}</span>
+                              }
+                            </div>
+                          } @else if ((ref.type === 'select' || ref.type === 'multiselect') && ref.options?.length) {
+                            <div class="spec-preview-chips">
+                              @for (opt of (ref.options ?? []).slice(0, 4); track opt.id) {
+                                <span class="spec-chip">{{ opt.label }}</span>
+                              }
+                              @if ((ref.options?.length ?? 0) > 4) {
+                                <span class="spec-chip spec-chip--more">+{{ (ref.options?.length ?? 0) - 4 }}</span>
+                              }
+                            </div>
+                          } @else if (ref.type === 'boolean') {
+                            <span class="spec-preview-hint"><i class="pi pi-check-square"></i> Так / Ні</span>
+                          } @else if (ref.type === 'number' || ref.type === 'decimal') {
+                            <span class="spec-preview-hint">
+                              <i class="pi pi-hashtag"></i>
+                              Число{{ ref.unit ? ' (' + ref.unit + ')' : '' }}
+                            </span>
+                          } @else if (ref.type === 'date') {
+                            <span class="spec-preview-hint"><i class="pi pi-calendar"></i> Дата</span>
+                          } @else if (ref.type === 'string' || ref.type === 'text') {
+                            <span class="spec-preview-hint"><i class="pi pi-align-left"></i> Текст</span>
+                          } @else if (ref.type === 'json') {
+                            <span class="spec-preview-hint"><i class="pi pi-code"></i> JSON</span>
+                          }
+                        </div>
+
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+          </div><!-- /specs-layout -->
+        </div>
+      </p-tabPanel>
+
+      <!-- ══════════════════════════════════════════════════════════
+           TAB 3 — SEO
+      ══════════════════════════════════════════════════════════ -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div class="tab-header-item">
+            <i class="pi pi-globe"></i>
+            <span>SEO</span>
+            @if (formSubmitted() && isTab3Invalid()) {
+              <i class="pi pi-exclamation-triangle tab-error-badge"></i>
+            }
+          </div>
+        </ng-template>
+
+        <div class="tab-content">
+          <div class="form-section">
+            <h4 class="section-title">Мета-теги</h4>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="cat-seo-title">SEO заголовок</label>
+                <input
+                  id="cat-seo-title"
+                  pInputText
+                  formControlName="seoTitle"
+                  placeholder="Заголовок для пошукових систем"
+                />
+                @if (form.get('seoTitle')?.touched && form.get('seoTitle')?.errors?.['maxlength']) {
+                  <small class="error">Не більше 255 символів</small>
+                }
+              </div>
+              <div class="form-field">
+                <label for="cat-seo-kw">Ключові слова</label>
+                <input
+                  id="cat-seo-kw"
+                  pInputText
+                  formControlName="seoKeywords"
+                  placeholder="слово1, слово2, слово3"
+                />
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="cat-seo-desc">SEO опис</label>
+              <textarea
+                id="cat-seo-desc"
+                pInputTextarea
+                formControlName="seoDescription"
+                rows="3"
+                placeholder="Короткий опис сторінки для пошукових систем (до 500 символів)"
+              ></textarea>
+              @if (form.get('seoDescription')?.touched && form.get('seoDescription')?.errors?.['maxlength']) {
+                <small class="error">Не більше 500 символів</small>
+              }
+            </div>
+          </div>
+
+          <p-divider></p-divider>
+
+          <div class="form-section">
+            <h4 class="section-title">Open Graph і канонічний URL</h4>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="cat-canonical">Canonical URL</label>
+                <input
+                  id="cat-canonical"
+                  pInputText
+                  formControlName="canonicalUrl"
+                  placeholder="https://..."
+                />
+              </div>
+              <div class="form-field">
+                <label for="cat-og">OG Image</label>
+                <input
+                  id="cat-og"
+                  pInputText
+                  formControlName="ogImage"
+                  placeholder="https://..."
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </p-tabPanel>
+
+    </p-tabView>
+  </form>
+
+  <!-- ── Footer ── -->
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <p-button
+        label="Скасувати"
+        icon="pi pi-times"
+        [text]="true"
+        severity="secondary"
+        (onClick)="close()"
+      ></p-button>
+      <p-button
+        [label]="mode === 'edit' ? 'Оновити' : 'Створити'"
+        icon="pi pi-check"
+        [loading]="saving()"
+        [disabled]="saving()"
+        (onClick)="onSave()"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>

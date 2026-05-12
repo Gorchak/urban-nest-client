@@ -25,6 +25,9 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
+              "node_modules/primeng/resources/primeng.min.css",
+              "node_modules/primeicons/primeicons.css",
               "src/styles.css"
             ],
             "scripts": []
@@ -84,6 +87,9 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/primeng/resources/themes/lara-light-blue/theme.css",
+              "node_modules/primeng/resources/primeng.min.css",
+              "node_modules/primeicons/primeicons.css",
               "src/styles.css"
             ],
             "scripts": []
@@ -91,5 +97,16 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "f2b4e7d6-b3ac-4281-bd0e-28ad9306145a"
+  }
+}
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": "3f490540-3618-42c2-91bb-c86c5c8e3da9"
   }
 }

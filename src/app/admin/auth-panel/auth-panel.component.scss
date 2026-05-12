@@ -1,0 +1,66 @@
+.auth-panel {
+  padding: 16px;
+  font-family: sans-serif;
+}
+
+.loading {
+  color: #666;
+  font-style: italic;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 12px;
+
+  button {
+    padding: 8px 16px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+
+    &:hover:not(:disabled) {
+      background: #f0f0f0;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.user-info {
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: #f9f9f9;
+
+  p {
+    margin: 8px 0;
+  }
+
+  .success-message {
+    color: #2e7d32;
+    font-weight: 600;
+  }
+
+  button {
+    margin-top: 12px;
+    padding: 8px 16px;
+    cursor: pointer;
+    border: 1px solid #d32f2f;
+    border-radius: 4px;
+    background: #fff;
+    color: #d32f2f;
+
+    &:hover:not(:disabled) {
+      background: #ffebee;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}

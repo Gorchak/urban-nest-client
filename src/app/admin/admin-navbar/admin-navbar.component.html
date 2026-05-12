@@ -1,0 +1,71 @@
+<header class="admin-navbar">
+  <div class="navbar-container">
+    @if (isLoading()) {
+      <div class="loading-skeleton">
+        <div class="skeleton logo-skeleton"></div>
+        <div class="skeleton nav-skeleton"></div>
+        <div class="skeleton user-skeleton"></div>
+      </div>
+    } @else {
+      <a routerLink="/" class="logo">
+        <i class="pi pi-home"></i>
+        <span>Urban Nest</span>
+      </a>
+
+      <p-menubar [model]="navItems" class="desktop-nav"></p-menubar>
+
+      @if (isAuthenticated()) {
+        @if (user(); as currentUser) {
+          <div class="user-panel" (click)="menu.toggle($event)">
+            @if (currentUser.picture) {
+              <img [src]="currentUser.picture" alt="{{ currentUser.name }}" class="user-avatar" />
+            } @else {
+              <i class="pi pi-user user-avatar-icon"></i>
+            }
+            <span class="user-nickname">{{ currentUser.nickname || currentUser.email }}</span>
+            <i class="pi pi-chevron-down user-dropdown-icon"></i>
+          </div>
+        }
+      } @else {
+        <button pButton type="button" label="Увійти" icon="pi pi-sign-in" (click)="login()" class="login-btn"></button>
+      }
+    }
+  </div>
+
+  <button class="mobile-toggle" (click)="toggleMobileMenu()">
+    <i class="pi pi-bars"></i>
+  </button>
+
+  @if (isMobileMenuOpen()) {
+    <div class="mobile-menu-overlay" (click)="toggleMobileMenu()"></div>
+    <div class="mobile-menu">
+      <div class="mobile-menu-header">
+        <a routerLink="/" class="mobile-logo">
+          <i class="pi pi-home"></i>
+          <span>Urban Nest</span>
+        </a>
+      </div>
+      @for (item of navItems; track item.routerLink) {
+        <a [routerLink]="item.routerLink" class="mobile-menu-item" (click)="toggleMobileMenu()">
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+      @if (isAuthenticated()) {
+        <hr />
+        <a routerLink="/admin/settings" class="mobile-menu-item" (click)="toggleMobileMenu()">
+          <i class="pi pi-cog"></i>
+          <span>Налаштування</span>
+        </a>
+        <button class="mobile-menu-item mobile-logout" (click)="logout(); toggleMobileMenu()">
+          <i class="pi pi-sign-out"></i>
+          <span>Вихід</span>
+        </button>
+      } @else {
+        <button pButton type="button" label="Увійти" icon="pi pi-sign-in" (click)="login()" class="mobile-login-btn"></button>
+      }
+    </div>
+  }
+
+  <p-menu #menu [model]="dropdownItems" [popup]="true" class="user-dropdown"></p-menu>
+</header>

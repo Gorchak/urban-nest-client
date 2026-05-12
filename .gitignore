@@ -40,3 +40,8 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# AI assistant / IDE indexing optimization
+.angular
+.git
+build

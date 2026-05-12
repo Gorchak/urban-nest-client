@@ -1,0 +1,129 @@
+<div class="category-references-page">
+  <div class="page-header">
+    <h1>Характеристики</h1>
+    <p-button
+      label="Створити характеристику"
+      icon="pi pi-plus"
+      (onClick)="openNew()"
+    ></p-button>
+  </div>
+
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <p-table
+    [value]="references"
+    [loading]="loading"
+    [paginator]="true"
+    [rows]="10"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Показано {first}-{last} з {totalRecords}"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    responsiveLayout="scroll"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="name">
+          Назва <p-sortIcon field="name"></p-sortIcon>
+        </th>
+        <th>Slug</th>
+        <th pSortableColumn="type">
+          Тип <p-sortIcon field="type"></p-sortIcon>
+        </th>
+        <th class="text-center">Обов'язкове</th>
+        <th class="text-center">Фільтр</th>
+        <th class="text-center">Варіант</th>
+        <th pSortableColumn="isActive">
+          Статус <p-sortIcon field="isActive"></p-sortIcon>
+        </th>
+        <th pSortableColumn="sortOrder">
+          Порядок <p-sortIcon field="sortOrder"></p-sortIcon>
+        </th>
+        <th>Дії</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-ref>
+      <tr>
+        <td>
+          <div class="ref-name-cell">
+            <span class="ref-name">{{ ref.name }}</span>
+            @if (ref.description) {
+              <small class="ref-description">{{ ref.description }}</small>
+            }
+          </div>
+        </td>
+        <td>
+          <code class="ref-slug">{{ ref.slug }}</code>
+        </td>
+        <td>
+          <p-tag
+            [value]="typeLabels[ref.type]"
+            severity="secondary"
+            styleClass="type-tag"
+          ></p-tag>
+        </td>
+        <td class="text-center">
+          @if (ref.isRequired) {
+            <i class="pi pi-check flag-yes"></i>
+          } @else {
+            <i class="pi pi-minus flag-no"></i>
+          }
+        </td>
+        <td class="text-center">
+          @if (ref.isFilterable) {
+            <i class="pi pi-check flag-yes"></i>
+          } @else {
+            <i class="pi pi-minus flag-no"></i>
+          }
+        </td>
+        <td class="text-center">
+          @if (ref.isVariant) {
+            <i class="pi pi-check flag-yes"></i>
+          } @else {
+            <i class="pi pi-minus flag-no"></i>
+          }
+        </td>
+        <td>
+          <span [class]="ref.isActive ? 'status-active' : 'status-inactive'">
+            {{ ref.isActive ? 'Активна' : 'Неактивна' }}
+          </span>
+        </td>
+        <td>{{ ref.sortOrder }}</td>
+        <td>
+          <div class="action-buttons">
+            <p-button
+              icon="pi pi-pencil"
+              [rounded]="true"
+              [outlined]="true"
+              severity="success"
+              (onClick)="openEdit(ref)"
+            ></p-button>
+            <p-button
+              icon="pi pi-trash"
+              [rounded]="true"
+              [outlined]="true"
+              severity="danger"
+              (onClick)="confirmDelete(ref)"
+            ></p-button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="9" class="text-center">
+          Характеристики не знайдено. Натисніть «Створити характеристику», щоб додати першу.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <app-add-edit-reference
+    [(visible)]="showDialog"
+    [mode]="dialogMode"
+    [reference]="selectedReference"
+    (saved)="onReferenceSaved()"
+  ></app-add-edit-reference>
+</div>

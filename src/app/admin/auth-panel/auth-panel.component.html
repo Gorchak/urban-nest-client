@@ -1,0 +1,25 @@
+<div class="auth-panel">
+  @if (isLoading(); as loading) {
+    <div class="loading">Loading...</div>
+  } @else {
+    @if (!isAuthenticated()) {
+      <div class="auth-buttons">
+        <button (click)="login()" [disabled]="isProcessing()">Login</button>
+        <button (click)="register()" [disabled]="isProcessing()">Register</button>
+      </div>
+    } @else {
+      @if (user(); as currentUser) {
+        <div class="user-info">
+          <p class="success-message">Ви успішно увійшли</p>
+          @if (currentUser.name) {
+            <p><strong>Name:</strong> {{ currentUser.name }}</p>
+          }
+          @if (currentUser.email) {
+            <p><strong>Email:</strong> {{ currentUser.email }}</p>
+          }
+          <button (click)="logout()" [disabled]="isProcessing()">Logout</button>
+        </div>
+      }
+    }
+  }
+</div>
