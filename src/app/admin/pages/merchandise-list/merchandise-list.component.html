@@ -1,0 +1,305 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+
+<!-- ─── Page header ─────────────────────────────────────────────────────── -->
+<div class="page-header">
+  <div class="page-title">
+    <i class="pi pi-box"></i>
+    <h1>Товари</h1>
+    <p-badge
+      [value]="pagination().total.toString()"
+      severity="secondary"
+      styleClass="total-badge"
+    />
+  </div>
+  <p-button
+    label="Новий товар"
+    icon="pi pi-plus"
+    (onClick)="openNew()"
+  />
+</div>
+
+<!-- ─── Category tabs ──────────────────────────────────────────────────── -->
+<div class="tabs-section">
+  @if (loadingCategories()) {
+    <div class="tabs-skeleton">
+      @for (i of [1,2,3,4,5]; track i) {
+        <p-skeleton height="38px" width="100px" borderRadius="6px" />
+      }
+    </div>
+  } @else {
+    <div class="category-tabs">
+      <button
+        class="category-tab"
+        [class.active]="activeTabIndex() === 0"
+        (click)="onTabChange(0)"
+      >
+        Весь товар
+      </button>
+      @for (cat of tabCategories(); track cat._id; let i = $index) {
+        <button
+          class="category-tab"
+          [class.active]="activeTabIndex() === i + 1"
+          (click)="onTabChange(i + 1)"
+        >
+          {{ cat.name }}
+        </button>
+      }
+    </div>
+  }
+
+  <!-- Subcategory dropdown (shown when a root category has children) -->
+  @if (subcategories().length > 0) {
+    <div class="subcategory-row">
+      <p-dropdown
+        [options]="subcategoryOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="selectedSubcategoryId() ?? ''"
+        (ngModelChange)="onSubcategoryChange($event)"
+        placeholder="Всі підкатегорії"
+        styleClass="subcategory-dropdown"
+      />
+    </div>
+  }
+</div>
+
+<!-- ─── Filters bar ────────────────────────────────────────────────────── -->
+<div class="filters-bar">
+  <!-- Search -->
+  <p-iconField iconPosition="left" styleClass="search-field">
+    <p-inputIcon styleClass="pi pi-search" />
+    <input
+      pInputText
+      [ngModel]="searchQuery()"
+      (ngModelChange)="onSearchChange($event)"
+      placeholder="Пошук по SKU, назві..."
+      class="search-input"
+    />
+  </p-iconField>
+
+  <!-- Active filter -->
+  <p-dropdown
+    [options]="activeFilterOptions"
+    optionLabel="label"
+    optionValue="value"
+    [ngModel]="filterIsActive()"
+    (ngModelChange)="onActiveFilterChange($event)"
+    placeholder="Статус"
+    styleClass="filter-dropdown"
+  />
+
+  <!-- Stock filter -->
+  <p-dropdown
+    [options]="stockFilterOptions"
+    optionLabel="label"
+    optionValue="value"
+    [ngModel]="selectedStockFilter()"
+    (ngModelChange)="onStockFilterChange($event)"
+    placeholder="Наявність"
+    styleClass="filter-dropdown"
+  />
+
+  <!-- Price range -->
+  <div class="price-range">
+    <p-inputNumber
+      [ngModel]="filterMinPrice()"
+      (ngModelChange)="onMinPriceChange($event)"
+      placeholder="Ціна від"
+      [min]="0"
+      styleClass="price-input"
+    />
+    <span class="price-sep">—</span>
+    <p-inputNumber
+      [ngModel]="filterMaxPrice()"
+      (ngModelChange)="onMaxPriceChange($event)"
+      placeholder="Ціна до"
+      [min]="0"
+      styleClass="price-input"
+    />
+  </div>
+
+  <!-- Sort -->
+  <p-dropdown
+    [options]="sortOptions"
+    optionLabel="label"
+    optionValue="value"
+    [ngModel]="selectedSort()"
+    (ngModelChange)="onSortChange($event)"
+    styleClass="filter-dropdown"
+  />
+
+  <!-- Clear filters -->
+  <p-button
+    icon="pi pi-filter-slash"
+    severity="secondary"
+    [text]="true"
+    pTooltip="Скинути фільтри"
+    (onClick)="clearFilters()"
+  />
+</div>
+
+<!-- ─── Merchandise table ──────────────────────────────────────────────── -->
+<div class="table-wrapper">
+  <p-table
+    [value]="merchandise()"
+    [loading]="loading()"
+    [lazy]="true"
+    [totalRecords]="pagination().total"
+    [rows]="pagination().limit"
+    [first]="(pagination().page - 1) * pagination().limit"
+    (onPage)="onPageChange($event)"
+    [paginator]="true"
+    [rowsPerPageOptions]="[10, 20, 50]"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="{first} – {last} з {totalRecords}"
+    responsiveLayout="scroll"
+    styleClass="merchandise-table"
+    [rowHover]="true"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="col-image">Фото</th>
+        <th class="col-sku">SKU</th>
+        <th class="col-name">Назва</th>
+        <th class="col-category">Категорія</th>
+        <th class="col-stock">Склад</th>
+        <th class="col-price">Закупочна</th>
+        <th class="col-price">Продаж</th>
+        <th class="col-active">Активний</th>
+        <th class="col-date">Додано</th>
+        <th class="col-actions">Дії</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-item>
+      <tr class="merchandise-row">
+
+        <!-- Image -->
+        <td class="col-image">
+          @if (getFirstImage(item)) {
+            <img
+              [src]="getFirstImage(item)"
+              [alt]="item.name"
+              class="thumb"
+              loading="lazy"
+            />
+          } @else {
+            <div class="thumb thumb--placeholder">
+              <i class="pi pi-image"></i>
+            </div>
+          }
+        </td>
+
+        <!-- SKU -->
+        <td class="col-sku">
+          <span class="sku-badge">{{ item.sku }}</span>
+        </td>
+
+        <!-- Name -->
+        <td class="col-name">
+          <div class="item-name">{{ item.name }}</div>
+          @if (item.shortDescription) {
+            <div class="item-short-desc">{{ item.shortDescription }}</div>
+          }
+        </td>
+
+        <!-- Category -->
+        <td class="col-category">
+          <span class="category-label">{{ getCategoryName(item.categoryId) }}</span>
+        </td>
+
+        <!-- Stock -->
+        <td class="col-stock">
+          <p-tag
+            [value]="getStockLabel(item.stockQuantity)"
+            [severity]="getStockSeverity(item.stockQuantity)"
+          />
+          <div class="stock-qty">{{ item.stockQuantity }} шт.</div>
+        </td>
+
+        <!-- Purchase price -->
+        <td class="col-price">
+          {{ formatPrice(item.purchasePrice, item.currency) }}
+        </td>
+
+        <!-- Sale price -->
+        <td class="col-price sale-price">
+          {{ formatPrice(item.salePrice, item.currency) }}
+        </td>
+
+        <!-- Active -->
+        <td class="col-active">
+          <p-tag
+            [value]="item.isActive ? 'Так' : 'Ні'"
+            [severity]="item.isActive ? 'success' : 'danger'"
+          />
+        </td>
+
+        <!-- Created at -->
+        <td class="col-date">
+          {{ item.createdAt | date: 'dd.MM.yyyy' }}
+        </td>
+
+        <!-- Actions -->
+        <td class="col-actions">
+          <div class="action-buttons">
+            <p-button
+              icon="pi pi-pencil"
+              severity="secondary"
+              [text]="true"
+              size="small"
+              pTooltip="Редагувати"
+              (onClick)="openEdit(item)"
+            />
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              [text]="true"
+              size="small"
+              pTooltip="Видалити"
+              (onClick)="confirmDelete(item)"
+            />
+          </div>
+        </td>
+
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="10">
+          <div class="empty-state">
+            <i class="pi pi-inbox"></i>
+            <p>Товарів не знайдено</p>
+            <p-button
+              label="Додати перший товар"
+              icon="pi pi-plus"
+              severity="secondary"
+              [outlined]="true"
+              (onClick)="openNew()"
+            />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="loadingbody">
+      <tr *ngFor="let i of [1,2,3,4,5]">
+        <td *ngFor="let j of [1,2,3,4,5,6,7,8,9,10]">
+          <p-skeleton height="20px" />
+        </td>
+      </tr>
+    </ng-template>
+
+  </p-table>
+</div>
+
+<!-- ─── Add / Edit dialog ─────────────────────────────────────────────── -->
+<app-add-edit-merchandise
+  [visible]="showDialog()"
+  (visibleChange)="showDialog.set($event)"
+  [mode]="dialogMode()"
+  [merchandise]="selectedMerchandise()"
+  (saved)="onMerchandiseSaved()"
+/>

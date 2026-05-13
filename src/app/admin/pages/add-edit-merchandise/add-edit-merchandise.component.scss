@@ -1,0 +1,211 @@
+:host {
+  display: contents;
+}
+
+// ── Dialog overrides ──────────────────────────────────────────────────────────
+::ng-deep .merchandise-dialog {
+  .p-dialog-content {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .p-tabview {
+    .p-tabview-nav {
+      padding: 0 1.5rem;
+      background: var(--surface-50, #fafafa);
+      border-bottom: 1px solid var(--surface-200, #e5e7eb);
+    }
+
+    .p-tabview-panels {
+      padding: 1.5rem;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+  }
+}
+
+// ── Tab error indicator ───────────────────────────────────────────────────────
+.tab-error-icon {
+  color: var(--red-500);
+  font-size: 0.75rem;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+// ── Form grid ─────────────────────────────────────────────────────────────────
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 1.5rem;
+  align-items: start;
+
+  ::ng-deep .p-divider {
+    &.col-span-2 {
+      grid-column: span 2;
+      margin: 0.25rem 0;
+    }
+  }
+}
+
+// ── Field ─────────────────────────────────────────────────────────────────────
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  &--full {
+    grid-column: span 2;
+  }
+
+  &--inline {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.field-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-color-secondary);
+
+  &.required::after {
+    content: ' *';
+    color: var(--red-500);
+  }
+}
+
+.field-error {
+  color: var(--red-500);
+  font-size: 0.75rem;
+}
+
+.field-helper {
+  color: var(--text-color-secondary);
+  font-size: 0.75rem;
+}
+
+// ── Images ────────────────────────────────────────────────────────────────────
+.images-section {
+  gap: 0.75rem;
+}
+
+.image-url-input {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+
+  input {
+    flex: 1;
+  }
+}
+
+.image-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.image-preview-item {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--surface-200, #e5e7eb);
+
+  .preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .remove-image-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.55);
+    border: none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    font-size: 0.65rem;
+    transition: background 0.15s;
+
+    &:hover {
+      background: var(--red-500);
+    }
+  }
+}
+
+// ── Specs section ─────────────────────────────────────────────────────────────
+.specs-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 3rem 2rem;
+  color: var(--text-color-secondary);
+  text-align: center;
+
+  i {
+    font-size: 2rem;
+    opacity: 0.4;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+.specs-skeleton {
+  padding: 0.5rem 0;
+}
+
+.specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 1.5rem;
+  align-items: start;
+}
+
+.spec-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.spec-unit {
+  font-weight: 400;
+  color: var(--text-color-secondary);
+  font-size: 0.8rem;
+}
+
+// ── Dialog footer ─────────────────────────────────────────────────────────────
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--surface-200, #e5e7eb);
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 640px) {
+  .form-grid,
+  .specs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .field--full {
+    grid-column: span 1;
+  }
+}

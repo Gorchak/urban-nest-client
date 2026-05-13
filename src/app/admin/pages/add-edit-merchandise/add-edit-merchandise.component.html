@@ -1,0 +1,619 @@
+<p-toast position="top-right" />
+
+<p-dialog
+  [header]="headerTitle"
+  [(visible)]="visible"
+  [modal]="true"
+  [closable]="true"
+  [resizable]="false"
+  styleClass="merchandise-dialog"
+  [style]="{ width: '860px', maxWidth: '96vw' }"
+  (onHide)="close()"
+  [appendTo]="'body'"
+>
+  <form [formGroup]="form" (ngSubmit)="onSave()" novalidate>
+    <p-tabView
+      [activeIndex]="activeTabIndex()"
+      (activeIndexChange)="activeTabIndex.set($any($event))"
+    >
+      <!-- ═══════════════════════════════════════════════════════
+           TAB 1 — Основна інформація
+      ══════════════════════════════════════════════════════════ -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <span>
+            Основна інформація
+            @if (formSubmitted() && isTab1Invalid()) {
+              <i class="pi pi-exclamation-circle tab-error-icon"></i>
+            }
+          </span>
+        </ng-template>
+
+        <div class="form-grid">
+          <!-- SKU -->
+          <div class="field">
+            <label for="sku" class="field-label required">SKU</label>
+            <input
+              pInputText
+              id="sku"
+              formControlName="sku"
+              placeholder="UN-001"
+              class="w-full"
+              [class.ng-invalid]="
+                form.get('sku')?.invalid &&
+                (form.get('sku')?.touched || formSubmitted())
+              "
+            />
+            @if (
+              form.get("sku")?.invalid &&
+              (form.get("sku")?.touched || formSubmitted())
+            ) {
+              <small class="field-error">SKU є обов'язковим</small>
+            }
+          </div>
+
+          <!-- Name -->
+          <div class="field">
+            <label for="name" class="field-label required">Назва</label>
+            <input
+              pInputText
+              id="name"
+              formControlName="name"
+              placeholder="Назва товару"
+              class="w-full"
+              (input)="onNameChange($any($event.target).value)"
+              [class.ng-invalid]="
+                form.get('name')?.invalid &&
+                (form.get('name')?.touched || formSubmitted())
+              "
+            />
+            @if (
+              form.get("name")?.invalid &&
+              (form.get("name")?.touched || formSubmitted())
+            ) {
+              <small class="field-error">Назва є обов'язковою</small>
+            }
+          </div>
+
+          <!-- Slug -->
+          <div class="field">
+            <label for="slug" class="field-label required">Slug</label>
+            <input
+              pInputText
+              id="slug"
+              formControlName="slug"
+              placeholder="nazva-tovaru"
+              class="w-full"
+              [class.ng-invalid]="
+                form.get('slug')?.invalid &&
+                (form.get('slug')?.touched || formSubmitted())
+              "
+            />
+            @if (
+              form.get("slug")?.invalid &&
+              (form.get("slug")?.touched || formSubmitted())
+            ) {
+              <small class="field-error">Slug є обов'язковим</small>
+            }
+          </div>
+
+          <!-- Category -->
+          <div class="field">
+            <label for="categoryId" class="field-label required"
+              >Категорія</label
+            >
+            @if (loadingCategories()) {
+              <p-skeleton height="38px" />
+            } @else {
+              <p-dropdown
+                id="categoryId"
+                formControlName="categoryId"
+                [options]="categories()"
+                optionLabel="name"
+                optionValue="_id"
+                placeholder="Оберіть категорію"
+                [filter]="true"
+                filterBy="name"
+                styleClass="w-full"
+                [class.ng-invalid]="
+                  form.get('categoryId')?.invalid &&
+                  (form.get('categoryId')?.touched || formSubmitted())
+                "
+                (onChange)="onCategoryChange($event.value)"
+              />
+            }
+            @if (
+              form.get("categoryId")?.invalid &&
+              (form.get("categoryId")?.touched || formSubmitted())
+            ) {
+              <small class="field-error">Категорія є обов'язковою</small>
+            }
+          </div>
+
+          <!-- Short description -->
+          <div class="field field--full">
+            <label for="shortDescription" class="field-label"
+              >Короткий опис</label
+            >
+            <textarea
+              pInputTextarea
+              id="shortDescription"
+              formControlName="shortDescription"
+              rows="2"
+              placeholder="Короткий опис товару"
+              class="w-full"
+            ></textarea>
+          </div>
+
+          <!-- Description -->
+          <div class="field field--full">
+            <label for="description" class="field-label">Опис</label>
+            <textarea
+              pInputTextarea
+              id="description"
+              formControlName="description"
+              rows="5"
+              placeholder="Детальний опис товару"
+              class="w-full"
+            ></textarea>
+          </div>
+
+          <p-divider styleClass="col-span-2" />
+
+          <!-- Pricing row -->
+          <div class="field">
+            <label for="purchasePrice" class="field-label required"
+              >Закупочна ціна</label
+            >
+            <p-inputNumber
+              id="purchasePrice"
+              formControlName="purchasePrice"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+              [min]="0"
+              mode="decimal"
+              styleClass="w-full"
+            />
+          </div>
+
+          <div class="field">
+            <label for="salePrice" class="field-label required"
+              >Ціна продажу</label
+            >
+            <p-inputNumber
+              id="salePrice"
+              formControlName="salePrice"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+              [min]="0"
+              mode="decimal"
+              styleClass="w-full"
+            />
+          </div>
+
+          <div class="field">
+            <label for="retailPrice" class="field-label required"
+              >Роздрібна ціна</label
+            >
+            <p-inputNumber
+              id="retailPrice"
+              formControlName="retailPrice"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+              [min]="0"
+              mode="decimal"
+              styleClass="w-full"
+            />
+          </div>
+
+          <div class="field">
+            <label for="currency" class="field-label">Валюта</label>
+            <p-dropdown
+              id="currency"
+              formControlName="currency"
+              [options]="currencyOptions"
+              optionLabel="label"
+              optionValue="value"
+              styleClass="w-full"
+            />
+          </div>
+
+          <!-- Stock -->
+          <div class="field">
+            <label for="stockQuantity" class="field-label required"
+              >Кількість на складі</label
+            >
+            <p-inputNumber
+              id="stockQuantity"
+              formControlName="stockQuantity"
+              [min]="0"
+              [showButtons]="true"
+              styleClass="w-full"
+            />
+          </div>
+
+          <p-divider styleClass="col-span-2" />
+
+          <!-- Flags -->
+          <div class="field field--inline">
+            <p-checkbox
+              formControlName="isActive"
+              binary="true"
+              inputId="isActive"
+            />
+            <label for="isActive" class="ml-2">Активний</label>
+          </div>
+
+          <div class="field field--inline">
+            <p-checkbox
+              formControlName="isVisible"
+              binary="true"
+              inputId="isVisible"
+            />
+            <label for="isVisible" class="ml-2">Видимий</label>
+          </div>
+
+          <!-- Ownership type -->
+          <div class="field field--full">
+            <label for="ownershipType" class="field-label required">Тип власності</label>
+            <p-dropdown
+              id="ownershipType"
+              formControlName="ownershipType"
+              [options]="ownershipTypeOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Оберіть тип власності"
+              styleClass="w-full"
+              [class.ng-invalid]="
+                form.get('ownershipType')?.invalid &&
+                (form.get('ownershipType')?.touched || formSubmitted())
+              "
+            >
+              <ng-template let-item pTemplate="item">
+                <div>
+                  <div>{{ item.label }}</div>
+                  <small class="text-color-secondary">{{ item.description }}</small>
+                </div>
+              </ng-template>
+            </p-dropdown>
+            @if (
+              form.get('ownershipType')?.invalid &&
+              (form.get('ownershipType')?.touched || formSubmitted())
+            ) {
+              <small class="field-error">Тип власності є обов'язковим</small>
+            }
+          </div>
+
+          <p-divider styleClass="col-span-2" />
+
+          <!-- Images -->
+          <div class="field field--full images-section">
+            <label class="field-label">Зображення</label>
+
+            <div class="image-url-input">
+              <input
+                pInputText
+                [ngModel]="newImageUrl()"
+                (ngModelChange)="newImageUrl.set($event)"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="https://example.com/image.jpg"
+                class="w-full"
+              />
+              <p-button
+                icon="pi pi-plus"
+                label="Додати URL"
+                severity="secondary"
+                size="small"
+                (onClick)="addImageUrl()"
+              />
+            </div>
+
+            <p-fileUpload
+              mode="basic"
+              chooseLabel="Завантажити файл"
+              accept="image/*"
+              [maxFileSize]="5000000"
+              (onSelect)="onFileUpload($event)"
+              styleClass="mt-2"
+            />
+
+            @if (imageUrls().length > 0) {
+              <div class="image-previews">
+                @for (url of imageUrls(); track url; let i = $index) {
+                  <div class="image-preview-item">
+                    <img
+                      [src]="url"
+                      [alt]="'Image ' + (i + 1)"
+                      class="preview-img"
+                    />
+                    <button
+                      type="button"
+                      class="remove-image-btn"
+                      (click)="removeImage(i)"
+                    >
+                      <i class="pi pi-times"></i>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </p-tabPanel>
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB 2 — Характеристики
+      ══════════════════════════════════════════════════════════ -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <span>
+            Характеристики
+            @if (formSubmitted() && isTab2Invalid()) {
+              <i class="pi pi-exclamation-circle tab-error-icon"></i>
+            }
+          </span>
+        </ng-template>
+
+        @if (!form.get("categoryId")?.value) {
+          <div class="specs-empty-state">
+            <i class="pi pi-info-circle"></i>
+            <p>
+              Оберіть категорію на вкладці "Основна інформація", щоб побачити
+              характеристики.
+            </p>
+          </div>
+        } @else if (loadingSpecs()) {
+          <div class="specs-skeleton">
+            @for (i of [1, 2, 3]; track i) {
+              <p-skeleton height="56px" styleClass="mb-3" />
+            }
+          </div>
+        } @else if (specFormEntries().length === 0) {
+          <div class="specs-empty-state">
+            <i class="pi pi-list"></i>
+            <p>Для цієї категорії характеристики не задані.</p>
+          </div>
+        } @else {
+          <div class="specs-grid" formArrayName="specifications">
+            @for (
+              entry of specFormEntries();
+              track entry.catSpec.referenceId;
+              let i = $index
+            ) {
+              <div class="spec-field" [formGroupName]="i">
+                <label
+                  [for]="'spec-' + entry.catSpec.referenceId"
+                  class="field-label"
+                  [class.required]="entry.catSpec.isRequired"
+                >
+                  {{ entry.catSpec.name || entry.catSpec.slug }}
+                  @if (entry.catSpec.unit) {
+                    <span class="spec-unit">({{ entry.catSpec.unit }})</span>
+                  }
+                </label>
+
+                <!-- string / text → input / textarea -->
+                @if (entry.catSpec.type === "string") {
+                  <input
+                    pInputText
+                    [id]="'spec-' + entry.catSpec.referenceId"
+                    formControlName="value"
+                    [placeholder]="entry.catSpec.placeholder || ''"
+                    class="w-full"
+                  />
+                }
+
+                @if (entry.catSpec.type === "text") {
+                  <textarea
+                    pInputTextarea
+                    [id]="'spec-' + entry.catSpec.referenceId"
+                    formControlName="value"
+                    rows="3"
+                    [placeholder]="entry.catSpec.placeholder || ''"
+                    class="w-full"
+                  ></textarea>
+                }
+
+                <!-- number / decimal → inputNumber -->
+                @if (entry.catSpec.type === "number") {
+                  <p-inputNumber
+                    [id]="'spec-' + entry.catSpec.referenceId"
+                    formControlName="value"
+                    [min]="entry.catSpec.min ?? undefined"
+                    [max]="entry.catSpec.max ?? undefined"
+                    [placeholder]="entry.catSpec.placeholder || ''"
+                    styleClass="w-full"
+                  />
+                }
+
+                @if (entry.catSpec.type === "decimal") {
+                  <p-inputNumber
+                    [id]="'spec-' + entry.catSpec.referenceId"
+                    formControlName="value"
+                    [minFractionDigits]="2"
+                    [maxFractionDigits]="4"
+                    [min]="entry.catSpec.min ?? undefined"
+                    [max]="entry.catSpec.max ?? undefined"
+                    [placeholder]="entry.catSpec.placeholder || ''"
+                    styleClass="w-full"
+                  />
+                }
+
+                <!-- boolean → checkbox -->
+                @if (entry.catSpec.type === "boolean") {
+                  <div class="flex align-items-center gap-2">
+                    <p-checkbox
+                      [id]="'spec-' + entry.catSpec.referenceId"
+                      formControlName="value"
+                      binary="true"
+                    />
+                    <span class="text-sm text-color-secondary">
+                      {{
+                        entry.catSpec.helperText ||
+                          entry.catSpec.name || entry.catSpec.slug
+                      }}
+                    </span>
+                  </div>
+                }
+
+                <!-- select → dropdown -->
+                @if (
+                  entry.catSpec.type === "select" ||
+                  entry.catSpec.type === "color"
+                ) {
+                  <p-dropdown
+                    [id]="'spec-' + entry.catSpec.referenceId"
+                    formControlName="value"
+                    appendTo="body"
+                    [options]="getSelectOptions(entry.catSpec)"
+                    optionLabel="label"
+                    optionValue="value"
+                    [placeholder]="entry.catSpec.placeholder || 'Оберіть...'"
+                    [filter]="true"
+                    styleClass="w-full"
+                  />
+                }
+
+                <!-- multiselect -->
+                @if (entry.catSpec.type === "multiselect") {
+                  <p-multiSelect
+                    appendTo="body"
+                    [id]="'spec-' + entry.catSpec.referenceId"
+                    formControlName="value"
+                    [options]="getSelectOptions(entry.catSpec)"
+                    optionLabel="label"
+                    optionValue="value"
+                    [placeholder]="entry.catSpec.placeholder || 'Оберіть...'"
+                    styleClass="w-full"
+                  />
+                }
+
+                <!-- date → calendar -->
+                @if (entry.catSpec.type === "date") {
+                  <p-calendar
+                    [id]="'spec-' + entry.catSpec.referenceId"
+                    formControlName="value"
+                    dateFormat="yy-mm-dd"
+                    [placeholder]="entry.catSpec.placeholder || 'YYYY-MM-DD'"
+                    styleClass="w-full"
+                  />
+                }
+
+                @if (
+                  entry.catSpec.helperText && entry.catSpec.type !== "boolean"
+                ) {
+                  <small class="field-helper">{{
+                    entry.catSpec.helperText
+                  }}</small>
+                }
+
+                @if (
+                  getSpecControl(entry).invalid &&
+                  (getSpecControl(entry).touched || formSubmitted())
+                ) {
+                  <small class="field-error">
+                    {{ entry.catSpec.name || entry.catSpec.slug }} є
+                    обов'язковим
+                  </small>
+                }
+              </div>
+            }
+          </div>
+        }
+      </p-tabPanel>
+
+      <!-- ═══════════════════════════════════════════════════════
+           TAB 3 — SEO
+      ══════════════════════════════════════════════════════════ -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <span>
+            SEO
+            @if (formSubmitted() && isTab3Invalid()) {
+              <i class="pi pi-exclamation-circle tab-error-icon"></i>
+            }
+          </span>
+        </ng-template>
+
+        <div class="form-grid">
+          <div class="field field--full">
+            <label for="seoTitle" class="field-label">SEO Заголовок</label>
+            <input
+              pInputText
+              id="seoTitle"
+              formControlName="seoTitle"
+              placeholder="Заголовок для пошукових систем"
+              class="w-full"
+            />
+          </div>
+
+          <div class="field field--full">
+            <label for="seoDescription" class="field-label">SEO Опис</label>
+            <textarea
+              pInputTextarea
+              id="seoDescription"
+              formControlName="seoDescription"
+              rows="3"
+              placeholder="Опис для пошукових систем"
+              class="w-full"
+            ></textarea>
+          </div>
+
+          <div class="field field--full">
+            <label for="seoKeywords" class="field-label"
+              >SEO Ключові слова</label
+            >
+            <input
+              pInputText
+              id="seoKeywords"
+              formControlName="seoKeywords"
+              placeholder="слово1, слово2, слово3"
+              class="w-full"
+            />
+            <small class="field-helper">Розділіть ключові слова комами</small>
+          </div>
+
+          <div class="field field--full">
+            <label for="canonicalUrl" class="field-label">Canonical URL</label>
+            <input
+              pInputText
+              id="canonicalUrl"
+              formControlName="canonicalUrl"
+              placeholder="https://example.com/product"
+              class="w-full"
+            />
+          </div>
+
+          <div class="field field--full">
+            <label for="ogImage" class="field-label">OG Image URL</label>
+            <input
+              pInputText
+              id="ogImage"
+              formControlName="ogImage"
+              placeholder="https://example.com/og-image.jpg"
+              class="w-full"
+            />
+          </div>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <p-button
+        label="Скасувати"
+        icon="pi pi-times"
+        severity="secondary"
+        [text]="true"
+        (onClick)="close()"
+      />
+      <p-button
+        [label]="mode === 'edit' ? 'Зберегти зміни' : 'Створити товар'"
+        icon="pi pi-check"
+        [loading]="saving()"
+        (onClick)="onSave()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>
