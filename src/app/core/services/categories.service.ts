@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { Category } from '../models/category.model';
+import { environment } from '../../../environments/environment';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -20,7 +21,7 @@ interface ApiResponse<T> {
 })
 export class CategoriesService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3000/api/categories';
+  private readonly apiUrl = `${environment.apiUrl}/categories`;
 
   categories = signal<Category[]>([]);
   loading = signal<boolean>(false);

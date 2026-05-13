@@ -41,6 +41,10 @@ testem.log
 .DS_Store
 Thumbs.db
 
+# Environment files
+.env
+.env.*
+
 # AI assistant / IDE indexing optimization
 .angular
 .git

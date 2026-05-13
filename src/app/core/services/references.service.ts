@@ -6,6 +6,7 @@ import {
   CreateReferenceDto,
   UpdateReferenceDto,
 } from '../models/reference.model';
+import { environment } from '../../../environments/environment';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -24,7 +25,7 @@ interface ApiResponse<T> {
 })
 export class ReferencesService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3000/api/references';
+  private readonly apiUrl = `${environment.apiUrl}/references`;
 
   references = signal<ReferenceDefinition[]>([]);
   loading = signal<boolean>(false);

@@ -8,6 +8,7 @@ import {
   MerchandiseListFilter,
   MerchandiseListResponse,
 } from '../models/merchandise.model';
+import { environment } from '../../../environments/environment';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -26,7 +27,7 @@ interface ApiResponse<T> {
 })
 export class MerchandiseService {
   private http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3000/api/merchandise';
+  private readonly apiUrl = `${environment.apiUrl}/merchandise`;
 
   merchandise = signal<Merchandise[]>([]);
   loading = signal<boolean>(false);
