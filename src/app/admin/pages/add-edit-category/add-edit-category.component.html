@@ -150,26 +150,50 @@
           <!-- ── Images ── -->
           <div class="form-section">
             <h4 class="section-title">Зображення</h4>
+
             <div class="form-row">
+              <!-- Основне зображення -->
               <div class="form-field">
-                <label for="cat-image">Основне зображення</label>
-                <input id="cat-image" pInputText formControlName="image" placeholder="https://..." />
+                <app-single-image-picker
+                  formControlName="image"
+                  label="Основне зображення"
+                />
               </div>
+
+              <!-- Іконка -->
               <div class="form-field">
-                <label for="cat-icon">Іконка</label>
-                <input id="cat-icon" pInputText formControlName="icon" placeholder="https://..." />
+                <app-single-image-picker
+                  formControlName="icon"
+                  label="Іконка"
+                />
               </div>
             </div>
+
             <div class="form-row">
+              <!-- Обкладинка -->
               <div class="form-field">
-                <label for="cat-cover">Обкладинка</label>
-                <input id="cat-cover" pInputText formControlName="coverImage" placeholder="https://..." />
+                <app-single-image-picker
+                  formControlName="coverImage"
+                  label="Обкладинка"
+                />
               </div>
+
+              <!-- Банер -->
               <div class="form-field">
-                <label for="cat-banner">Банер</label>
-                <input id="cat-banner" pInputText formControlName="bannerImage" placeholder="https://..." />
+                <app-single-image-picker
+                  formControlName="bannerImage"
+                  label="Банер"
+                />
               </div>
             </div>
+          </div>
+
+          <p-divider></p-divider>
+
+          <!-- ── Gallery (multiple images) ── -->
+          <div class="form-section">
+            <h4 class="section-title">Галерея</h4>
+            <app-image-upload formControlName="images" />
           </div>
         </div>
       </p-tabPanel>
@@ -565,11 +589,18 @@
   <!-- ── Footer ── -->
   <ng-template pTemplate="footer">
     <div class="dialog-footer">
+      @if (uploadStatus()) {
+        <span class="dialog-footer__upload-status">
+          <i class="pi pi-spin pi-spinner"></i>
+          {{ uploadStatus() }}
+        </span>
+      }
       <p-button
         label="Скасувати"
         icon="pi pi-times"
         [text]="true"
         severity="secondary"
+        [disabled]="saving()"
         (onClick)="close()"
       ></p-button>
       <p-button

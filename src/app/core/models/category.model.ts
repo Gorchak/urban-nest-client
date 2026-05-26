@@ -62,6 +62,7 @@ export interface Category {
   coverImage: string | null;
   bannerImage: string | null;
   icon: string | null;
+  images: string[];
 }
 
 export interface CategoryFormData {
@@ -84,4 +85,5 @@ export interface CategoryFormData {
   coverImage: string;
   bannerImage: string;
   icon: string;
+  images: string[];
 }

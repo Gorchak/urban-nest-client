@@ -33,6 +33,7 @@ import { MerchandiseService } from '../../../core/services/merchandise.service';
 import { Category } from '../../../core/models/category.model';
 import { Merchandise, MerchandiseListFilter, MerchandisePagination } from '../../../core/models/merchandise.model';
 import { AddEditMerchandiseComponent } from '../add-edit-merchandise/add-edit-merchandise.component';
+import { MerchandiseDetailsComponent } from '../merchandise-details/merchandise-details.component';
 
 interface SubcategoryOption {
   label: string;
@@ -65,6 +66,7 @@ interface SubcategoryOption {
     IconFieldModule,
     InputIconModule,
     AddEditMerchandiseComponent,
+    MerchandiseDetailsComponent,
   ],
   templateUrl: './merchandise-list.component.html',
   styleUrls: ['./merchandise-list.component.scss'],
@@ -117,10 +119,14 @@ export class MerchandiseListComponent implements OnInit {
   protected sortBy = signal<string>('createdAt');
   protected sortOrder = signal<'asc' | 'desc'>('desc');
 
-  // ── Dialog ────────────────────────────────────────────────────────────────
+  // ── Add/Edit dialog ───────────────────────────────────────────────────────
   protected showDialog = signal(false);
   protected dialogMode = signal<'new' | 'edit'>('new');
   protected selectedMerchandise = signal<Merchandise | null>(null);
+
+  // ── Details dialog ────────────────────────────────────────────────────────
+  protected showDetailsDialog = signal(false);
+  protected detailsMerchandiseId = signal<string | null>(null);
 
   readonly sortOptions = [
     { label: 'Дата (нові)', value: 'createdAt_desc' },
@@ -311,6 +317,11 @@ export class MerchandiseListComponent implements OnInit {
   }
 
   // ── CRUD ──────────────────────────────────────────────────────────────────
+
+  protected openMerchandiseDetails(id: string): void {
+    this.detailsMerchandiseId.set(id);
+    this.showDetailsDialog.set(true);
+  }
 
   protected openNew(): void {
     this.dialogMode.set('new');

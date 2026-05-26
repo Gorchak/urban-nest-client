@@ -8,8 +8,8 @@
       </div>
     } @else {
       <a routerLink="/" class="logo">
-        <i class="pi pi-home"></i>
-        <span>Urban Nest</span>
+        <img src="/assets/logo.png" alt="Ulia" class="logo-icon" />
+        <img src="/assets/ulia_title.svg.svg" alt="Ulia" class="logo-title" />
       </a>
 
       <p-menubar [model]="navItems" class="desktop-nav"></p-menubar>
@@ -41,8 +41,8 @@
     <div class="mobile-menu">
       <div class="mobile-menu-header">
         <a routerLink="/" class="mobile-logo">
-          <i class="pi pi-home"></i>
-          <span>Urban Nest</span>
+          <img src="/assets/logo.svg.svg" alt="Urban Nest" class="logo-icon" />
+          <img src="/assets/ulia_title.svg.svg" alt="Urban Nest" class="logo-title" />
         </a>
       </div>
       @for (item of navItems; track item.routerLink) {

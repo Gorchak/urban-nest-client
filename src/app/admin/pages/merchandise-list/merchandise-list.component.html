@@ -245,11 +245,17 @@
         <td class="col-actions">
           <div class="action-buttons">
             <p-button
+              icon="pi pi-eye"
+              severity="secondary"
+              [text]="true"
+              size="small"
+              (onClick)="openMerchandiseDetails(item._id)"
+            />
+            <p-button
               icon="pi pi-pencil"
               severity="secondary"
               [text]="true"
               size="small"
-              pTooltip="Редагувати"
               (onClick)="openEdit(item)"
             />
             <p-button
@@ -257,7 +263,6 @@
               severity="danger"
               [text]="true"
               size="small"
-              pTooltip="Видалити"
               (onClick)="confirmDelete(item)"
             />
           </div>
@@ -302,4 +307,11 @@
   [mode]="dialogMode()"
   [merchandise]="selectedMerchandise()"
   (saved)="onMerchandiseSaved()"
+/>
+
+<!-- ─── Details (read-only) dialog ────────────────────────────────────── -->
+<app-merchandise-details
+  [visible]="showDetailsDialog()"
+  (visibleChange)="showDetailsDialog.set($event)"
+  [merchandiseId]="detailsMerchandiseId()"
 />

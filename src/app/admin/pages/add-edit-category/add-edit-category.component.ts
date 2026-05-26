@@ -20,6 +20,8 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
+
+
 import { TabViewModule } from 'primeng/tabview';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -34,14 +36,25 @@ import { ToastModule } from 'primeng/toast';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TooltipModule } from 'primeng/tooltip';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService } from 'primeng/api';
+
 import { Category, CategorySpecification } from '../../../core/models/category.model';
 import { ReferenceDefinition } from '../../../core/models/reference.model';
 import { CategoriesService } from '../../../core/services/categories.service';
 import { ReferencesService } from '../../../core/services/references.service';
+import { UploadService } from '../../../core/services/upload.service';
 import { REFERENCE_TYPE_LABELS } from '../add-edit-reference/reference-form.constants';
+import { SingleImagePickerComponent } from '../../../shared/components/single-image-picker/single-image-picker.component';
+import { ImageUploadComponent } from '../../../shared/components/image-upload/image-upload.component';
 
 const TAB = { BASIC: 0, SPECS: 1, SEO: 2 } as const;
+
+/** Represents a pending file upload for a single-image field */
+interface PendingFileField {
+  field: 'image' | 'icon' | 'coverImage' | 'bannerImage';
+  file: File;
+}
 
 @Component({
   selector: 'app-add-edit-category',
@@ -66,6 +79,9 @@ const TAB = { BASIC: 0, SPECS: 1, SEO: 2 } as const;
     IconFieldModule,
     InputIconModule,
     TooltipModule,
+    ProgressSpinnerModule,
+    SingleImagePickerComponent,
+    ImageUploadComponent,
   ],
   templateUrl: './add-edit-category.component.html',
   styleUrls: ['./add-edit-category.component.scss'],
@@ -74,6 +90,7 @@ export class AddEditCategoryComponent implements OnChanges {
   private fb = inject(FormBuilder);
   private categoriesService = inject(CategoriesService);
   private referencesService = inject(ReferencesService);
+  private uploadService = inject(UploadService);
   private messageService = inject(MessageService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -94,6 +111,9 @@ export class AddEditCategoryComponent implements OnChanges {
   protected allReferences = signal<ReferenceDefinition[]>([]);
   protected searchQuery = signal('');
 
+  /** Upload progress message shown while files are being sent to Cloudinary */
+  protected uploadStatus = signal('');
+
   // Signal that mirrors enabledSpecIds — updated in refreshSpecMaps() to trigger computed re-evaluation
   private _selectedSpecIds = signal<Set<string>>(new Set());
 
@@ -113,7 +133,7 @@ export class AddEditCategoryComponent implements OnChanges {
    *  the source reference no longer exists in /api/references */
   protected selectedSpecsWithRef = computed(
     (): Array<{ ctrl: FormGroup; ref: CategorySpecification; id: string; isOrphan: boolean }> => {
-      this._selectedSpecIds(); // reactive trigger — recompute when FormArray changes
+      this._selectedSpecIds(); // reactive trigger
       const allRefIds = new Set(this.allReferences().map((r) => r._id));
       return this.specificationsArray.controls
         .map((ctrl) => {
@@ -130,7 +150,6 @@ export class AddEditCategoryComponent implements OnChanges {
     },
   );
 
-  // Fast O(1) lookups for spec state — rebuilt after every FormArray mutation
   private enabledSpecIds = new Set<string>();
   private enabledSpecMap = new Map<string, FormGroup>();
 
@@ -148,11 +167,14 @@ export class AddEditCategoryComponent implements OnChanges {
     isActive: [true],
     isVisible: [true],
     isFeatured: [false],
+    // Single-image fields (stored as URL strings)
     image: ['', [Validators.maxLength(2048)]],
     icon: ['', [Validators.maxLength(2048)]],
     coverImage: ['', [Validators.maxLength(2048)]],
     bannerImage: ['', [Validators.maxLength(2048)]],
-    // ── Tab 2: Specifications (FormArray, enabled ones only) ──────
+    // Multi-image gallery (array of URL strings)
+    images: [[] as string[]],
+    // ── Tab 2: Specifications ─────────────────────────────────────
     specifications: this.fb.array([]),
     // ── Tab 3: SEO ───────────────────────────────────────────────
     seoTitle: ['', [Validators.maxLength(255)]],
@@ -218,6 +240,7 @@ export class AddEditCategoryComponent implements OnChanges {
     this.formSubmitted.set(false);
     this.activeTabIndex.set(0);
     this.searchQuery.set('');
+    this.uploadStatus.set('');
 
     this.form.patchValue({
       name: '',
@@ -233,6 +256,7 @@ export class AddEditCategoryComponent implements OnChanges {
       icon: '',
       coverImage: '',
       bannerImage: '',
+      images: [],
       seoTitle: '',
       seoDescription: '',
       seoKeywords: '',
@@ -265,6 +289,7 @@ export class AddEditCategoryComponent implements OnChanges {
       icon: cat.icon ?? '',
       coverImage: cat.coverImage ?? '',
       bannerImage: cat.bannerImage ?? '',
+      images: cat.images ?? [],
       seoTitle: cat.seoTitle ?? '',
       seoDescription: cat.seoDescription ?? '',
       seoKeywords: cat.seoKeywords?.join(', ') ?? '',
@@ -286,9 +311,6 @@ export class AddEditCategoryComponent implements OnChanges {
         : [];
 
     existingSpecs.forEach((spec) => {
-      // Prefer fresh data from /api/references when the reference still exists
-      // (keeps name / options / type up-to-date); fall back to the stored
-      // snapshot so orphaned specs (deleted references) still render in the LEFT column.
       const freshRef = this.allReferences().find((r) => r._id === spec.referenceId);
       const specData: CategorySpecification = freshRef
         ? {
@@ -305,16 +327,13 @@ export class AddEditCategoryComponent implements OnChanges {
     this.cdr.markForCheck();
   }
 
-  /** Build a FormGroup from a CategorySpecification snapshot.
-   *  The `_ref` control carries the full snapshot for display (read-only).
-   */
   private createSpecGroup(spec: CategorySpecification): FormGroup {
     return this.fb.group({
       referenceId: [spec.referenceId],
       slug: [spec.slug],
       isRequired: [spec.isRequired ?? false],
       sortOrder: [spec.sortOrder ?? 0],
-      _ref: [spec], // full snapshot — used by template, not submitted as-is
+      _ref: [spec],
     });
   }
 
@@ -328,7 +347,6 @@ export class AddEditCategoryComponent implements OnChanges {
         this.enabledSpecMap.set(id, ctrl as FormGroup);
       }
     });
-    // Update signal to trigger computed re-evaluation
     this._selectedSpecIds.set(new Set(this.enabledSpecIds));
   }
 
@@ -381,7 +399,7 @@ export class AddEditCategoryComponent implements OnChanges {
     }
   }
 
-  // ── Name → slug auto-generation ───────────────────────────────────────────
+  // ── Name → slug ───────────────────────────────────────────────────────────
 
   protected onNameChange(value: string): void {
     const slugControl = this.form.get('slug');
@@ -422,7 +440,7 @@ export class AddEditCategoryComponent implements OnChanges {
     return (this.isTab1Invalid() ? 1 : 0) + (this.isTab3Invalid() ? 1 : 0);
   }
 
-  // ── Save ──────────────────────────────────────────────────────────────────
+  // ── Save (with pre-upload step) ───────────────────────────────────────────
 
   protected async onSave(): Promise<void> {
     this.formSubmitted.set(true);
@@ -438,72 +456,79 @@ export class AddEditCategoryComponent implements OnChanges {
       return;
     }
 
-    const v = this.form.value;
-    // Build full spec payload: merge stored reference snapshot with live isRequired/sortOrder values
-    const specifications: CategorySpecification[] = this.specificationsArray.controls.map((ctrl) => {
-      const ref = ctrl.get('_ref')?.value as CategorySpecification;
-      return {
-        ...ref,
-        referenceId: ctrl.get('referenceId')?.value as string,
-        isRequired: ctrl.get('isRequired')?.value as boolean,
-        sortOrder: ctrl.get('sortOrder')?.value as number,
-      };
-    });
-
-    const payload = {
-      name: v.name,
-      slug: v.slug,
-      description: v.description || null,
-      shortDescription: v.shortDescription || null,
-      parentId: v.parentId?._id ?? null,
-      sortOrder: v.sortOrder ?? 0,
-      isActive: v.isActive,
-      isVisible: v.isVisible,
-      isFeatured: v.isFeatured,
-      image: v.image || null,
-      icon: v.icon || null,
-      coverImage: v.coverImage || null,
-      bannerImage: v.bannerImage || null,
-      specifications,
-      seoTitle: v.seoTitle || null,
-      seoDescription: v.seoDescription || null,
-      seoKeywords: v.seoKeywords
-        ? v.seoKeywords
-            .split(',')
-            .map((k: string) => k.trim())
-            .filter((k: string) => k)
-        : [],
-      canonicalUrl: v.canonicalUrl || null,
-      ogImage: v.ogImage || null,
-    };
-
     this.saving.set(true);
+    this.uploadStatus.set('');
+    this.cdr.markForCheck();
+
     try {
+      const v = this.form.value;
+
+      // ── Step 1: Resolve single-image fields ─────────────────────────────
+      // All four single-image fields are already URL strings (SingleImagePickerComponent
+      // uploads to Cloudinary immediately when the user picks a file inside the dialog).
+      // Nothing extra is needed here — values are ready.
+
+      // ── Step 2: Resolve gallery images ──────────────────────────────────
+      // ImageUploadComponent also uploads files immediately on selection.
+      // The form value for `images` is already an array of URL strings.
+      const galleryUrls: string[] = Array.isArray(v.images) ? v.images : [];
+
+      // Count total pending remote uploads (already uploaded by sub-components, so 0 here)
+      this.uploadStatus.set('');
+
+      // ── Step 3: Build payload ────────────────────────────────────────────
+      const specifications: CategorySpecification[] = this.specificationsArray.controls.map((ctrl) => {
+        const ref = ctrl.get('_ref')?.value as CategorySpecification;
+        return {
+          ...ref,
+          referenceId: ctrl.get('referenceId')?.value as string,
+          isRequired: ctrl.get('isRequired')?.value as boolean,
+          sortOrder: ctrl.get('sortOrder')?.value as number,
+        };
+      });
+
+      const payload = {
+        name: v.name,
+        slug: v.slug,
+        description: v.description || null,
+        shortDescription: v.shortDescription || null,
+        parentId: v.parentId?._id ?? null,
+        sortOrder: v.sortOrder ?? 0,
+        isActive: v.isActive,
+        isVisible: v.isVisible,
+        isFeatured: v.isFeatured,
+        image: v.image || null,
+        icon: v.icon || null,
+        coverImage: v.coverImage || null,
+        bannerImage: v.bannerImage || null,
+        images: galleryUrls,
+        specifications,
+        seoTitle: v.seoTitle || null,
+        seoDescription: v.seoDescription || null,
+        seoKeywords: v.seoKeywords
+          ? v.seoKeywords.split(',').map((k: string) => k.trim()).filter((k: string) => k)
+          : [],
+        canonicalUrl: v.canonicalUrl || null,
+        ogImage: v.ogImage || null,
+      };
+
+      // ── Step 4: Persist ──────────────────────────────────────────────────
       if (this.mode === 'edit' && this.category) {
         await this.categoriesService.updateCategory(this.category._id, payload);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Збережено',
-          detail: 'Категорію оновлено',
-        });
+        this.messageService.add({ severity: 'success', summary: 'Збережено', detail: 'Категорію оновлено' });
       } else {
         await this.categoriesService.createCategory(payload);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Створено',
-          detail: 'Категорію створено',
-        });
+        this.messageService.add({ severity: 'success', summary: 'Створено', detail: 'Категорію успішно збережено' });
       }
+
       this.saved.emit();
       this.close();
-    } catch {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Помилка',
-        detail: 'Не вдалося зберегти категорію',
-      });
+    } catch (err: any) {
+      const detail = err?.error?.message || err?.message || 'Не вдалося зберегти категорію';
+      this.messageService.add({ severity: 'error', summary: 'Помилка', detail });
     } finally {
       this.saving.set(false);
+      this.uploadStatus.set('');
       this.cdr.markForCheck();
     }
   }

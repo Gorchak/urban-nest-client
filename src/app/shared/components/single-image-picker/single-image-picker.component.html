@@ -1,0 +1,137 @@
+<div class="sip">
+  <span class="sip__label">{{ label }}</span>
+
+  <!-- ── Inline row: URL input + preview + actions ── -->
+  <div class="sip__row">
+    <!-- Thumbnail -->
+    @if (url()) {
+      <div class="sip__thumb">
+        <img
+          [src]="optimizedUrl(url())"
+          [alt]="label"
+          loading="lazy"
+          decoding="async"
+          class="sip__thumb-img"
+        />
+      </div>
+    }
+
+    <!-- URL text input -->
+    <input
+      pInputText
+      class="sip__input"
+      [ngModel]="url()"
+      (ngModelChange)="onUrlInput($event)"
+      (blur)="onBlur()"
+      [placeholder]="placeholder"
+      [disabled]="disabled()"
+    />
+
+    <!-- Open chooser dialog -->
+    <p-button
+      type="button"
+      icon="pi pi-image"
+      pTooltip="Обрати зображення"
+      tooltipPosition="top"
+      severity="secondary"
+      size="small"
+      [disabled]="disabled()"
+      (onClick)="openDialog()"
+    />
+
+    <!-- Clear -->
+    @if (url()) {
+      <p-button
+        type="button"
+        icon="pi pi-times"
+        pTooltip="Очистити"
+        tooltipPosition="top"
+        severity="danger"
+        [text]="true"
+        size="small"
+        [disabled]="disabled()"
+        (onClick)="clear()"
+      />
+    }
+  </div>
+</div>
+
+<!-- ── Chooser Dialog ── -->
+<p-dialog
+  [header]="'Обрати: ' + label"
+  [(visible)]="dialogVisible"
+  [modal]="true"
+  [closable]="true"
+  [resizable]="false"
+  [style]="{ width: '520px', maxWidth: '96vw' }"
+  appendTo="body"
+>
+  <div class="sip-dialog">
+
+    <!-- Preview inside dialog -->
+    @if (dialogUrl()) {
+      <div class="sip-dialog__preview">
+        <img
+          [src]="optimizedUrl(dialogUrl(), 400)"
+          [alt]="label"
+          loading="lazy"
+          decoding="async"
+          class="sip-dialog__preview-img"
+        />
+      </div>
+    }
+
+    <!-- URL input -->
+    <div class="sip-dialog__field">
+      <label class="sip-dialog__label">URL зображення</label>
+      <input
+        pInputText
+        class="sip-dialog__input"
+        [ngModel]="dialogUrl()"
+        (ngModelChange)="dialogUrl.set($event)"
+        placeholder="https://..."
+      />
+    </div>
+
+    <!-- File upload -->
+    <div class="sip-dialog__field">
+      <label class="sip-dialog__label">або завантажте файл</label>
+      <div class="sip-dialog__file-row">
+        <input
+          #fileInput
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          class="sip-dialog__file-hidden"
+          (change)="onFileSelect($event)"
+        />
+        <p-button
+          type="button"
+          icon="pi pi-upload"
+          label="Завантажити файл"
+          severity="secondary"
+          size="small"
+          [loading]="uploading()"
+          (onClick)="fileInput.click()"
+        />
+        <small class="sip-dialog__hint">JPEG, PNG, WebP · до 5 МБ</small>
+      </div>
+    </div>
+
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Скасувати"
+      icon="pi pi-times"
+      severity="secondary"
+      [text]="true"
+      (onClick)="closeDialog()"
+    />
+    <p-button
+      label="Підтвердити"
+      icon="pi pi-check"
+      [disabled]="!dialogUrl()"
+      (onClick)="confirmDialog()"
+    />
+  </ng-template>
+</p-dialog>

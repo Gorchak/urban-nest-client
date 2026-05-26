@@ -1,0 +1,375 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [closable]="true"
+  [resizable]="false"
+  [draggable]="false"
+  styleClass="details-dialog"
+  [style]="{ width: '980px', maxWidth: '98vw' }"
+  (onHide)="close()"
+  appendTo="body"
+>
+
+  <!-- ── Shared header ── -->
+  <ng-template pTemplate="header">
+    @if (loading()) {
+      <div class="details-header">
+        <p-skeleton width="260px" height="22px" />
+        <p-skeleton width="70px" height="20px" borderRadius="999px" styleClass="ml-2" />
+      </div>
+    } @else if (merchandise()) {
+      <div class="details-header">
+        <div class="details-header__left">
+          <span class="details-header__title">{{ merchandise()!.name }}</span>
+          <span class="details-header__sku">{{ merchandise()!.sku }}</span>
+        </div>
+        <div class="details-header__badges">
+          <p-tag
+            [value]="merchandise()!.isActive ? 'Активний' : 'Неактивний'"
+            [severity]="merchandise()!.isActive ? 'success' : 'danger'"
+          />
+          @if (!merchandise()!.isVisible) {
+            <p-tag value="Прихований" severity="warning" />
+          }
+          @if (category()) {
+            <p-tag [value]="category()!.name" severity="secondary" />
+          }
+        </div>
+      </div>
+    } @else {
+      <span class="details-header__title">Перегляд товару</span>
+    }
+  </ng-template>
+
+  @if (loading()) {
+    <div class="details-body">
+      <div class="details-left">
+        <p-skeleton height="300px" borderRadius="10px" />
+        <div class="thumb-strip">
+          @for (i of [1,2,3]; track i) {
+            <p-skeleton width="64px" height="64px" borderRadius="8px" />
+          }
+        </div>
+      </div>
+      <div class="details-right">
+        <p-skeleton height="28px" width="60%" styleClass="mb-3" />
+        <p-skeleton height="14px" width="90%" styleClass="mb-2" />
+        <p-skeleton height="14px" width="75%" styleClass="mb-4" />
+        <p-skeleton height="100px" styleClass="mb-3" borderRadius="8px" />
+        <p-skeleton height="80px"  styleClass="mb-3" borderRadius="8px" />
+        <p-skeleton height="120px" borderRadius="8px" />
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="details-error">
+      <i class="pi pi-exclamation-circle"></i>
+      <p>{{ error() }}</p>
+      <p-button
+        label="Спробувати знову"
+        icon="pi pi-refresh"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="loadData()"
+      />
+    </div>
+  } @else if (merchandise()) {
+    <div class="details-body">
+
+      <!-- LEFT — Gallery -->
+      <div class="details-left">
+        <div class="gallery-main">
+          @if (activeImage()) {
+            <img
+              [src]="optimizedUrl(activeImage()!, 700)"
+              [alt]="merchandise()!.name"
+              loading="lazy"
+              decoding="async"
+              class="gallery-main__img"
+            />
+          } @else {
+            <div class="gallery-main__placeholder">
+              <i class="pi pi-image"></i>
+              <span>Немає фото</span>
+            </div>
+          }
+        </div>
+
+        @if (images().length > 1) {
+          <div class="thumb-strip">
+            @for (img of images(); track img; let i = $index) {
+              <button
+                type="button"
+                class="thumb-btn"
+                [class.thumb-btn--active]="activeImageIdx() === i"
+                (click)="selectImage(i)"
+              >
+                <img
+                  [src]="optimizedUrl(img, 120)"
+                  [alt]="'Image ' + (i + 1)"
+                  loading="lazy"
+                  decoding="async"
+                  class="thumb-btn__img"
+                />
+              </button>
+            }
+          </div>
+        }
+
+        @if (images().length > 0) {
+          <div class="gallery-meta">
+            <i class="pi pi-images"></i>
+            {{ images().length }}&nbsp;фото
+          </div>
+        }
+      </div>
+
+      <!-- RIGHT — Details -->
+      <div class="details-right">
+
+        <!-- Name & short description -->
+        <div class="detail-section">
+          <h2 class="product-name">{{ merchandise()!.name }}</h2>
+          @if (merchandise()!.shortDescription) {
+            <p class="product-short-desc">{{ merchandise()!.shortDescription }}</p>
+          }
+        </div>
+
+        <!-- Pricing card -->
+        <div class="info-card info-card--pricing">
+          <div class="info-card__header">
+            <i class="pi pi-wallet"></i>
+            <span>Ціни</span>
+          </div>
+          <div class="pricing-grid">
+            <div class="pricing-row pricing-row--sale">
+              <span class="pricing-label">Ціна продажу</span>
+              <span class="pricing-value pricing-value--main">
+                {{ formatPrice(merchandise()!.salePrice, merchandise()!.currency) }}
+              </span>
+            </div>
+            <div class="pricing-row">
+              <span class="pricing-label">Закупівельна</span>
+              <span class="pricing-value">{{ formatPrice(merchandise()!.purchasePrice, merchandise()!.currency) }}</span>
+            </div>
+            <div class="pricing-row">
+              <span class="pricing-label">Роздрібна</span>
+              <span class="pricing-value">{{ formatPrice(merchandise()!.retailPrice, merchandise()!.currency) }}</span>
+            </div>
+            @if (margin() !== null) {
+              <div class="pricing-row pricing-row--margin">
+                <span class="pricing-label">Маржинальність</span>
+                <span class="pricing-value pricing-value--margin">{{ margin() }}%</span>
+              </div>
+            }
+            <div class="pricing-row">
+              <span class="pricing-label">Валюта</span>
+              <span class="pricing-value">{{ merchandise()!.currency }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stock card -->
+        <div class="info-card info-card--stock">
+          <div class="info-card__header">
+            <i class="pi pi-box"></i>
+            <span>Залишок</span>
+          </div>
+          <div class="stock-grid">
+            <div class="stock-item">
+              <span class="stock-item__label">Наявність</span>
+              <p-tag
+                [value]="getStockLabel(merchandise()!.stockQuantity)"
+                [severity]="getStockSeverity(merchandise()!.stockQuantity)"
+              />
+            </div>
+            <div class="stock-item">
+              <span class="stock-item__label">Кількість</span>
+              <span class="stock-item__value">{{ merchandise()!.stockQuantity }}&nbsp;шт.</span>
+            </div>
+            <div class="stock-item">
+              <span class="stock-item__label">Тип власності</span>
+              <span class="stock-item__value">
+                {{ ownershipLabels[merchandise()!.ownershipType] ?? merchandise()!.ownershipType }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Basic info -->
+        <div class="info-card">
+          <div class="info-card__header">
+            <i class="pi pi-info-circle"></i>
+            <span>Основна інформація</span>
+          </div>
+          <div class="attr-list">
+            <div class="attr-row">
+              <span class="attr-label">SKU</span>
+              <code class="attr-sku">{{ merchandise()!.sku }}</code>
+            </div>
+            <div class="attr-row">
+              <span class="attr-label">Slug</span>
+              <code class="attr-slug">{{ merchandise()!.slug }}</code>
+            </div>
+            @if (category()) {
+              <div class="attr-row">
+                <span class="attr-label">Категорія</span>
+                <span class="attr-value">{{ category()!.name }}</span>
+              </div>
+            }
+            @if (merchandise()!.categorySlug) {
+              <div class="attr-row">
+                <span class="attr-label">Slug категорії</span>
+                <code class="attr-slug">{{ merchandise()!.categorySlug }}</code>
+              </div>
+            }
+            <div class="attr-row">
+              <span class="attr-label">Активний</span>
+              <p-tag
+                [value]="merchandise()!.isActive ? 'Так' : 'Ні'"
+                [severity]="merchandise()!.isActive ? 'success' : 'danger'"
+              />
+            </div>
+            <div class="attr-row">
+              <span class="attr-label">Видимий</span>
+              <p-tag
+                [value]="merchandise()!.isVisible ? 'Так' : 'Ні'"
+                [severity]="merchandise()!.isVisible ? 'success' : 'secondary'"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic specifications -->
+        @if (visibleSpecs().length > 0) {
+          <div class="info-card">
+            <div class="info-card__header">
+              <i class="pi pi-list"></i>
+              <span>Характеристики</span>
+              <span class="info-card__count">{{ visibleSpecs().length }}</span>
+            </div>
+            <div class="attr-list">
+              @for (spec of visibleSpecs(); track spec.referenceId) {
+                <div class="attr-row">
+                  <span class="attr-label">{{ spec.slug }}</span>
+                  @if (isColorSpec(spec)) {
+                    <div class="color-chips">
+                      @for (c of $any(spec.value); track c) {
+                        <span class="color-chip">{{ c }}</span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="attr-value">{{ formatSpecValue(spec) }}</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Full description -->
+        @if (merchandise()!.description) {
+          <div class="info-card">
+            <div class="info-card__header">
+              <i class="pi pi-align-left"></i>
+              <span>Детальний опис</span>
+            </div>
+            <p class="product-description">{{ merchandise()!.description }}</p>
+          </div>
+        }
+
+        <!-- SEO -->
+        @if (hasSeo()) {
+          <div class="info-card info-card--seo">
+            <div class="info-card__header">
+              <i class="pi pi-globe"></i>
+              <span>SEO</span>
+            </div>
+            <div class="attr-list">
+              @if (merchandise()!.seoTitle) {
+                <div class="attr-row">
+                  <span class="attr-label">Title</span>
+                  <span class="attr-value">{{ merchandise()!.seoTitle }}</span>
+                </div>
+              }
+              @if (merchandise()!.seoDescription) {
+                <div class="attr-row">
+                  <span class="attr-label">Description</span>
+                  <span class="attr-value">{{ merchandise()!.seoDescription }}</span>
+                </div>
+              }
+              @if (merchandise()!.seoKeywords?.length) {
+                <div class="attr-row">
+                  <span class="attr-label">Keywords</span>
+                  <div class="keyword-chips">
+                    @for (kw of merchandise()!.seoKeywords; track kw) {
+                      <span class="keyword-chip">{{ kw }}</span>
+                    }
+                  </div>
+                </div>
+              }
+              @if (merchandise()!.canonicalUrl) {
+                <div class="attr-row">
+                  <span class="attr-label">Canonical</span>
+                  <a [href]="merchandise()!.canonicalUrl" target="_blank" class="attr-link">
+                    {{ merchandise()!.canonicalUrl }}
+                  </a>
+                </div>
+              }
+              @if (merchandise()!.ogImage) {
+                <div class="attr-row">
+                  <span class="attr-label">OG Image</span>
+                  <a [href]="merchandise()!.ogImage" target="_blank" class="attr-link">
+                    {{ merchandise()!.ogImage }}
+                  </a>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Meta / timestamps -->
+        <div class="info-card info-card--meta">
+          <div class="info-card__header">
+            <i class="pi pi-clock"></i>
+            <span>Службова інформація</span>
+          </div>
+          <div class="attr-list">
+            <div class="attr-row">
+              <span class="attr-label">ID</span>
+              <code class="attr-id">{{ merchandise()!._id }}</code>
+            </div>
+            <div class="attr-row">
+              <span class="attr-label">Створено</span>
+              <span class="attr-value">{{ formatDate(merchandise()!.createdAt) }}</span>
+            </div>
+            <div class="attr-row">
+              <span class="attr-label">Оновлено</span>
+              <span class="attr-value">{{ formatDate(merchandise()!.updatedAt) }}</span>
+            </div>
+            @if (merchandise()!.deletedAt) {
+              <div class="attr-row">
+                <span class="attr-label attr-label--danger">Видалено</span>
+                <span class="attr-value attr-value--danger">{{ formatDate(merchandise()!.deletedAt) }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+      </div><!-- /details-right -->
+    </div><!-- /details-body -->
+  }
+
+  <!-- ── Footer ── -->
+  <ng-template pTemplate="footer">
+    <div class="details-footer">
+      <p-button
+        label="Закрити"
+        icon="pi pi-times"
+        severity="secondary"
+        [text]="true"
+        (onClick)="close()"
+      />
+    </div>
+  </ng-template>
+
+</p-dialog>

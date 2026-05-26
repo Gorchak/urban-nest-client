@@ -289,54 +289,10 @@
           <!-- Images -->
           <div class="field field--full images-section">
             <label class="field-label">Зображення</label>
-
-            <div class="image-url-input">
-              <input
-                pInputText
-                [ngModel]="newImageUrl()"
-                (ngModelChange)="newImageUrl.set($event)"
-                [ngModelOptions]="{ standalone: true }"
-                placeholder="https://example.com/image.jpg"
-                class="w-full"
-              />
-              <p-button
-                icon="pi pi-plus"
-                label="Додати URL"
-                severity="secondary"
-                size="small"
-                (onClick)="addImageUrl()"
-              />
-            </div>
-
-            <p-fileUpload
-              mode="basic"
-              chooseLabel="Завантажити файл"
-              accept="image/*"
-              [maxFileSize]="5000000"
-              (onSelect)="onFileUpload($event)"
-              styleClass="mt-2"
+            <app-image-upload
+              [images]="imageUrls()"
+              (imagesChange)="onImagesChange($event)"
             />
-
-            @if (imageUrls().length > 0) {
-              <div class="image-previews">
-                @for (url of imageUrls(); track url; let i = $index) {
-                  <div class="image-preview-item">
-                    <img
-                      [src]="url"
-                      [alt]="'Image ' + (i + 1)"
-                      class="preview-img"
-                    />
-                    <button
-                      type="button"
-                      class="remove-image-btn"
-                      (click)="removeImage(i)"
-                    >
-                      <i class="pi pi-times"></i>
-                    </button>
-                  </div>
-                }
-              </div>
-            }
           </div>
         </div>
       </p-tabPanel>

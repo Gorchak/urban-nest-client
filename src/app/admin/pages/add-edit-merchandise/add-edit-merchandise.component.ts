@@ -31,8 +31,6 @@ import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { CalendarModule } from 'primeng/calendar';
-import { FileUploadModule } from 'primeng/fileupload';
-import { ImageModule } from 'primeng/image';
 import { TagModule } from 'primeng/tag';
 import { DividerModule } from 'primeng/divider';
 import { ToastModule } from 'primeng/toast';
@@ -44,6 +42,7 @@ import { Category, CategorySpecification } from '../../../core/models/category.m
 import { Merchandise, MerchandiseSpecification, CreateMerchandiseDto, MerchandiseOwnershipType } from '../../../core/models/merchandise.model';
 import { CategoriesService } from '../../../core/services/categories.service';
 import { MerchandiseService } from '../../../core/services/merchandise.service';
+import { ImageUploadComponent } from '../../../shared/components/image-upload/image-upload.component';
 
 const TAB = { BASIC: 0, SPECS: 1, SEO: 2 } as const;
 type TabIndex = typeof TAB[keyof typeof TAB];
@@ -72,9 +71,8 @@ interface SpecFormEntry {
     DropdownModule,
     MultiSelectModule,
     CalendarModule,
-    FileUploadModule,
-    ImageModule,
     TagModule,
+    ImageUploadComponent,
     DividerModule,
     ToastModule,
     CardModule,
@@ -109,9 +107,8 @@ export class AddEditMerchandiseComponent implements OnChanges {
   protected selectedCategory = signal<Category | null>(null);
   protected specFormEntries = signal<SpecFormEntry[]>([]);
 
-  // Image preview state
+  // Image state — source of truth for the images[] payload sent to the API
   protected imageUrls = signal<string[]>([]);
-  protected newImageUrl = signal('');
 
   // Unsaved changes tracking
   protected hasUnsavedChanges = computed(() => this.form.dirty);
@@ -210,7 +207,6 @@ export class AddEditMerchandiseComponent implements OnChanges {
     this.selectedCategory.set(null);
     this.specFormEntries.set([]);
     this.imageUrls.set([]);
-    this.newImageUrl.set('');
 
     this.clearSpecificationsArray();
 
@@ -363,37 +359,9 @@ export class AddEditMerchandiseComponent implements OnChanges {
 
   // ── Image management ───────────────────────────────────────────────────────
 
-  protected addImageUrl(): void {
-    const url = this.newImageUrl().trim();
-    if (!url) return;
-    if (!this.imageUrls().includes(url)) {
-      this.imageUrls.update((list) => [...list, url]);
-      this.form.markAsDirty();
-    }
-    this.newImageUrl.set('');
-    this.cdr.markForCheck();
-  }
-
-  protected removeImage(index: number): void {
-    this.imageUrls.update((list) => list.filter((_, i) => i !== index));
+  protected onImagesChange(urls: string[]): void {
+    this.imageUrls.set(urls);
     this.form.markAsDirty();
-    this.cdr.markForCheck();
-  }
-
-  protected onFileUpload(event: any): void {
-    const files: File[] = event.files ?? [];
-    for (const file of files) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result as string;
-        if (dataUrl && !this.imageUrls().includes(dataUrl)) {
-          this.imageUrls.update((list) => [...list, dataUrl]);
-          this.form.markAsDirty();
-          this.cdr.markForCheck();
-        }
-      };
-      reader.readAsDataURL(file);
-    }
   }
 
   // ── Tab validation ─────────────────────────────────────────────────────────

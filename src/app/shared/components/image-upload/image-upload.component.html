@@ -1,0 +1,97 @@
+<div class="image-upload">
+
+  <!-- ── Upload progress overlay ── -->
+  @if (uploading()) {
+    <div class="image-upload__progress">
+      <i class="pi pi-spin pi-spinner"></i>
+      <span>{{ uploadProgress() || 'Завантаження...' }}</span>
+    </div>
+  }
+
+  <!-- ── URL input row ── -->
+  <div class="image-upload__url-row">
+    <input
+      pInputText
+      [ngModel]="newImageUrl()"
+      (ngModelChange)="newImageUrl.set($event)"
+      placeholder="https://example.com/image.jpg"
+      class="image-upload__url-input"
+      [disabled]="disabled() || uploading()"
+      (keyup.enter)="addManualUrl()"
+    />
+    <p-button
+      type="button"
+      icon="pi pi-plus"
+      label="Додати URL"
+      severity="secondary"
+      size="small"
+      [disabled]="disabled() || uploading()"
+      (onClick)="addManualUrl()"
+    />
+  </div>
+
+  <!-- ── File picker row ── -->
+  <div class="image-upload__file-row">
+    <input
+      #fileInput
+      type="file"
+      multiple
+      accept="image/jpeg,image/png,image/webp"
+      class="image-upload__hidden-input"
+      (change)="onFileSelect($event)"
+    />
+    <p-button
+      type="button"
+      icon="pi pi-upload"
+      label="Завантажити фото"
+      severity="secondary"
+      size="small"
+      [loading]="uploading()"
+      [disabled]="disabled()"
+      (onClick)="fileInput.click()"
+    />
+    <small class="image-upload__hint">JPEG, PNG, WebP · до 5 МБ</small>
+  </div>
+
+  <!-- ── Preview grid ── -->
+  @if (items().length > 0) {
+    <div class="image-upload__previews">
+      @for (item of items(); track item.url; let i = $index) {
+        <div class="image-upload__preview-item">
+          <img
+            [src]="getOptimizedUrl(item.url)"
+            [alt]="'Image ' + (i + 1)"
+            loading="lazy"
+            decoding="async"
+            class="image-upload__preview-img"
+          />
+
+          <!-- Actions overlay -->
+          <div class="image-upload__actions">
+            <!-- Copy URL -->
+            <button
+              type="button"
+              class="image-upload__action-btn"
+              tooltipPosition="top"
+              (click)="copyUrl(item.url, i)"
+            >
+              <i [class]="copiedIndex() === i ? 'pi pi-check' : 'pi pi-copy'"></i>
+            </button>
+
+            <!-- Remove -->
+            <button
+              type="button"
+              class="image-upload__action-btn image-upload__action-btn--danger"
+              tooltipPosition="top"
+              [disabled]="disabled()"
+              (click)="removeImage(i)"
+            >
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+</div>
