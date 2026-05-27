@@ -79,6 +79,7 @@ export type UpdateMerchandiseDto = Partial<CreateMerchandiseDto>;
 export interface MerchandiseListFilter {
   categoryId?: string;
   categorySlug?: string;
+  includeChildren?: boolean;
   search?: string;
   isActive?: boolean;
   inStock?: boolean;

@@ -4,10 +4,12 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CategoriesService } from '../../../core/services/categories.service';
 import { Category } from '../../../core/models/category.model';
 import { AddEditCategoryComponent } from '../add-edit-category/add-edit-category.component';
+import { CategoryDetailsComponent } from '../category-details/category-details.component';
 
 @Component({
   selector: 'app-admin-categories-page',
@@ -18,7 +20,9 @@ import { AddEditCategoryComponent } from '../add-edit-category/add-edit-category
     ButtonModule,
     ToastModule,
     ConfirmDialogModule,
+    TooltipModule,
     AddEditCategoryComponent,
+    CategoryDetailsComponent,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './admin-categories-page.component.html',
@@ -34,6 +38,10 @@ export class AdminCategoriesPageComponent implements OnInit {
   protected showDialog = false;
   protected dialogMode: 'new' | 'edit' = 'new';
   protected selectedCategory: Category | null = null;
+
+  // ── Details dialog ────────────────────────────────────────────────────────
+  protected showDetailsDialog = false;
+  protected detailsCategoryId: string | null = null;
 
   async ngOnInit(): Promise<void> {
     await this.loadCategories();
@@ -64,6 +72,11 @@ export class AdminCategoriesPageComponent implements OnInit {
     this.dialogMode = 'edit';
     this.selectedCategory = category;
     this.showDialog = true;
+  }
+
+  protected openDetails(category: Category): void {
+    this.detailsCategoryId = category._id;
+    this.showDetailsDialog = true;
   }
 
   protected async onCategorySaved(): Promise<void> {

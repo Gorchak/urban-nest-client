@@ -31,13 +31,18 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { CategoriesService } from '../../../core/services/categories.service';
 import { MerchandiseService } from '../../../core/services/merchandise.service';
 import { Category } from '../../../core/models/category.model';
-import { Merchandise, MerchandiseListFilter, MerchandisePagination } from '../../../core/models/merchandise.model';
+import { Merchandise, MerchandiseListFilter, MerchandisePagination, MerchandiseListResponse } from '../../../core/models/merchandise.model';
 import { AddEditMerchandiseComponent } from '../add-edit-merchandise/add-edit-merchandise.component';
 import { MerchandiseDetailsComponent } from '../merchandise-details/merchandise-details.component';
 
 interface SubcategoryOption {
   label: string;
   value: string;
+}
+
+interface StockEditState {
+  originalValue: number;
+  newValue: number;
 }
 
 @Component({
@@ -97,6 +102,13 @@ export class MerchandiseListComponent implements OnInit {
     return tabs[idx - 1] ?? null;
   });
 
+  protected hasSubcategories = computed(() => this.subcategories().length > 0);
+
+  /** All subcategory IDs for the current parent category (for bulk loading) */
+  protected subcategoryIds = computed<string[]>(() =>
+    this.subcategories().map(s => s.value)
+  );
+
   /** Only root-level active categories shown as tabs */
   protected tabCategories = computed(() =>
     this.categories().filter((c) => !c.parentId && c.isActive)
@@ -155,6 +167,10 @@ export class MerchandiseListComponent implements OnInit {
 
   protected selectedStockFilter = signal<string | null>(null);
 
+  // ── Stock editing ───────────────────────────────────────────────────────
+  protected stockEdits = signal<Map<string, StockEditState>>(new Map());
+  protected submittingStock = signal<Set<string>>(new Set());
+
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
   async ngOnInit(): Promise<void> {
@@ -180,8 +196,8 @@ export class MerchandiseListComponent implements OnInit {
   async loadMerchandise(): Promise<void> {
     this.loading.set(true);
     try {
-      const filter = this.buildFilter();
-      const result = await this.merchandiseService.getMerchandiseList(filter);
+      const result = await this.fetchMerchandiseForFilter();
+
       this.merchandise.set(result.data);
       this.pagination.set(result.pagination);
     } catch {
@@ -192,10 +208,27 @@ export class MerchandiseListComponent implements OnInit {
     }
   }
 
-  private buildFilter(): MerchandiseListFilter {
+  private async fetchMerchandiseForFilter(): Promise<MerchandiseListResponse> {
     const cat = this.activeCategory();
     const subId = this.selectedSubcategoryId();
 
+    if (subId) {
+      // Specific subcategory selected - use proper server-side pagination
+      return await this.merchandiseService.getMerchandiseList(this.buildBaseFilter(subId, false));
+    } else if (cat && this.subcategories().length > 0) {
+      // Parent category with subcategories - use includeChildren to get all items from category tree
+      const filter = { ...this.buildBaseFilter(undefined, true), categoryId: cat._id };
+      return await this.merchandiseService.getMerchandiseList(filter);
+    } else if (cat) {
+      // Parent category without subcategories
+      return await this.merchandiseService.getMerchandiseList(this.buildBaseFilter(cat._id, false));
+    } else {
+      // All items (no category filter)
+      return await this.merchandiseService.getMerchandiseList(this.buildBaseFilter(undefined, false));
+    }
+  }
+
+  private buildBaseFilter(categoryId?: string, includeChildren?: boolean): MerchandiseListFilter {
     const filter: MerchandiseListFilter = {
       page: this.pagination().page,
       limit: this.pagination().limit,
@@ -203,11 +236,8 @@ export class MerchandiseListComponent implements OnInit {
       sortOrder: this.sortOrder(),
     };
 
-    if (subId) {
-      filter.categoryId = subId;
-    } else if (cat) {
-      filter.categoryId = cat._id;
-    }
+    if (categoryId) filter.categoryId = categoryId;
+    if (includeChildren) filter.includeChildren = includeChildren;
 
     if (this.searchQuery()) filter.search = this.searchQuery();
     if (this.filterIsActive() !== null) filter.isActive = this.filterIsActive()!;
@@ -389,5 +419,96 @@ export class MerchandiseListComponent implements OnInit {
       currency,
       minimumFractionDigits: 2,
     }).format(price);
+  }
+
+  // ── Stock editing methods ─────────────────────────────────────────────────
+
+  protected getStockDisplayValue(item: Merchandise): number {
+    const edit = this.stockEdits().get(item._id);
+    return edit ? edit.newValue : item.stockQuantity;
+  }
+
+  protected isStockDirty(id: string): boolean {
+    const edit = this.stockEdits().get(id);
+    return edit ? edit.originalValue !== edit.newValue : false;
+  }
+
+  protected updateStockEdit(id: string, originalValue: number, newValue: number): void {
+    const map = new Map(this.stockEdits());
+    if (originalValue === newValue) {
+      map.delete(id);
+    } else {
+      const existing = map.get(id);
+      map.set(id, {
+        originalValue: existing?.originalValue ?? originalValue,
+        newValue,
+      });
+    }
+    this.stockEdits.set(map);
+    this.cdr.markForCheck();
+  }
+
+  protected onStockInputChange(item: Merchandise, value: number | null): void {
+    if (value === null || value < 0) return;
+    this.updateStockEdit(item._id, item.stockQuantity, Math.floor(value));
+  }
+
+  protected incrementStock(item: Merchandise): void {
+    const current = this.getStockDisplayValue(item);
+    this.updateStockEdit(item._id, item.stockQuantity, current + 1);
+  }
+
+  protected decrementStock(item: Merchandise): void {
+    const current = this.getStockDisplayValue(item);
+    if (current <= 0) return;
+    this.updateStockEdit(item._id, item.stockQuantity, current - 1);
+  }
+
+  protected revertStock(item: Merchandise): void {
+    const map = new Map(this.stockEdits());
+    map.delete(item._id);
+    this.stockEdits.set(map);
+    this.cdr.markForCheck();
+  }
+
+  protected async submitStock(item: Merchandise): Promise<void> {
+    const edit = this.stockEdits().get(item._id);
+    if (!edit) return;
+
+    const submitting = new Set(this.submittingStock());
+    submitting.add(item._id);
+    this.submittingStock.set(submitting);
+    this.cdr.markForCheck();
+
+    try {
+      await this.merchandiseService.updateMerchandise(item._id, {
+        stockQuantity: edit.newValue,
+      });
+      const map = new Map(this.stockEdits());
+      map.delete(item._id);
+      this.stockEdits.set(map);
+
+      const updatedList = this.merchandise().map((m) =>
+        m._id === item._id ? { ...m, stockQuantity: edit.newValue } : m
+      );
+      this.merchandise.set(updatedList);
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Успішно',
+        detail: `Наявність "${item.name}" оновлено: ${edit.newValue} шт.`,
+      });
+    } catch {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Помилка',
+        detail: 'Не вдалося оновити наявність',
+      });
+    } finally {
+      const submitting = new Set(this.submittingStock());
+      submitting.delete(item._id);
+      this.submittingStock.set(submitting);
+      this.cdr.markForCheck();
+    }
   }
 }

@@ -28,7 +28,22 @@
 .col-sku{width:120px}
 .col-name{min-width:160px}
 .col-category{width:130px}
-.col-stock{width:110px;text-align:center}
+.col-stock{width:180px;text-align:center}
+.stock-edit-wrapper{display:flex;flex-direction:column;align-items:center;gap:4px}
+.stock-control{display:flex;align-items:center;gap:2px}
+.stock-input{width:48px;text-align:center;border:1px solid var(--surface-200,#e5e7eb);border-radius:4px;padding:2px 4px;font-size:.8rem;outline:none;transition:border-color .15s;-moz-appearance:textfield}
+.stock-input::-webkit-outer-spin-button,.stock-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.stock-input:focus{border-color:var(--primary-500);box-shadow:0 0 0 2px var(--primary-100)}
+.stock-btn{display:flex;align-items:center;justify-content:center;width:24px;height:24px;border:1px solid var(--surface-200,#e5e7eb);border-radius:4px;background:var(--surface-0,#fff);color:var(--text-color-secondary);cursor:pointer;font-size:.65rem;transition:background .15s,border-color .15s}
+.stock-btn:hover{background:var(--surface-100,#f3f4f6);border-color:var(--surface-300)}
+.stock-btn:active{background:var(--surface-200)}
+.stock-action-buttons{display:flex;gap:2px}
+.stock-action-btn{display:flex;align-items:center;justify-content:center;width:24px;height:20px;border:none;border-radius:3px;cursor:pointer;font-size:.85rem;transition:background .15s,color .15s}
+.stock-action-btn-revert{background:var(--surface-200,#e5e7eb);color:var(--text-color-secondary)}
+.stock-action-btn-revert:hover{background:var(--surface-300,#d1d5db);color:var(--text-color)}
+.stock-action-btn-submit{background:var(--primary-500);color:#fff}
+.stock-action-btn-submit:hover{background:var(--primary-600)}
+.stock-action-btn-submit:disabled{opacity:.5;cursor:not-allowed}
 .col-price{width:110px;text-align:right}
 .col-active{width:90px;text-align:center}
 .col-date{width:100px}
@@ -37,6 +52,8 @@
 .thumb--placeholder{background:var(--surface-100,#f3f4f6);display:flex;align-items:center;justify-content:center}
 .thumb--placeholder i{font-size:1.125rem;color:var(--text-color-secondary);opacity:.4}
 .item-name{font-weight:600;color:var(--text-color);line-height:1.3}
+.name-link{cursor:pointer;transition:color .15s}
+.name-link:hover{color:var(--primary-500)}
 .item-short-desc{font-size:.75rem;color:var(--text-color-secondary);margin-top:2px;line-height:1.3;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sku-badge{display:inline-block;padding:2px 8px;border-radius:4px;background:var(--surface-100,#f3f4f6);color:var(--text-color-secondary);font-size:.75rem;font-family:'Courier New',monospace;font-weight:600;border:1px solid var(--surface-200,#e5e7eb)}
 .category-label{font-size:.8rem;color:var(--text-color-secondary)}

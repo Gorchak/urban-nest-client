@@ -198,7 +198,7 @@
 
         <!-- Name -->
         <td class="col-name">
-          <div class="item-name">{{ item.name }}</div>
+          <div class="item-name name-link" (click)="openMerchandiseDetails(item._id)">{{ item.name }}</div>
           @if (item.shortDescription) {
             <div class="item-short-desc">{{ item.shortDescription }}</div>
           }
@@ -211,11 +211,56 @@
 
         <!-- Stock -->
         <td class="col-stock">
-          <p-tag
-            [value]="getStockLabel(item.stockQuantity)"
-            [severity]="getStockSeverity(item.stockQuantity)"
-          />
-          <div class="stock-qty">{{ item.stockQuantity }} шт.</div>
+          <div class="stock-edit-wrapper">
+            <div class="stock-control">
+              <button
+                type="button"
+                class="stock-btn stock-btn-minus"
+                (click)="decrementStock(item)"
+              >
+                <i class="pi pi-minus"></i>
+              </button>
+              <input
+                type="number"
+                class="stock-input"
+                [ngModel]="getStockDisplayValue(item)"
+                (ngModelChange)="onStockInputChange(item, $event)"
+                min="0"
+              />
+              <button
+                type="button"
+                class="stock-btn stock-btn-plus"
+                (click)="incrementStock(item)"
+              >
+                <i class="pi pi-plus"></i>
+              </button>
+            </div>
+            @if (isStockDirty(item._id)) {
+              <div class="stock-action-buttons">
+                <button
+                  type="button"
+                  class="stock-action-btn stock-action-btn-revert"
+                  pTooltip="Скасувати зміни"
+                  (click)="revertStock(item)"
+                >
+                  <i class="ri-arrow-go-back-line"></i>
+                </button>
+                <button
+                  type="button"
+                  class="stock-action-btn stock-action-btn-submit"
+                  pTooltip="Зберегти зміни"
+                  [disabled]="submittingStock().has(item._id)"
+                  (click)="submitStock(item)"
+                >
+                  @if (submittingStock().has(item._id)) {
+                    <i class="pi pi-spinner pi-spin"></i>
+                  } @else {
+                    <i class="ri-check-line"></i>
+                  }
+                </button>
+              </div>
+            }
+          </div>
         </td>
 
         <!-- Purchase price -->

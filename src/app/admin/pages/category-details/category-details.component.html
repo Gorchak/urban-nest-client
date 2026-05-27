@@ -1,0 +1,838 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [closable]="true"
+  [resizable]="false"
+  [draggable]="false"
+  styleClass="cat-details-dialog"
+  [style]="{ width: '1100px', maxWidth: '98vw' }"
+  (onHide)="close()"
+  appendTo="body"
+>
+
+  <!-- ══════════════════════════════════════════════════════════
+       HEADER
+  ══════════════════════════════════════════════════════════ -->
+  <ng-template pTemplate="header">
+    @if (loading()) {
+      <div class="cdh">
+        <p-skeleton width="260px" height="22px" />
+        <div class="cdh__badges">
+          <p-skeleton width="80px" height="22px" borderRadius="999px" />
+        </div>
+      </div>
+    } @else if (category()) {
+      <div class="cdh">
+        <div class="cdh__left">
+          @if (category()!.icon) {
+            <img
+              [src]="optimizedUrl(category()!.icon!, 56)"
+              [alt]="category()!.name"
+              class="cdh__icon"
+            />
+          }
+          <div class="cdh__info">
+            <span class="cdh__name">{{ category()!.name }}</span>
+            <code class="cdh__slug">/{{ category()!.slug }}</code>
+          </div>
+        </div>
+        <div class="cdh__badges">
+          <p-tag
+            [value]="category()!.isActive ? 'Активна' : 'Неактивна'"
+            [severity]="category()!.isActive ? 'success' : 'danger'"
+          />
+          @if (category()!.isFeatured) {
+            <p-tag value="Популярна" severity="warning" />
+          }
+          @if (!category()!.isVisible) {
+            <p-tag value="Прихована" severity="secondary" />
+          }
+          @if (category()!.specifications?.length) {
+            <p-tag
+              [value]="category()!.specifications.length + ' характ.'"
+              severity="info"
+            />
+          }
+        </div>
+      </div>
+    } @else {
+      <span class="cdh__name">Перегляд категорії</span>
+    }
+  </ng-template>
+
+  <!-- ══════════════════════════════════════════════════════════
+       LOADING SKELETON
+  ══════════════════════════════════════════════════════════ -->
+  @if (loading()) {
+    <div class="cd-body">
+      <div class="cd-hero">
+        <div class="cd-hero__media">
+          <p-skeleton height="280px" borderRadius="12px" />
+          <div class="cd-skeleton-strip">
+            @for (i of [1,2,3]; track i) {
+              <p-skeleton width="60px" height="60px" borderRadius="8px" />
+            }
+          </div>
+        </div>
+        <div class="cd-hero__info">
+          <p-skeleton height="32px" width="70%" styleClass="mb-3" />
+          <p-skeleton height="16px" width="90%" styleClass="mb-2" />
+          <p-skeleton height="16px" width="60%" styleClass="mb-4" />
+          <div class="cd-skeleton-row">
+            @for (i of [1,2,3]; track i) {
+              <p-skeleton height="24px" borderRadius="999px" />
+            }
+          </div>
+          <div class="cd-info-grid" style="margin-top: .75rem;">
+            @for (i of [1,2,3,4]; track i) {
+              <p-skeleton height="62px" borderRadius="8px" />
+            }
+          </div>
+          <p-skeleton height="40px" borderRadius="8px" styleClass="mt-3" />
+        </div>
+      </div>
+    </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       ERROR STATE
+  ══════════════════════════════════════════════════════════ -->
+  } @else if (error()) {
+    <div class="cd-error">
+      <i class="pi pi-exclamation-circle"></i>
+      <p>{{ error() }}</p>
+      <p-button
+        label="Спробувати знову"
+        icon="pi pi-refresh"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="loadCategory()"
+      />
+    </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       MAIN CONTENT
+  ══════════════════════════════════════════════════════════ -->
+  } @else if (category()) {
+    <div class="cd-body">
+
+      <!-- ── Hero section ──────────────────────────────────────── -->
+      <div class="cd-hero">
+
+        <!-- Left: Image gallery -->
+        <div class="cd-hero__media">
+          @if (allImages().length > 0) {
+            <div class="cd-gallery">
+              <div class="cd-gallery__main">
+                <img
+                  [src]="optimizedUrl(activeImage()!, 800)"
+                  [alt]="category()!.name"
+                  class="cd-gallery__img"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              @if (allImages().length > 1) {
+                <div class="cd-gallery__strip">
+                  @for (img of allImages(); track img; let i = $index) {
+                    <button
+                      type="button"
+                      class="cd-gallery__thumb"
+                      [class.active]="activeImageIdx() === i"
+                      (click)="selectImage(i)"
+                    >
+                      <img [src]="optimizedUrl(img, 120)" [alt]="'Photo ' + (i + 1)" loading="lazy" />
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="cd-gallery__placeholder">
+              <i class="pi pi-th-large"></i>
+              <span>Немає зображень</span>
+            </div>
+          }
+        </div>
+
+        <!-- Right: Key info -->
+        <div class="cd-hero__info">
+          <h2 class="cd-title">{{ category()!.name }}</h2>
+
+          @if (category()!.shortDescription) {
+            <p class="cd-short-desc">{{ category()!.shortDescription }}</p>
+          }
+
+          <!-- Status badges row -->
+          <div class="cd-status-row">
+            <div class="cd-stat">
+              <span class="cd-stat__label">Статус</span>
+              <p-tag
+                [value]="category()!.isActive ? 'Активна' : 'Неактивна'"
+                [severity]="category()!.isActive ? 'success' : 'danger'"
+              />
+            </div>
+            <div class="cd-stat">
+              <span class="cd-stat__label">Видимість</span>
+              <p-tag
+                [value]="category()!.isVisible ? 'Видима' : 'Прихована'"
+                [severity]="category()!.isVisible ? 'success' : 'secondary'"
+              />
+            </div>
+            <div class="cd-stat">
+              <span class="cd-stat__label">Популярна</span>
+              <p-tag
+                [value]="category()!.isFeatured ? 'Так' : 'Ні'"
+                [severity]="category()!.isFeatured ? 'warning' : 'secondary'"
+              />
+            </div>
+          </div>
+
+          <!-- Quick stats grid -->
+          <div class="cd-info-grid">
+            <div class="cd-info-item">
+              <span class="cd-info-item__label">Slug</span>
+              <code class="cd-info-item__code">{{ category()!.slug }}</code>
+            </div>
+            <div class="cd-info-item">
+              <span class="cd-info-item__label">Порядок</span>
+              <span class="cd-info-item__value">{{ category()!.sortOrder }}</span>
+            </div>
+            <div class="cd-info-item">
+              <span class="cd-info-item__label">Рівень ієрархії</span>
+              <span class="cd-info-item__value">{{ category()!.level }}</span>
+            </div>
+            <div class="cd-info-item">
+              <span class="cd-info-item__label">Характеристик</span>
+              <span class="cd-info-item__value">{{ category()!.specifications?.length ?? 0 }}</span>
+            </div>
+          </div>
+
+          <!-- Timestamps -->
+          <div class="cd-dates">
+            <div class="cd-dates__item">
+              <i class="pi pi-calendar-plus"></i>
+              <span>Створено: <strong>{{ formatDate(category()!.createdAt) }}</strong></span>
+            </div>
+            <div class="cd-dates__item">
+              <i class="pi pi-calendar"></i>
+              <span>Оновлено: <strong>{{ formatDate(category()!.updatedAt) }}</strong></span>
+            </div>
+          </div>
+        </div>
+      </div><!-- /cd-hero -->
+
+      <!-- ── Tabs ──────────────────────────────────────────────── -->
+      <p-tabView
+        [activeIndex]="activeTabIndex()"
+        (activeIndexChange)="onTabChange($event)"
+        styleClass="cd-tabs"
+      >
+
+        <!-- ════════════════════════════════════════════
+             TAB 1 — ІНФОРМАЦІЯ
+        ════════════════════════════════════════════ -->
+        <p-tabPanel>
+          <ng-template pTemplate="header">
+            <div class="cd-tab-header">
+              <i class="pi pi-info-circle"></i>
+              <span>Інформація</span>
+            </div>
+          </ng-template>
+
+          <div class="cd-tab-content">
+
+            <!-- Description -->
+            @if (category()!.description) {
+              <div class="cd-section">
+                <div class="cd-section__head">
+                  <i class="pi pi-align-left"></i>
+                  <span>Опис</span>
+                </div>
+                <p class="cd-description">{{ category()!.description }}</p>
+              </div>
+            }
+
+            <!-- Flags / boolean settings -->
+            <div class="cd-section">
+              <div class="cd-section__head">
+                <i class="pi pi-sliders-h"></i>
+                <span>Налаштування</span>
+              </div>
+              <div class="cd-flags">
+                <div class="cd-flag-card" [class.active]="category()!.isActive">
+                  <i [class]="category()!.isActive ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
+                  <div class="cd-flag-card__text">
+                    <span class="cd-flag-card__label">Активна</span>
+                    <small>Видима в каталозі</small>
+                  </div>
+                  <p-tag
+                    [value]="category()!.isActive ? 'Так' : 'Ні'"
+                    [severity]="category()!.isActive ? 'success' : 'danger'"
+                  />
+                </div>
+                <div class="cd-flag-card" [class.active]="category()!.isVisible">
+                  <i [class]="category()!.isVisible ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
+                  <div class="cd-flag-card__text">
+                    <span class="cd-flag-card__label">Видима</span>
+                    <small>Показується в меню</small>
+                  </div>
+                  <p-tag
+                    [value]="category()!.isVisible ? 'Так' : 'Ні'"
+                    [severity]="category()!.isVisible ? 'success' : 'secondary'"
+                  />
+                </div>
+                <div class="cd-flag-card" [class.active]="category()!.isFeatured">
+                  <i [class]="category()!.isFeatured ? 'pi pi-star-fill' : 'pi pi-star'"></i>
+                  <div class="cd-flag-card__text">
+                    <span class="cd-flag-card__label">Популярна</span>
+                    <small>На головній сторінці</small>
+                  </div>
+                  <p-tag
+                    [value]="category()!.isFeatured ? 'Так' : 'Ні'"
+                    [severity]="category()!.isFeatured ? 'warning' : 'secondary'"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Specifications -->
+            @if ((category()!.specifications?.length ?? 0) > 0) {
+              <div class="cd-section">
+                <div class="cd-section__head">
+                  <i class="pi pi-th-large"></i>
+                  <span>Характеристики категорії</span>
+                  <span class="cd-section__badge">{{ category()!.specifications?.length ?? 0 }}</span>
+                </div>
+                <div class="cd-specs-grid">
+                  @for (spec of category()!.specifications; track spec.referenceId) {
+                    <div class="cd-spec-card">
+                      <div class="cd-spec-card__head">
+                        <span class="cd-spec-card__name">{{ spec.name || spec.slug }}</span>
+                        @if (spec.type) {
+                          <p-tag
+                            [value]="getSpecTypeLabel(spec.type)"
+                            severity="secondary"
+                            styleClass="cd-spec-type-tag"
+                          />
+                        }
+                      </div>
+
+                      <code class="cd-spec-card__slug">{{ spec.slug }}</code>
+
+                      @if (spec.description) {
+                        <p class="cd-spec-card__desc">{{ spec.description }}</p>
+                      }
+
+                      <!-- Flags -->
+                      <div class="cd-spec-card__flags">
+                        @if (spec.isRequired) {
+                          <span class="cd-spec-flag cd-spec-flag--required">Обов'язкове</span>
+                        }
+                        @if (spec.isFilterable) {
+                          <span class="cd-spec-flag cd-spec-flag--filter">Фільтрується</span>
+                        }
+                        @if (spec.isVariant) {
+                          <span class="cd-spec-flag cd-spec-flag--variant">Варіант</span>
+                        }
+                      </div>
+
+                      <!-- Constraints -->
+                      @if (spec.unit) {
+                        <div class="cd-spec-card__meta">
+                          <span class="cd-spec-card__meta-key">Одиниця:</span>
+                          <span>{{ spec.unit }}</span>
+                        </div>
+                      }
+                      @if (spec.min !== null && spec.min !== undefined) {
+                        <div class="cd-spec-card__meta">
+                          <span class="cd-spec-card__meta-key">Min:</span>
+                          <span>{{ spec.min }}</span>
+                        </div>
+                      }
+                      @if (spec.max !== null && spec.max !== undefined) {
+                        <div class="cd-spec-card__meta">
+                          <span class="cd-spec-card__meta-key">Max:</span>
+                          <span>{{ spec.max }}</span>
+                        </div>
+                      }
+                      @if (spec.defaultValue !== null && spec.defaultValue !== undefined) {
+                        <div class="cd-spec-card__meta">
+                          <span class="cd-spec-card__meta-key">За замовч.:</span>
+                          <span>{{ spec.defaultValue }}</span>
+                        </div>
+                      }
+
+                      <!-- Color options preview -->
+                      @if (spec.type === 'color' && spec.options?.length) {
+                        <div class="cd-spec-colors">
+                          @for (opt of spec.options!.slice(0, 8); track opt.id) {
+                            <span
+                              class="cd-spec-color-dot"
+                              [style.background]="opt.colorHex || '#e5e7eb'"
+                              [title]="opt.label"
+                            ></span>
+                          }
+                          @if (spec.options!.length > 8) {
+                            <span class="cd-spec-more">+{{ spec.options!.length - 8 }}</span>
+                          }
+                        </div>
+                      }
+
+                      <!-- Select / multiselect options preview -->
+                      @if ((spec.type === 'select' || spec.type === 'multiselect') && spec.options?.length) {
+                        <div class="cd-spec-chips">
+                          @for (opt of spec.options!.slice(0, 5); track opt.id) {
+                            <span class="cd-spec-chip">{{ opt.label }}</span>
+                          }
+                          @if (spec.options!.length > 5) {
+                            <span class="cd-spec-chip cd-spec-chip--more">+{{ spec.options!.length - 5 }}</span>
+                          }
+                        </div>
+                      }
+
+                      <div class="cd-spec-card__order">Порядок: {{ spec.sortOrder }}</div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Media gallery -->
+            @if (hasMedia()) {
+              <div class="cd-section">
+                <div class="cd-section__head">
+                  <i class="pi pi-images"></i>
+                  <span>Медіаресурси</span>
+                </div>
+                <div class="cd-media-grid">
+                  @if (category()!.image) {
+                    <div class="cd-media-item">
+                      <img
+                        [src]="optimizedUrl(category()!.image!, 400)"
+                        alt="Основне зображення"
+                        class="cd-media-item__img"
+                        loading="lazy"
+                      />
+                      <span class="cd-media-item__label">Основне зображення</span>
+                    </div>
+                  }
+                  @if (category()!.icon) {
+                    <div class="cd-media-item">
+                      <img
+                        [src]="optimizedUrl(category()!.icon!, 400)"
+                        alt="Іконка"
+                        class="cd-media-item__img"
+                        loading="lazy"
+                      />
+                      <span class="cd-media-item__label">Іконка</span>
+                    </div>
+                  }
+                  @if (category()!.coverImage) {
+                    <div class="cd-media-item cd-media-item--wide">
+                      <img
+                        [src]="optimizedUrl(category()!.coverImage!, 400)"
+                        alt="Обкладинка"
+                        class="cd-media-item__img"
+                        loading="lazy"
+                      />
+                      <span class="cd-media-item__label">Обкладинка</span>
+                    </div>
+                  }
+                  @if (category()!.bannerImage) {
+                    <div class="cd-media-item cd-media-item--banner">
+                      <img
+                        [src]="optimizedUrl(category()!.bannerImage!, 400)"
+                        alt="Банер"
+                        class="cd-media-item__img"
+                        loading="lazy"
+                      />
+                      <span class="cd-media-item__label">Банер</span>
+                    </div>
+                  }
+                  @for (img of category()!.images; track img; let i = $index) {
+                    <div class="cd-media-item">
+                      <img
+                        [src]="optimizedUrl(img, 400)"
+                        [alt]="'Галерея ' + (i + 1)"
+                        class="cd-media-item__img"
+                        loading="lazy"
+                      />
+                      <span class="cd-media-item__label">Галерея {{ i + 1 }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- SEO -->
+            @if (hasSeo()) {
+              <div class="cd-section cd-section--seo">
+                <div class="cd-section__head">
+                  <i class="pi pi-globe"></i>
+                  <span>SEO</span>
+                </div>
+                <div class="cd-attr-list">
+                  @if (category()!.seoTitle) {
+                    <div class="cd-attr-row">
+                      <span class="cd-attr-label">Meta Title</span>
+                      <span class="cd-attr-value">{{ category()!.seoTitle }}</span>
+                    </div>
+                  }
+                  @if (category()!.seoDescription) {
+                    <div class="cd-attr-row">
+                      <span class="cd-attr-label">Meta Description</span>
+                      <span class="cd-attr-value">{{ category()!.seoDescription }}</span>
+                    </div>
+                  }
+                  @if (category()!.seoKeywords?.length) {
+                    <div class="cd-attr-row">
+                      <span class="cd-attr-label">Keywords</span>
+                      <div class="cd-keyword-chips">
+                        @for (kw of category()!.seoKeywords; track kw) {
+                          <span class="cd-keyword-chip">{{ kw }}</span>
+                        }
+                      </div>
+                    </div>
+                  }
+                  @if (category()!.canonicalUrl) {
+                    <div class="cd-attr-row">
+                      <span class="cd-attr-label">Canonical URL</span>
+                      <a [href]="category()!.canonicalUrl" target="_blank" rel="noopener" class="cd-attr-link">
+                        {{ category()!.canonicalUrl }}
+                      </a>
+                    </div>
+                  }
+                  @if (category()!.ogImage) {
+                    <div class="cd-attr-row">
+                      <span class="cd-attr-label">OG Image</span>
+                      <a [href]="category()!.ogImage" target="_blank" rel="noopener" class="cd-attr-link">
+                        {{ category()!.ogImage }}
+                      </a>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Technical / meta info -->
+            <div class="cd-section cd-section--meta">
+              <div class="cd-section__head">
+                <i class="pi pi-clock"></i>
+                <span>Службова інформація</span>
+              </div>
+              <div class="cd-attr-list">
+                <div class="cd-attr-row">
+                  <span class="cd-attr-label">ID</span>
+                  <code class="cd-attr-id">{{ category()!._id }}</code>
+                </div>
+                @if (category()!.path) {
+                  <div class="cd-attr-row">
+                    <span class="cd-attr-label">Path</span>
+                    <code class="cd-attr-id">{{ category()!.path }}</code>
+                  </div>
+                }
+                @if (category()!.parentId) {
+                  <div class="cd-attr-row">
+                    <span class="cd-attr-label">Parent ID</span>
+                    <code class="cd-attr-id">{{ category()!.parentId }}</code>
+                  </div>
+                }
+                <div class="cd-attr-row">
+                  <span class="cd-attr-label">Рівень ієрархії</span>
+                  <span class="cd-attr-value">{{ category()!.level }}</span>
+                </div>
+                <div class="cd-attr-row">
+                  <span class="cd-attr-label">Порядок</span>
+                  <span class="cd-attr-value">{{ category()!.sortOrder }}</span>
+                </div>
+                <div class="cd-attr-row">
+                  <span class="cd-attr-label">Створено</span>
+                  <span class="cd-attr-value">{{ formatDate(category()!.createdAt) }}</span>
+                </div>
+                <div class="cd-attr-row">
+                  <span class="cd-attr-label">Оновлено</span>
+                  <span class="cd-attr-value">{{ formatDate(category()!.updatedAt) }}</span>
+                </div>
+                @if (category()!.deletedAt) {
+                  <div class="cd-attr-row">
+                    <span class="cd-attr-label cd-attr-label--danger">Видалено</span>
+                    <span class="cd-attr-value cd-attr-value--danger">{{ formatDate(category()!.deletedAt) }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+          </div><!-- /cd-tab-content -->
+        </p-tabPanel>
+
+        <!-- ════════════════════════════════════════════
+             TAB 2 — ТОВАРИ
+        ════════════════════════════════════════════ -->
+        <p-tabPanel>
+          <ng-template pTemplate="header">
+            <div class="cd-tab-header">
+              <i class="pi pi-box"></i>
+              <span>Товари</span>
+              @if (merchandiseLoaded() && merchandisePagination().total > 0) {
+                <span class="cd-tab-badge">{{ merchandisePagination().total }}</span>
+              }
+            </div>
+          </ng-template>
+
+          <div class="cd-tab-content">
+
+            <!-- Toolbar -->
+            <div class="cd-products-toolbar">
+              <p-iconField iconPosition="left" styleClass="cd-search-field">
+                <p-inputIcon styleClass="pi pi-search" />
+                <input
+                  pInputText
+                  [ngModel]="productSearchQuery()"
+                  (ngModelChange)="onProductSearch($event)"
+                  placeholder="Пошук товарів..."
+                  class="cd-search-input"
+                />
+              </p-iconField>
+
+              <p-dropdown
+                [options]="sortOptions"
+                optionLabel="label"
+                optionValue="value"
+                [ngModel]="productSort()"
+                (ngModelChange)="onProductSortChange($event)"
+                styleClass="cd-sort-dropdown"
+              />
+
+              <div class="cd-view-toggle">
+                <button
+                  type="button"
+                  class="cd-view-btn"
+                  [class.active]="productViewMode() === 'grid'"
+                  (click)="productViewMode.set('grid')"
+                  pTooltip="Сітка"
+                >
+                  <i class="pi pi-th-large"></i>
+                </button>
+                <button
+                  type="button"
+                  class="cd-view-btn"
+                  [class.active]="productViewMode() === 'list'"
+                  (click)="productViewMode.set('list')"
+                  pTooltip="Список"
+                >
+                  <i class="pi pi-list"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- ── Loading skeletons ── -->
+            @if (loadingMerchandise()) {
+              @if (productViewMode() === 'grid') {
+                <div class="cd-products-grid">
+                  @for (i of [1,2,3,4,5,6,7,8,9,10,11,12]; track i) {
+                    <div class="cd-product-skeleton">
+                      <p-skeleton height="170px" borderRadius="10px 10px 0 0" />
+                      <div class="cd-product-skeleton__body">
+                        <p-skeleton height="14px" width="85%" styleClass="mb-2" />
+                        <p-skeleton height="18px" width="50%" />
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="cd-list-skeleton">
+                  @for (i of [1,2,3,4,5,6]; track i) {
+                    <div class="cd-list-skeleton__row">
+                      <p-skeleton width="52px" height="52px" borderRadius="8px" />
+                      <p-skeleton height="16px" styleClass="flex-1" />
+                      <p-skeleton height="16px" width="80px" />
+                      <p-skeleton height="20px" width="72px" borderRadius="999px" />
+                    </div>
+                  }
+                </div>
+              }
+
+            <!-- ── Not yet loaded ── -->
+            } @else if (!merchandiseLoaded()) {
+              <div class="cd-products-idle">
+                <i class="pi pi-box"></i>
+                <p>Товари ще не завантажено</p>
+                <p-button
+                  label="Завантажити товари"
+                  icon="pi pi-refresh"
+                  severity="secondary"
+                  [outlined]="true"
+                  (onClick)="loadMerchandise()"
+                />
+              </div>
+
+            <!-- ── Empty state ── -->
+            } @else if (merchandise().length === 0) {
+              <div class="cd-products-empty">
+                <i class="pi pi-inbox"></i>
+                <p>
+                  @if (productSearchQuery()) {
+                    Товарів за запитом «{{ productSearchQuery() }}» не знайдено
+                  } @else {
+                    У цій категорії ще немає товарів
+                  }
+                </p>
+                @if (productSearchQuery()) {
+                  <p-button
+                    label="Скинути пошук"
+                    icon="pi pi-times"
+                    severity="secondary"
+                    [text]="true"
+                    (onClick)="onProductSearch('')"
+                  />
+                }
+              </div>
+
+            <!-- ── Grid view ── -->
+            } @else if (productViewMode() === 'grid') {
+              <div class="cd-products-grid">
+                @for (item of merchandise(); track item._id) {
+                  <div class="cd-product-card" (click)="openMerchandiseDetails(item._id)">
+                    <div class="cd-product-card__img-wrap">
+                      @if (getFirstProductImage(item)) {
+                        <img
+                          [src]="optimizedUrl(getFirstProductImage(item), 320)"
+                          [alt]="item.name"
+                          class="cd-product-card__img"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      } @else {
+                        <div class="cd-product-card__img-ph">
+                          <i class="pi pi-image"></i>
+                        </div>
+                      }
+                      <p-tag
+                        [value]="item.isActive ? 'Активний' : 'Неактивний'"
+                        [severity]="item.isActive ? 'success' : 'danger'"
+                        styleClass="cd-product-card__status"
+                      />
+                    </div>
+                    <div class="cd-product-card__body">
+                      <div class="cd-product-card__name">{{ item.name }}</div>
+                      <div class="cd-product-card__price">
+                        {{ formatPrice(item.salePrice, item.currency) }}
+                      </div>
+                      <div class="cd-product-card__foot">
+                        <p-tag
+                          [value]="getStockLabel(item.stockQuantity)"
+                          [severity]="getStockSeverity(item.stockQuantity)"
+                          styleClass="cd-product-card__stock"
+                        />
+                        <code class="cd-product-card__sku">{{ item.sku }}</code>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
+            <!-- ── List view ── -->
+            } @else {
+              <div class="cd-products-table-wrap">
+                <table class="cd-table">
+                  <thead>
+                    <tr>
+                      <th class="cd-table__th cd-table__th--img"></th>
+                      <th class="cd-table__th">Назва</th>
+                      <th class="cd-table__th">SKU</th>
+                      <th class="cd-table__th cd-table__th--r">Ціна</th>
+                      <th class="cd-table__th cd-table__th--c">Склад</th>
+                      <th class="cd-table__th cd-table__th--c">Статус</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (item of merchandise(); track item._id) {
+                      <tr class="cd-table__row" (click)="openMerchandiseDetails(item._id)">
+                        <td class="cd-table__td cd-table__td--img">
+                          @if (getFirstProductImage(item)) {
+                            <img
+                              [src]="optimizedUrl(getFirstProductImage(item), 96)"
+                              [alt]="item.name"
+                              class="cd-table__thumb"
+                              loading="lazy"
+                            />
+                          } @else {
+                            <div class="cd-table__thumb-ph">
+                              <i class="pi pi-image"></i>
+                            </div>
+                          }
+                        </td>
+                        <td class="cd-table__td">
+                          <div class="cd-table__name">{{ item.name }}</div>
+                          @if (item.shortDescription) {
+                            <div class="cd-table__sub">{{ item.shortDescription }}</div>
+                          }
+                        </td>
+                        <td class="cd-table__td">
+                          <code class="cd-table__sku">{{ item.sku }}</code>
+                        </td>
+                        <td class="cd-table__td cd-table__td--r cd-table__td--price">
+                          {{ formatPrice(item.salePrice, item.currency) }}
+                        </td>
+                        <td class="cd-table__td cd-table__td--c">
+                          <p-tag
+                            [value]="getStockLabel(item.stockQuantity)"
+                            [severity]="getStockSeverity(item.stockQuantity)"
+                          />
+                        </td>
+                        <td class="cd-table__td cd-table__td--c">
+                          <p-tag
+                            [value]="item.isActive ? 'Активний' : 'Неактивний'"
+                            [severity]="item.isActive ? 'success' : 'danger'"
+                          />
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+
+            <!-- Paginator -->
+            @if (merchandiseLoaded() && merchandisePagination().total > merchandisePagination().limit) {
+              <p-paginator
+                [rows]="merchandisePagination().limit ?? 12"
+                [totalRecords]="merchandisePagination().total ?? 0"
+                [first]="((merchandisePagination().page ?? 1) - 1) * (merchandisePagination().limit ?? 12)"
+                (onPageChange)="onProductPageChange($event)"
+                [rowsPerPageOptions]="[12, 24, 48]"
+                styleClass="cd-paginator"
+              />
+            }
+
+          </div><!-- /cd-tab-content -->
+        </p-tabPanel>
+
+      </p-tabView>
+
+    </div><!-- /cd-body -->
+  }
+
+  <!-- ══════════════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════════════ -->
+  <ng-template pTemplate="footer">
+    <div class="cd-footer">
+      <p-button
+        label="Закрити"
+        icon="pi pi-times"
+        severity="secondary"
+        [text]="true"
+        (onClick)="close()"
+      />
+    </div>
+  </ng-template>
+
+</p-dialog>
+
+<!-- ── Nested merchandise details dialog ── -->
+<app-merchandise-details
+  [visible]="showMerchandiseDetails()"
+  (visibleChange)="showMerchandiseDetails.set($event)"
+  [merchandiseId]="detailsMerchandiseId()"
+/>
