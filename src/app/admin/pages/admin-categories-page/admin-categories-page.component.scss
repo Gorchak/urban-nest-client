@@ -70,3 +70,13 @@
   align-items: center;
   gap: 12px;
 }
+
+.category-header {
+  cursor: pointer;
+
+  &:hover {
+    .category-name {
+      font-weight: 600;
+    }
+  }
+}

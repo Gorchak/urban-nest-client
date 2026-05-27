@@ -40,7 +40,7 @@
     <ng-template pTemplate="body" let-category>
       <tr>
         <td>
-          <div class="category-header">
+          <div class="category-header" (click)="openDetails(category)">
             <div class="category-image" *ngIf="category.image">
               <img [src]="category.image" alt="{{ category.image }}" />
             </div>
