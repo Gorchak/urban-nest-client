@@ -47,7 +47,7 @@
           @if (!category()!.isVisible) {
             <p-tag value="Прихована" severity="secondary" />
           }
-          @if (category()!.specifications?.length) {
+           @if (category()!.specifications.length) {
             <p-tag
               [value]="category()!.specifications.length + ' характ.'"
               severity="info"
@@ -203,7 +203,7 @@
             </div>
             <div class="cd-info-item">
               <span class="cd-info-item__label">Характеристик</span>
-              <span class="cd-info-item__value">{{ category()!.specifications?.length ?? 0 }}</span>
+              <span class="cd-info-item__value">{{ category()!.specifications.length }}</span>
             </div>
           </div>
 
@@ -296,12 +296,12 @@
             </div>
 
             <!-- Specifications -->
-            @if ((category()!.specifications?.length ?? 0) > 0) {
+             @if (category()!.specifications.length > 0) {
               <div class="cd-section">
                 <div class="cd-section__head">
                   <i class="pi pi-th-large"></i>
                   <span>Характеристики категорії</span>
-                  <span class="cd-section__badge">{{ category()!.specifications?.length ?? 0 }}</span>
+                  <span class="cd-section__badge">{{ category()!.specifications.length }}</span>
                 </div>
                 <div class="cd-specs-grid">
                   @for (spec of category()!.specifications; track spec.referenceId) {
@@ -484,7 +484,7 @@
                       <span class="cd-attr-value">{{ category()!.seoDescription }}</span>
                     </div>
                   }
-                  @if (category()!.seoKeywords?.length) {
+                  @if (category()!.seoKeywords.length) {
                     <div class="cd-attr-row">
                       <span class="cd-attr-label">Keywords</span>
                       <div class="cd-keyword-chips">
@@ -795,14 +795,14 @@
 
             <!-- Paginator -->
             @if (merchandiseLoaded() && merchandisePagination().total > merchandisePagination().limit) {
-              <p-paginator
-                [rows]="merchandisePagination().limit ?? 12"
-                [totalRecords]="merchandisePagination().total ?? 0"
-                [first]="((merchandisePagination().page ?? 1) - 1) * (merchandisePagination().limit ?? 12)"
-                (onPageChange)="onProductPageChange($event)"
-                [rowsPerPageOptions]="[12, 24, 48]"
-                styleClass="cd-paginator"
-              />
+<p-paginator
+  [rows]="merchandisePagination().limit"
+  [totalRecords]="merchandisePagination().total"
+  [first]="((merchandisePagination().page - 1) * merchandisePagination().limit)"
+  (onPageChange)="onProductPageChange($event)"
+  [rowsPerPageOptions]="[12, 24, 48]"
+  styleClass="cd-paginator"
+/>
             }
 
           </div><!-- /cd-tab-content -->

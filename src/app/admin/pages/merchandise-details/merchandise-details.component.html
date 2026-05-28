@@ -188,9 +188,9 @@
             </div>
             <div class="stock-item">
               <span class="stock-item__label">Тип власності</span>
-              <span class="stock-item__value">
-                {{ ownershipLabels[merchandise()!.ownershipType] ?? merchandise()!.ownershipType }}
-              </span>
+<span class="stock-item__value">
+  {{ ownershipLabels[merchandise()!.ownershipType] }}
+</span>
             </div>
           </div>
         </div>
@@ -297,7 +297,7 @@
                   <span class="attr-value">{{ merchandise()!.seoDescription }}</span>
                 </div>
               }
-              @if (merchandise()!.seoKeywords?.length) {
+              @if (merchandise()!.seoKeywords.length) {
                 <div class="attr-row">
                   <span class="attr-label">Keywords</span>
                   <div class="keyword-chips">

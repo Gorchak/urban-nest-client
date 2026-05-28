@@ -450,26 +450,26 @@
 
                         <!-- Type preview -->
                         <div class="spec-card-preview">
-                          @if (ref.type === 'color' && ref.options?.length) {
+                           @if (ref.type === 'color' && ref.options.length) {
                             <div class="spec-preview-colors">
-                              @for (opt of (ref.options ?? []).slice(0, 8); track opt.id) {
+                               @for (opt of ref.options.slice(0, 8); track opt.id) {
                                 <span
                                   class="spec-color-dot"
                                   [style.background]="opt.colorHex || '#e5e7eb'"
                                   [title]="opt.label"
                                 ></span>
                               }
-                              @if ((ref.options?.length ?? 0) > 8) {
-                                <span class="spec-more-badge">+{{ (ref.options?.length ?? 0) - 8 }}</span>
+                               @if (ref.options.length > 8) {
+                                <span class="spec-more-badge">+{{ ref.options.length - 8 }}</span>
                               }
                             </div>
-                          } @else if ((ref.type === 'select' || ref.type === 'multiselect') && ref.options?.length) {
+                           } @else if ((ref.type === 'select' || ref.type === 'multiselect') && ref.options.length) {
                             <div class="spec-preview-chips">
-                              @for (opt of (ref.options ?? []).slice(0, 4); track opt.id) {
+                               @for (opt of ref.options.slice(0, 4); track opt.id) {
                                 <span class="spec-chip">{{ opt.label }}</span>
                               }
-                              @if ((ref.options?.length ?? 0) > 4) {
-                                <span class="spec-chip spec-chip--more">+{{ (ref.options?.length ?? 0) - 4 }}</span>
+                               @if (ref.options.length > 4) {
+                                <span class="spec-chip spec-chip--more">+{{ ref.options.length - 4 }}</span>
                               }
                             </div>
                           } @else if (ref.type === 'boolean') {
