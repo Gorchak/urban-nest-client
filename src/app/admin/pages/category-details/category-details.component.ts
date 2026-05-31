@@ -324,6 +324,10 @@ export class CategoryDetailsComponent implements OnChanges {
     return item.images?.[0] ?? '';
   }
 
+  protected getInventoryQuantity(item: Merchandise): number {
+    return item.inventory?.total_quantity ?? 0;
+  }
+
   protected getSpecTypeLabel(type?: string): string {
     if (!type) return '—';
     return SPEC_TYPE_LABELS[type] ?? type;

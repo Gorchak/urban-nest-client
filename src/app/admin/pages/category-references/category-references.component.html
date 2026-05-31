@@ -33,6 +33,7 @@
         <th class="text-center">Обов'язкове</th>
         <th class="text-center">Фільтр</th>
         <th class="text-center">Варіант</th>
+        <th class="text-center">Склад</th>
         <th pSortableColumn="isActive">
           Статус <p-sortIcon field="isActive"></p-sortIcon>
         </th>
@@ -45,6 +46,13 @@
 
     <ng-template pTemplate="body" let-ref>
       <tr>
+        <td class="text-center">
+          @if (ref.isStockTrackable) {
+            <i class="pi pi-check flag-yes"></i>
+          } @else {
+            <i class="pi pi-minus flag-no"></i>
+          }
+        </td>
         <td>
           <div class="ref-name-cell">
             <span class="ref-name">{{ ref.name }}</span>
@@ -113,7 +121,7 @@
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="9" class="text-center">
+        <td colspan="10" class="text-center">
           Характеристики не знайдено. Натисніть «Створити характеристику», щоб додати першу.
         </td>
       </tr>

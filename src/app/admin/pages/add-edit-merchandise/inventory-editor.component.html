@@ -1,0 +1,109 @@
+<section class="inventory-editor">
+  <div class="inventory-editor__header">
+    <div>
+      <h3>Inventory / Склад</h3>
+      <span class="inventory-editor__total">{{ totalQuantity() }} pcs</span>
+    </div>
+
+    <label class="inventory-editor__toggle">
+      <p-checkbox
+        [ngModel]="trackByAttribute()"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="onTrackToggle($event)"
+        [binary]="true"
+        inputId="trackByAttribute"
+      />
+      <span>Вказати кількість по характеристикам</span>
+    </label>
+  </div>
+
+  @if (loading) {
+    <div class="inventory-skeleton">
+      <p-skeleton height="40px" />
+      <p-skeleton height="88px" />
+    </div>
+  } @else if (!trackByAttribute()) {
+    <div class="inventory-field">
+      <label for="totalQuantity" class="field-label required">Загальна кількість</label>
+      <p-inputNumber
+        inputId="totalQuantity"
+        [ngModel]="standaloneQuantity()"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="onStandaloneQuantityChange($event)"
+        [min]="0"
+        [showButtons]="true"
+        styleClass="w-full"
+      />
+      @if (submitted && totalQuantity() < 0) {
+        <small class="field-error">Quantity must be 0 or greater</small>
+      }
+    </div>
+  } @else {
+    <div class="inventory-field inventory-total-field">
+      <label class="field-label">Загальна кількість</label>
+      <div class="inventory-total-readonly">
+        <strong>{{ totalQuantity() }}</strong>
+        <span>pcs</span>
+      </div>
+    </div>
+
+    <div class="inventory-field">
+      <label for="inventoryAttribute" class="field-label required">Choose attribute</label>
+      <select
+        id="inventoryAttribute"
+        class="inventory-select"
+        [ngModel]="selectedAttributeKey()"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="onAttributeChange($event)"
+        [class.ng-invalid]="attributeInvalid()"
+      >
+        <option [ngValue]="null">Choose attribute</option>
+        @for (option of attributeOptions(); track option.value) {
+          <option [ngValue]="option.value">{{ option.label }}</option>
+        }
+      </select>
+      @if (attributeInvalid()) {
+        <small class="field-error">Choose an attribute with values</small>
+      }
+      @if (attributeOptions().length === 0) {
+        <small class="field-error">No stock-trackable attributes found for this product.</small>
+      }
+    </div>
+
+    @if (valueRows().length > 0) {
+      <div class="inventory-table">
+        <div class="inventory-table__head">
+          <span>Value</span>
+          <span>Quantity</span>
+        </div>
+        @for (row of valueRows(); track row.value_key) {
+          <div class="inventory-table__row">
+            <span class="inventory-table__value">{{ row.value_label }}</span>
+            <div class="inventory-table__input">
+              <p-inputNumber
+                [ngModel]="row.quantity"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="onQuantityChange(row.value_key, $event)"
+                [min]="0"
+                [showButtons]="true"
+                styleClass="w-full"
+              />
+              @if (isQuantityInvalid(row)) {
+                <small class="field-error">Use a whole number</small>
+              }
+            </div>
+          </div>
+        }
+        <div class="inventory-table__total">
+          <span>Загальна кількість</span>
+          <strong>{{ totalQuantity() }} pcs</strong>
+        </div>
+      </div>
+    } @else {
+      <div class="inventory-empty">
+        <i class="pi pi-info-circle"></i>
+        <span>No values found for this attribute.</span>
+      </div>
+    }
+  }
+</section>

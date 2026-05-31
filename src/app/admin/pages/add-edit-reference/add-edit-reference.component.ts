@@ -113,6 +113,7 @@ export class AddEditReferenceComponent implements OnInit, OnChanges {
     isRequired: [false],
     isFilterable: [true],
     isVariant: [false],
+    isStockTrackable: [false],
     isActive: [true],
     placeholder: [''],
     helperText: [''],
@@ -174,6 +175,7 @@ export class AddEditReferenceComponent implements OnInit, OnChanges {
       isRequired: false,
       isFilterable: true,
       isVariant: false,
+      isStockTrackable: false,
       isActive: true,
       placeholder: '',
       helperText: '',
@@ -209,6 +211,7 @@ export class AddEditReferenceComponent implements OnInit, OnChanges {
       isRequired: ref.isRequired,
       isFilterable: ref.isFilterable,
       isVariant: ref.isVariant,
+      isStockTrackable: ref.isStockTrackable ?? false,
       isActive: ref.isActive,
       placeholder: ref.placeholder ?? '',
       helperText: ref.helperText ?? '',
@@ -336,6 +339,7 @@ export class AddEditReferenceComponent implements OnInit, OnChanges {
       isRequired: boolean;
       isFilterable: boolean;
       isVariant: boolean;
+      isStockTrackable: boolean;
       isActive: boolean;
       placeholder: string;
       helperText: string;
@@ -358,6 +362,7 @@ export class AddEditReferenceComponent implements OnInit, OnChanges {
       isRequired: formValue.isRequired,
       isFilterable: formValue.isFilterable,
       isVariant: formValue.isVariant,
+      isStockTrackable: formValue.isStockTrackable,
       isActive: formValue.isActive,
       placeholder: formValue.placeholder || null,
       helperText: formValue.helperText || null,

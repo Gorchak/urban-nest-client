@@ -39,12 +39,13 @@ import { MessageService } from 'primeng/api';
 import { SkeletonModule } from 'primeng/skeleton';
 
 import { Category, CategorySpecification } from '../../../core/models/category.model';
-import { Merchandise, MerchandiseSpecification, CreateMerchandiseDto, MerchandiseOwnershipType } from '../../../core/models/merchandise.model';
+import { Merchandise, MerchandiseSpecification, CreateMerchandiseDto, MerchandiseOwnershipType, MerchandiseInventory } from '../../../core/models/merchandise.model';
 import { CategoriesService } from '../../../core/services/categories.service';
 import { MerchandiseService } from '../../../core/services/merchandise.service';
 import { ImageUploadComponent } from '../../../shared/components/image-upload/image-upload.component';
+import { InventoryEditorComponent, InventorySpecificationSource } from './inventory-editor.component';
 
-const TAB = { BASIC: 0, SPECS: 1, SEO: 2 } as const;
+const TAB = { BASIC: 0, SPECS: 1, INVENTORY: 2, SEO: 3 } as const;
 type TabIndex = typeof TAB[keyof typeof TAB];
 
 interface SpecFormEntry {
@@ -73,6 +74,7 @@ interface SpecFormEntry {
     CalendarModule,
     TagModule,
     ImageUploadComponent,
+    InventoryEditorComponent,
     DividerModule,
     ToastModule,
     CardModule,
@@ -105,13 +107,34 @@ export class AddEditMerchandiseComponent implements OnChanges {
 
   protected categories = signal<Category[]>([]);
   protected selectedCategory = signal<Category | null>(null);
+  protected selectedCategoryFull = signal<Category | null>(null);
   protected specFormEntries = signal<SpecFormEntry[]>([]);
+  protected specsVersion = signal(0);
+  protected inventory = signal<MerchandiseInventory>({
+    total_quantity: 0,
+    tracked_attribute: null,
+    attribute_quantities: [],
+  });
 
   // Image state — source of truth for the images[] payload sent to the API
   protected imageUrls = signal<string[]>([]);
 
   // Unsaved changes tracking
   protected hasUnsavedChanges = computed(() => this.form.dirty);
+
+  protected inventorySpecificationSources = computed<InventorySpecificationSource[]>(() => {
+    this.specsVersion();
+    return this.specFormEntries().map((entry) => ({
+      referenceId: entry.catSpec.referenceId,
+      slug: entry.catSpec.slug,
+      name: entry.catSpec.name || entry.catSpec.slug,
+      type: entry.catSpec.type ?? 'string',
+      value: entry.ctrl.get('value')?.value ?? null,
+      options: entry.catSpec.options ?? [],
+      isActive: entry.catSpec.isActive,
+      isStockTrackable: entry.catSpec.isStockTrackable,
+    }));
+  });
 
   protected currencyOptions = [
     { label: 'UAH — Гривня', value: 'UAH' },
@@ -135,7 +158,6 @@ export class AddEditMerchandiseComponent implements OnChanges {
     categoryId: [null, [Validators.required]],
     shortDescription: ['', [Validators.maxLength(1000)]],
     description: ['', [Validators.maxLength(10000)]],
-    stockQuantity: [0, [Validators.required, Validators.min(0)]],
     purchasePrice: [0, [Validators.required, Validators.min(0)]],
     salePrice: [0, [Validators.required, Validators.min(0)]],
     retailPrice: [0, [Validators.required, Validators.min(0)]],
@@ -188,7 +210,7 @@ export class AddEditMerchandiseComponent implements OnChanges {
         const cat = cats.find((c) => c._id === this.merchandise!.categoryId);
         if (cat) {
           this.selectedCategory.set(cat);
-          this.buildSpecificationsForm(cat, this.merchandise.specifications);
+          this.loadFullCategory(cat._id, this.merchandise.specifications);
         }
       }
     } catch {
@@ -205,6 +227,7 @@ export class AddEditMerchandiseComponent implements OnChanges {
     this.formSubmitted.set(false);
     this.activeTabIndex.set(TAB.BASIC);
     this.selectedCategory.set(null);
+    this.selectedCategoryFull.set(null);
     this.specFormEntries.set([]);
     this.imageUrls.set([]);
 
@@ -217,7 +240,6 @@ export class AddEditMerchandiseComponent implements OnChanges {
       categoryId: null,
       shortDescription: '',
       description: '',
-      stockQuantity: 0,
       purchasePrice: 0,
       salePrice: 0,
       retailPrice: 0,
@@ -233,6 +255,11 @@ export class AddEditMerchandiseComponent implements OnChanges {
     });
     this.form.markAsPristine();
     this.form.markAsUntouched();
+    this.inventory.set({
+      total_quantity: 0,
+      tracked_attribute: null,
+      attribute_quantities: [],
+    });
 
     if (this.mode === 'edit' && this.merchandise) {
       this.patchFormFromMerchandise();
@@ -252,7 +279,6 @@ export class AddEditMerchandiseComponent implements OnChanges {
       categoryId: m.categoryId,
       shortDescription: m.shortDescription ?? '',
       description: m.description ?? '',
-      stockQuantity: m.stockQuantity,
       purchasePrice: m.purchasePrice,
       salePrice: m.salePrice,
       retailPrice: m.retailPrice,
@@ -266,12 +292,17 @@ export class AddEditMerchandiseComponent implements OnChanges {
       canonicalUrl: m.canonicalUrl ?? '',
       ogImage: m.ogImage ?? '',
     });
+    this.inventory.set(m.inventory ?? {
+      total_quantity: 0,
+      tracked_attribute: null,
+      attribute_quantities: [],
+    });
 
     // Specs will be built after categories load, handled in loadCategories()
     const cat = this.categories().find((c) => c._id === m.categoryId);
     if (cat) {
       this.selectedCategory.set(cat);
-      this.buildSpecificationsForm(cat, m.specifications);
+      this.loadFullCategory(cat._id, m.specifications);
     }
   }
 
@@ -280,12 +311,36 @@ export class AddEditMerchandiseComponent implements OnChanges {
   protected onCategoryChange(categoryId: string): void {
     const cat = this.categories().find((c) => c._id === categoryId) ?? null;
     this.selectedCategory.set(cat);
+    this.selectedCategoryFull.set(null);
     this.clearSpecificationsArray();
     this.specFormEntries.set([]);
     if (cat) {
-      this.buildSpecificationsForm(cat, []);
+      this.loadFullCategory(cat._id, []);
     }
     this.cdr.markForCheck();
+  }
+
+  private async loadFullCategory(
+    categoryId: string,
+    existingValues: MerchandiseSpecification[]
+  ): Promise<void> {
+    this.loadingSpecs.set(true);
+    this.cdr.markForCheck();
+    try {
+      const fullCat = await this.categoriesService.getCategoryById(categoryId);
+      this.selectedCategoryFull.set(fullCat);
+      this.buildSpecificationsForm(fullCat, existingValues);
+    } catch {
+      // fallback to the lightweight category from the list
+      const fallback = this.selectedCategory();
+      if (fallback) {
+        this.selectedCategoryFull.set(fallback);
+        this.buildSpecificationsForm(fallback, existingValues);
+      }
+    } finally {
+      this.loadingSpecs.set(false);
+      this.cdr.markForCheck();
+    }
   }
 
   // ── Dynamic specifications form ────────────────────────────────────────────
@@ -332,6 +387,7 @@ export class AddEditMerchandiseComponent implements OnChanges {
     }
 
     this.specFormEntries.set(entries);
+    this.bumpSpecsVersion();
     this.cdr.markForCheck();
   }
 
@@ -368,13 +424,17 @@ export class AddEditMerchandiseComponent implements OnChanges {
 
   protected isTab1Invalid(): boolean {
     return ['sku', 'name', 'slug', 'categoryId', 'shortDescription', 'description',
-      'stockQuantity', 'purchasePrice', 'salePrice', 'retailPrice', 'ownershipType'].some(
+      'purchasePrice', 'salePrice', 'retailPrice', 'ownershipType'].some(
       (f) => this.form.get(f)?.invalid
     );
   }
 
   protected isTab2Invalid(): boolean {
     return this.specificationsArray.invalid;
+  }
+
+  protected isTabInventoryInvalid(): boolean {
+    return this.isInventoryInvalid();
   }
 
   protected isTab3Invalid(): boolean {
@@ -397,6 +457,32 @@ export class AddEditMerchandiseComponent implements OnChanges {
       .map((o) => ({ label: o.label, value: o.value }));
   }
 
+  protected onSpecificationValueChanged(): void {
+    this.bumpSpecsVersion();
+  }
+
+  private bumpSpecsVersion(): void {
+    this.specsVersion.update((value) => value + 1);
+  }
+
+  protected onInventoryChange(value: MerchandiseInventory): void {
+    this.inventory.set(value);
+    this.form.markAsDirty();
+  }
+
+  protected isInventoryInvalid(): boolean {
+    const inv = this.inventory();
+    if (!inv.tracked_attribute) {
+      return inv.total_quantity < 0 || !Number.isInteger(inv.total_quantity);
+    }
+    return (
+      !inv.tracked_attribute.attribute_key ||
+      inv.attribute_quantities.some(
+        (row) => row.quantity < 0 || !Number.isInteger(row.quantity)
+      )
+    );
+  }
+
   // ── Save ──────────────────────────────────────────────────────────────────
 
   protected async onSave(): Promise<void> {
@@ -408,9 +494,17 @@ export class AddEditMerchandiseComponent implements OnChanges {
         this.activeTabIndex.set(TAB.BASIC);
       } else if (this.isTab2Invalid()) {
         this.activeTabIndex.set(TAB.SPECS);
+      } else if (this.isTabInventoryInvalid()) {
+        this.activeTabIndex.set(TAB.INVENTORY);
       } else if (this.isTab3Invalid()) {
         this.activeTabIndex.set(TAB.SEO);
       }
+      this.cdr.markForCheck();
+      return;
+    }
+
+    if (this.isInventoryInvalid()) {
+      this.activeTabIndex.set(TAB.INVENTORY);
       this.cdr.markForCheck();
       return;
     }
@@ -435,7 +529,7 @@ export class AddEditMerchandiseComponent implements OnChanges {
       shortDescription: v.shortDescription || null,
       specifications,
       images: this.imageUrls(),
-      stockQuantity: v.stockQuantity ?? 0,
+      inventory: this.inventory(),
       purchasePrice: v.purchasePrice ?? 0,
       salePrice: v.salePrice ?? 0,
       retailPrice: v.retailPrice ?? 0,

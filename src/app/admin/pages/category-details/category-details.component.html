@@ -720,8 +720,8 @@
                       </div>
                       <div class="cd-product-card__foot">
                         <p-tag
-                          [value]="getStockLabel(item.stockQuantity)"
-                          [severity]="getStockSeverity(item.stockQuantity)"
+                          [value]="getStockLabel(getInventoryQuantity(item))"
+                          [severity]="getStockSeverity(getInventoryQuantity(item))"
                           styleClass="cd-product-card__stock"
                         />
                         <code class="cd-product-card__sku">{{ item.sku }}</code>
@@ -776,8 +776,8 @@
                         </td>
                         <td class="cd-table__td cd-table__td--c">
                           <p-tag
-                            [value]="getStockLabel(item.stockQuantity)"
-                            [severity]="getStockSeverity(item.stockQuantity)"
+                            [value]="getStockLabel(getInventoryQuantity(item))"
+                            [severity]="getStockSeverity(getInventoryQuantity(item))"
                           />
                         </td>
                         <td class="cd-table__td cd-table__td--c">

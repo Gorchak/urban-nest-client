@@ -160,6 +160,17 @@
         </div>
         <div class="flag-item">
           <p-checkbox
+            formControlName="isStockTrackable"
+            [binary]="true"
+            inputId="ref-stock-trackable"
+          ></p-checkbox>
+          <label for="ref-stock-trackable">
+            <span class="flag-label">Складський облік</span>
+            <small>Доступна для кількості товару</small>
+          </label>
+        </div>
+        <div class="flag-item">
+          <p-checkbox
             formControlName="isActive"
             [binary]="true"
             inputId="ref-active"
@@ -293,7 +304,7 @@
       <div class="form-section options-section">
         <div class="options-header">
           <h3 class="section-title">
-            <i class="pi pi-list"></i> Варіанти 22
+            <i class="pi pi-list"></i> Варіанти
             <span class="options-count">{{ optionsArray.length }}</span>
           </h3>
           <div class="options-toolbar">

@@ -52,6 +52,10 @@
 
   &--full {
     grid-column: span 2;
+
+    ::ng-deep .p-inputtextarea {
+      height: 150px;
+    }
   }
 
   &--inline {
@@ -66,7 +70,7 @@
   color: var(--text-color-secondary);
 
   &.required::after {
-    content: ' *';
+    content: " *";
     color: var(--red-500);
   }
 }

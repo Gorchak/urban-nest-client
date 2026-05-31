@@ -229,6 +229,18 @@ export class MerchandiseDetailsComponent implements OnChanges {
     return spec.type === 'color' && Array.isArray(spec.value);
   }
 
+  protected inventoryQuantity = computed(() =>
+    this.merchandise()?.inventory?.total_quantity ?? 0
+  );
+
+  protected inventoryAttributeLabel = computed(() =>
+    this.merchandise()?.inventory?.tracked_attribute?.attribute_label ?? null
+  );
+
+  protected inventoryRows = computed(() =>
+    this.merchandise()?.inventory?.attribute_quantities ?? []
+  );
+
   protected getStockSeverity(qty: number): 'success' | 'warning' | 'danger' {
     if (qty > 10) return 'success';
     if (qty > 0) return 'warning';

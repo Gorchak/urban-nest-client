@@ -16,6 +16,10 @@
 .reference-form .flag-item label{cursor:pointer;display:flex;flex-direction:column;gap:.125rem}
 .reference-form .flag-item .flag-label{font-size:.8125rem;font-weight:600;color:var(--tp)}
 .reference-form .flag-item small{font-size:.6875rem;color:var(--tm)}
+::ng-deep .reference-form .flag-item .p-checkbox{width:1.25rem;height:1.25rem;flex:0 0 1.25rem}
+::ng-deep .reference-form .flag-item .p-checkbox-box{width:1.25rem;height:1.25rem;border:2px solid var(--bdr);border-radius:.25rem;background:#fff;display:flex;align-items:center;justify-content:center}
+::ng-deep .reference-form .flag-item .p-checkbox-box.p-highlight{border-color:var(--ac);background:var(--ac)}
+::ng-deep .reference-form .flag-item .p-checkbox-icon{color:#fff;font-size:.75rem}
 .reference-form .type-option-selected{display:flex;align-items:center;gap:.5rem}
 .reference-form .type-option-selected i{color:var(--ac)}
 .reference-form .type-option-item{display:flex;align-items:center;gap:.75rem}

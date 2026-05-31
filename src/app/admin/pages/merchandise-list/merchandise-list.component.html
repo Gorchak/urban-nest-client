@@ -260,6 +260,16 @@
                 </button>
               </div>
             }
+            <div class="stock-summary">{{ getInventoryDisplay(item) }}</div>
+            <p-button
+              icon="pi pi-pencil"
+              severity="secondary"
+              [text]="true"
+              size="small"
+              pTooltip="Редагувати склад"
+              class="stock-edit-btn"
+              (onClick)="openQuickInventory(item)"
+            />
           </div>
         </td>
 
@@ -295,6 +305,14 @@
               [text]="true"
               size="small"
               (onClick)="openMerchandiseDetails(item._id)"
+            />
+            <p-button
+              icon="pi pi-shopping-cart"
+              severity="success"
+              [text]="true"
+              size="small"
+              pTooltip="Продаж"
+              (onClick)="openSaleDialog(item)"
             />
             <p-button
               icon="pi pi-pencil"
@@ -359,4 +377,20 @@
   [visible]="showDetailsDialog()"
   (visibleChange)="showDetailsDialog.set($event)"
   [merchandiseId]="detailsMerchandiseId()"
+/>
+
+<app-quick-inventory-editor
+  [visible]="showQuickInventoryDialog()"
+  (visibleChange)="showQuickInventoryDialog.set($event)"
+  [merchandise]="quickInventoryMerchandise()"
+  (saved)="onQuickInventorySaved($event)"
+/>
+
+<app-sale-form-dialog
+  [visible]="showSaleDialog()"
+  (visibleChange)="showSaleDialog.set($event)"
+  [mode]="'new'"
+  [sale]="saleDraft()"
+  [lockItems]="true"
+  (saved)="onSaleSaved($event)"
 />

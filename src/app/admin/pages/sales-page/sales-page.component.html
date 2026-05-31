@@ -1,0 +1,202 @@
+<p-toast position="top-right" />
+
+<div class="sales-page">
+  <div class="page-header">
+    <div>
+      <h1>Продажі</h1>
+      <p>Замовлення, оплати, доставка і статуси</p>
+    </div>
+    <p-button label="Новий продаж" icon="pi pi-plus" (onClick)="openNew()" />
+  </div>
+
+  <div class="sales-toolbar">
+    <p-iconField iconPosition="left" styleClass="search-field">
+      <p-inputIcon styleClass="pi pi-search" />
+      <input
+        pInputText
+        [ngModel]="search()"
+        (ngModelChange)="onSearchChange($event)"
+        placeholder="Пошук за номером, клієнтом, телефоном..."
+      />
+    </p-iconField>
+    <p-dropdown
+      [options]="statusFilterOptions"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="statusFilter()"
+      (ngModelChange)="onStatusFilterChange($event)"
+      placeholder="Статус"
+    />
+  </div>
+
+  <p-table
+    [value]="sales()"
+    [loading]="loading()"
+    [lazy]="true"
+    [totalRecords]="pagination().total"
+    [rows]="pagination().limit"
+    [first]="(pagination().page - 1) * pagination().limit"
+    (onPage)="onPageChange($event)"
+    [paginator]="true"
+    [rowsPerPageOptions]="[10, 20, 50]"
+    responsiveLayout="scroll"
+    styleClass="sales-table"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Номер</th>
+        <th>Клієнт</th>
+        <th>Товари</th>
+        <th>Сума</th>
+        <th>Оплата</th>
+        <th>Статус</th>
+        <th>Дата</th>
+        <th>Дії</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-sale>
+      <tr>
+        <td><code>{{ sale.orderNumber }}</code></td>
+        <td>
+          <div class="customer-cell">
+            <strong>{{ customerName(sale) }}</strong>
+            <span>{{ sale.customer.phone }}</span>
+          </div>
+        </td>
+        <td>
+          <div class="items-cell">
+            <span>{{ sale.items.length }} позицій</span>
+            @if (sale.items[0]?.merchandiseId) {
+              <button
+                type="button"
+                class="item-link"
+                (click)="openMerchandiseDetails(sale.items[0].merchandiseId)"
+              >
+                {{ sale.items[0]?.name || 'Без товарів' }}
+              </button>
+            } @else {
+              <small>{{ sale.items[0]?.name || 'Без товарів' }}</small>
+            }
+          </div>
+        </td>
+        <td class="amount-cell">{{ formatPrice(sale.grandTotal, sale.currency) }}</td>
+        <td>
+          <select
+            class="table-select payment-select"
+            [ngModel]="sale.payment.status"
+            (ngModelChange)="updatePaymentStatus(sale, $event)"
+            [attr.aria-label]="'Статус оплати ' + sale.orderNumber"
+          >
+            @for (option of paymentStatusOptions; track option.value) {
+              <option [ngValue]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </td>
+        <td>
+          <select
+            class="table-select status-select"
+            [ngModel]="sale.status"
+            (ngModelChange)="updateStatus(sale, $event)"
+            [attr.aria-label]="'Статус продажу ' + sale.orderNumber"
+          >
+            @for (option of statusOptions; track option.value) {
+              <option [ngValue]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </td>
+        <td>{{ sale.createdAt | date: 'dd.MM.yyyy' }}</td>
+        <td>
+          <div class="row-actions">
+            <button type="button" class="icon-action" title="Перегляд" (click)="openDetails(sale)">
+              <i class="pi pi-eye"></i>
+            </button>
+            <button type="button" class="icon-action" title="Редагувати" (click)="openEdit(sale)">
+              <i class="pi pi-pencil"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<app-sale-form-dialog
+  [visible]="showEditDialog()"
+  (visibleChange)="showEditDialog.set($event)"
+  [mode]="selectedSale() ? 'edit' : 'new'"
+  [sale]="selectedSale()"
+  (saved)="onSaleSaved()"
+/>
+
+<p-dialog
+  [visible]="showDetailsDialog()"
+  (visibleChange)="showDetailsDialog.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  header="Деталі продажу"
+  [style]="{ width: '880px', maxWidth: '98vw' }"
+  appendTo="body"
+>
+  @if (selectedSale(); as sale) {
+    <div class="sale-details">
+      <div class="details-hero">
+        <div>
+          <span class="muted">Замовлення</span>
+          <h2>{{ sale.orderNumber }}</h2>
+          <p-tag [value]="getStatusOption(sale.status).label" [severity]="getStatusOption(sale.status).severity" />
+        </div>
+        <strong>{{ formatPrice(sale.grandTotal, sale.currency) }}</strong>
+      </div>
+
+      <div class="details-grid">
+        <section>
+          <h3>Покупець</h3>
+          <p>{{ customerName(sale) }}</p>
+          <p>{{ sale.customer.phone }}</p>
+          <p>{{ sale.customer.email }}</p>
+        </section>
+        <section>
+          <h3>Доставка</h3>
+          <p>{{ sale.shippingAddress.city }}, {{ sale.shippingAddress.region }}</p>
+          <p>{{ sale.shippingAddress.deliveryService }} {{ sale.shippingAddress.warehouse }}</p>
+          <p>{{ sale.shippingAddress.trackingNumber }}</p>
+        </section>
+        <section>
+          <h3>Оплата</h3>
+          <p>{{ sale.payment.method }}</p>
+          <p>{{ sale.payment.status }}</p>
+          <p>{{ sale.payment.transactionId }}</p>
+        </section>
+      </div>
+
+      <section>
+        <h3>Товари</h3>
+        <div class="details-items">
+          @for (item of sale.items; track item) {
+            <div class="details-item">
+              @if (item.image) {
+                <img [src]="item.image" [alt]="item.name" />
+              } @else {
+                <div class="item-image-placeholder"><i class="pi pi-image"></i></div>
+              }
+              <div>
+                <strong>{{ item.name }}</strong>
+                <span>{{ item.sku }}</span>
+              </div>
+              <span>{{ item.quantity }} x {{ formatPrice(item.unitPrice, sale.currency) }}</span>
+              <strong>{{ formatPrice(item.totalPrice, sale.currency) }}</strong>
+            </div>
+          }
+        </div>
+      </section>
+    </div>
+  }
+</p-dialog>
+
+<app-merchandise-details
+  [visible]="showMerchandiseDetailsDialog()"
+  (visibleChange)="showMerchandiseDetailsDialog.set($event)"
+  [merchandiseId]="detailsMerchandiseId()"
+/>

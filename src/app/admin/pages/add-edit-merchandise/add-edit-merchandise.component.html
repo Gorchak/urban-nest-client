@@ -218,19 +218,34 @@
             />
           </div>
 
+          <ng-container *ngIf="false">
           <!-- Stock -->
           <div class="field">
-            <label for="stockQuantity" class="field-label required"
+            <label for="legacyStockField" class="field-label required"
               >Кількість на складі</label
             >
             <p-inputNumber
-              id="stockQuantity"
-              formControlName="stockQuantity"
+              id="legacyStockField"
               [min]="0"
               [showButtons]="true"
               styleClass="w-full"
             />
           </div>
+
+          </ng-container>
+
+          <ng-container *ngIf="false">
+          <div class="field field--full">
+            <app-inventory-editor
+              [categorySpecifications]="selectedCategoryFull()?.specifications ?? selectedCategory()?.specifications ?? []"
+              [specificationSources]="inventorySpecificationSources()"
+              [inventory]="inventory()"
+              [loading]="loadingCategories() || loadingSpecs()"
+              [submitted]="formSubmitted()"
+              (inventoryChange)="onInventoryChange($event)"
+            />
+          </div>
+          </ng-container>
 
           <p-divider styleClass="col-span-2" />
 
@@ -354,6 +369,7 @@
                     pInputText
                     [id]="'spec-' + entry.catSpec.referenceId"
                     formControlName="value"
+                    (input)="onSpecificationValueChanged()"
                     [placeholder]="entry.catSpec.placeholder || ''"
                     class="w-full"
                   />
@@ -364,6 +380,7 @@
                     pInputTextarea
                     [id]="'spec-' + entry.catSpec.referenceId"
                     formControlName="value"
+                    (input)="onSpecificationValueChanged()"
                     rows="3"
                     [placeholder]="entry.catSpec.placeholder || ''"
                     class="w-full"
@@ -375,6 +392,7 @@
                   <p-inputNumber
                     [id]="'spec-' + entry.catSpec.referenceId"
                     formControlName="value"
+                    (onInput)="onSpecificationValueChanged()"
                     [min]="entry.catSpec.min ?? undefined"
                     [max]="entry.catSpec.max ?? undefined"
                     [placeholder]="entry.catSpec.placeholder || ''"
@@ -386,6 +404,7 @@
                   <p-inputNumber
                     [id]="'spec-' + entry.catSpec.referenceId"
                     formControlName="value"
+                    (onInput)="onSpecificationValueChanged()"
                     [minFractionDigits]="2"
                     [maxFractionDigits]="4"
                     [min]="entry.catSpec.min ?? undefined"
@@ -401,6 +420,7 @@
                     <p-checkbox
                       [id]="'spec-' + entry.catSpec.referenceId"
                       formControlName="value"
+                      (onChange)="onSpecificationValueChanged()"
                       binary="true"
                     />
                     <span class="text-sm text-color-secondary">
@@ -420,6 +440,7 @@
                   <p-dropdown
                     [id]="'spec-' + entry.catSpec.referenceId"
                     formControlName="value"
+                    (onChange)="onSpecificationValueChanged()"
                     appendTo="body"
                     [options]="getSelectOptions(entry.catSpec)"
                     optionLabel="label"
@@ -436,6 +457,7 @@
                     appendTo="body"
                     [id]="'spec-' + entry.catSpec.referenceId"
                     formControlName="value"
+                    (onChange)="onSpecificationValueChanged()"
                     [options]="getSelectOptions(entry.catSpec)"
                     optionLabel="label"
                     optionValue="value"
@@ -449,6 +471,7 @@
                   <p-calendar
                     [id]="'spec-' + entry.catSpec.referenceId"
                     formControlName="value"
+                    (onSelect)="onSpecificationValueChanged()"
                     dateFormat="yy-mm-dd"
                     [placeholder]="entry.catSpec.placeholder || 'YYYY-MM-DD'"
                     styleClass="w-full"
@@ -481,6 +504,26 @@
       <!-- ═══════════════════════════════════════════════════════
            TAB 3 — SEO
       ══════════════════════════════════════════════════════════ -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <span>
+            Кількість
+            @if (formSubmitted() && isTabInventoryInvalid()) {
+              <i class="pi pi-exclamation-circle tab-error-icon"></i>
+            }
+          </span>
+        </ng-template>
+
+        <app-inventory-editor
+          [categorySpecifications]="selectedCategoryFull()?.specifications ?? selectedCategory()?.specifications ?? []"
+          [specificationSources]="inventorySpecificationSources()"
+          [inventory]="inventory()"
+          [loading]="loadingCategories() || loadingSpecs()"
+          [submitted]="formSubmitted()"
+          (inventoryChange)="onInventoryChange($event)"
+        />
+      </p-tabPanel>
+
       <p-tabPanel>
         <ng-template pTemplate="header">
           <span>

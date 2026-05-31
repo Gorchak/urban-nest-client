@@ -19,6 +19,7 @@ export interface CategorySpecification {
   description?: string | null;
   isFilterable?: boolean;
   isVariant?: boolean;
+  isStockTrackable?: boolean;
   isActive?: boolean;
   placeholder?: string | null;
   helperText?: string | null;

@@ -1,0 +1,14 @@
+:host {
+  display: contents;
+}
+
+.quick-inventory-skeleton {
+  display: grid;
+  gap: 1rem;
+}
+
+.quick-inventory-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}

@@ -36,6 +36,7 @@ export interface ReferenceDefinition {
   isRequired: boolean;
   isFilterable: boolean;
   isVariant: boolean;
+  isStockTrackable: boolean;
   isActive: boolean;
   placeholder: string | null;
   helperText: string | null;
@@ -61,6 +62,7 @@ export interface CreateReferenceDto {
   isRequired: boolean;
   isFilterable: boolean;
   isVariant: boolean;
+  isStockTrackable: boolean;
   isActive: boolean;
   placeholder: string | null;
   helperText: string | null;

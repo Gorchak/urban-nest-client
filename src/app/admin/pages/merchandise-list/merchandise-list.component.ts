@@ -34,6 +34,9 @@ import { Category } from '../../../core/models/category.model';
 import { Merchandise, MerchandiseListFilter, MerchandisePagination, MerchandiseListResponse } from '../../../core/models/merchandise.model';
 import { AddEditMerchandiseComponent } from '../add-edit-merchandise/add-edit-merchandise.component';
 import { MerchandiseDetailsComponent } from '../merchandise-details/merchandise-details.component';
+import { QuickInventoryEditorComponent } from './quick-inventory-editor.component';
+import { SaleFormDialogComponent, createEmptySale } from '../sales-page/sale-form-dialog.component';
+import { CreateSaleDto, Sale } from '../../../core/models/sale.model';
 
 interface SubcategoryOption {
   label: string;
@@ -72,6 +75,8 @@ interface StockEditState {
     InputIconModule,
     AddEditMerchandiseComponent,
     MerchandiseDetailsComponent,
+    QuickInventoryEditorComponent,
+    SaleFormDialogComponent,
   ],
   templateUrl: './merchandise-list.component.html',
   styleUrls: ['./merchandise-list.component.scss'],
@@ -139,6 +144,10 @@ export class MerchandiseListComponent implements OnInit {
   // ── Details dialog ────────────────────────────────────────────────────────
   protected showDetailsDialog = signal(false);
   protected detailsMerchandiseId = signal<string | null>(null);
+  protected showQuickInventoryDialog = signal(false);
+  protected quickInventoryMerchandise = signal<Merchandise | null>(null);
+  protected showSaleDialog = signal(false);
+  protected saleDraft = signal<CreateSaleDto | null>(null);
 
   readonly sortOptions = [
     { label: 'Дата (нові)', value: 'createdAt_desc' },
@@ -405,6 +414,41 @@ export class MerchandiseListComponent implements OnInit {
     return 'Немає';
   }
 
+  protected getInventoryQuantity(item: Merchandise): number {
+    return item.inventory?.total_quantity ?? 0;
+  }
+
+  protected getInventoryDisplay(item: Merchandise): string {
+    const total = this.getInventoryQuantity(item);
+    const label = item.inventory?.tracked_attribute?.attribute_label;
+    return label ? `${total} (by ${label})` : `${total}`;
+  }
+
+  protected openQuickInventory(item: Merchandise): void {
+    this.quickInventoryMerchandise.set(item);
+    this.showQuickInventoryDialog.set(true);
+  }
+
+  protected onQuickInventorySaved(updated: Merchandise): void {
+    this.merchandise.update((items) =>
+      items.map((item) => (item._id === updated._id ? updated : item)),
+    );
+  }
+
+  protected openSaleDialog(item: Merchandise): void {
+    this.saleDraft.set(this.createSaleDraftFromMerchandise(item));
+    this.showSaleDialog.set(true);
+  }
+
+  protected async onSaleSaved(_sale: Sale): Promise<void> {
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Продаж створено',
+      detail: 'Продаж додано в розділ "Продажі".',
+    });
+    await this.loadMerchandise();
+  }
+
   protected getCategoryName(categoryId: string): string {
     return this.categories().find((c) => c._id === categoryId)?.name ?? '—';
   }
@@ -421,11 +465,46 @@ export class MerchandiseListComponent implements OnInit {
     }).format(price);
   }
 
+  private createSaleDraftFromMerchandise(item: Merchandise): CreateSaleDto {
+    const sale = createEmptySale();
+    const tracked = item.inventory?.tracked_attribute ?? null;
+    const inventoryRow = item.inventory?.attribute_quantities?.find((row) => row.quantity > 0)
+      ?? item.inventory?.attribute_quantities?.[0]
+      ?? null;
+    const selectedAttributes = tracked && inventoryRow
+      ? [{ label: tracked.attribute_label, value: inventoryRow.value_label }]
+      : [];
+    const unitPrice = item.salePrice || 0;
+    const saleItem = {
+      merchandiseId: item._id,
+      sku: item.sku,
+      name: item.name,
+      image: item.images?.[0] ?? null,
+      selectedAttributes,
+      inventoryAttributeKey: tracked?.attribute_key ?? null,
+      inventoryAttributeLabel: tracked?.attribute_label ?? null,
+      inventoryValueKey: inventoryRow?.value_key ?? null,
+      inventoryValueLabel: inventoryRow?.value_label ?? null,
+      quantity: 1,
+      unitPrice,
+      totalPrice: unitPrice,
+    };
+
+    return {
+      ...sale,
+      items: [saleItem],
+      subtotal: unitPrice,
+      grandTotal: unitPrice,
+      currency: item.currency,
+      notes: `Продаж товару: ${item.name}`,
+    };
+  }
+
   // ── Stock editing methods ─────────────────────────────────────────────────
 
   protected getStockDisplayValue(item: Merchandise): number {
     const edit = this.stockEdits().get(item._id);
-    return edit ? edit.newValue : item.stockQuantity;
+    return edit ? edit.newValue : this.getInventoryQuantity(item);
   }
 
   protected isStockDirty(id: string): boolean {
@@ -450,18 +529,18 @@ export class MerchandiseListComponent implements OnInit {
 
   protected onStockInputChange(item: Merchandise, value: number | null): void {
     if (value === null || value < 0) return;
-    this.updateStockEdit(item._id, item.stockQuantity, Math.floor(value));
+    this.updateStockEdit(item._id, this.getInventoryQuantity(item), Math.floor(value));
   }
 
   protected incrementStock(item: Merchandise): void {
     const current = this.getStockDisplayValue(item);
-    this.updateStockEdit(item._id, item.stockQuantity, current + 1);
+    this.updateStockEdit(item._id, this.getInventoryQuantity(item), current + 1);
   }
 
   protected decrementStock(item: Merchandise): void {
     const current = this.getStockDisplayValue(item);
     if (current <= 0) return;
-    this.updateStockEdit(item._id, item.stockQuantity, current - 1);
+    this.updateStockEdit(item._id, this.getInventoryQuantity(item), current - 1);
   }
 
   protected revertStock(item: Merchandise): void {
@@ -482,14 +561,27 @@ export class MerchandiseListComponent implements OnInit {
 
     try {
       await this.merchandiseService.updateMerchandise(item._id, {
-        stockQuantity: edit.newValue,
+        inventory: {
+          total_quantity: edit.newValue,
+          tracked_attribute: null,
+          attribute_quantities: [],
+        },
       });
       const map = new Map(this.stockEdits());
       map.delete(item._id);
       this.stockEdits.set(map);
 
       const updatedList = this.merchandise().map((m) =>
-        m._id === item._id ? { ...m, stockQuantity: edit.newValue } : m
+        m._id === item._id
+          ? {
+              ...m,
+              inventory: {
+                total_quantity: edit.newValue,
+                tracked_attribute: null,
+                attribute_quantities: [],
+              },
+            }
+          : m
       );
       this.merchandise.set(updatedList);
 

@@ -1,0 +1,46 @@
+<p-dialog
+  [visible]="visible"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [header]="merchandise ? 'Склад: ' + merchandise.name : 'Склад'"
+  [style]="{ width: '720px', maxWidth: '96vw' }"
+  appendTo="body"
+  styleClass="quick-inventory-dialog"
+  (onHide)="close()"
+>
+  @if (loading()) {
+    <div class="quick-inventory-skeleton">
+      <p-skeleton height="72px" />
+      <p-skeleton height="160px" />
+    </div>
+  } @else {
+    <app-inventory-editor
+      [categorySpecifications]="category()?.specifications ?? []"
+      [specificationSources]="specificationSources()"
+      [inventory]="inventory()"
+      [loading]="false"
+      [submitted]="false"
+      (inventoryChange)="onInventoryChange($event)"
+    />
+  }
+
+  <ng-template pTemplate="footer">
+    <div class="quick-inventory-footer">
+      <p-button
+        label="Скасувати"
+        icon="pi pi-times"
+        severity="secondary"
+        [text]="true"
+        (onClick)="close()"
+      />
+      <p-button
+        label="Зберегти"
+        icon="pi pi-check"
+        [loading]="saving()"
+        (onClick)="save()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,92 @@
+<p-dialog
+  [visible]="visible"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [header]="headerTitle"
+  [style]="{ width: '960px', maxWidth: '98vw' }"
+  appendTo="body"
+>
+  <div class="sale-form">
+    <section>
+      <h3>Основне</h3>
+      <div class="form-grid">
+        <label>Номер<input pInputText [ngModel]="editableSale().orderNumber" (ngModelChange)="patchSale({ orderNumber: $event })" /></label>
+        <label>Статус<p-dropdown [options]="statusOptions" optionLabel="label" optionValue="value" [ngModel]="editableSale().status" (ngModelChange)="patchSale({ status: $event })" /></label>
+        <label>Валюта<input pInputText [ngModel]="editableSale().currency" (ngModelChange)="patchSale({ currency: $event })" /></label>
+      </div>
+    </section>
+
+    <section>
+      <h3>Покупець</h3>
+      <div class="form-grid">
+        <label>Ім'я *<input pInputText [ngModel]="editableSale().customer.firstName" (ngModelChange)="patchCustomer({ firstName: $event })" /></label>
+        <label>Прізвище<input pInputText [ngModel]="editableSale().customer.lastName" (ngModelChange)="patchCustomer({ lastName: $event })" /></label>
+        <label>Телефон *<input pInputText [ngModel]="editableSale().customer.phone" (ngModelChange)="patchCustomer({ phone: $event })" /></label>
+        <label>Email<input pInputText [ngModel]="editableSale().customer.email" (ngModelChange)="patchCustomer({ email: $event })" /></label>
+      </div>
+    </section>
+
+    <section>
+      <h3>Доставка</h3>
+      <div class="form-grid">
+        <label>Місто<input pInputText [ngModel]="editableSale().shippingAddress.city" (ngModelChange)="patchShippingAddress({ city: $event })" /></label>
+        <label>Область<input pInputText [ngModel]="editableSale().shippingAddress.region" (ngModelChange)="patchShippingAddress({ region: $event })" /></label>
+        <label>Служба<input pInputText [ngModel]="editableSale().shippingAddress.deliveryService" (ngModelChange)="patchShippingAddress({ deliveryService: $event })" /></label>
+        <label>Відділення<input pInputText [ngModel]="editableSale().shippingAddress.warehouse" (ngModelChange)="patchShippingAddress({ warehouse: $event })" /></label>
+        <label>ТТН<input pInputText [ngModel]="editableSale().shippingAddress.trackingNumber" (ngModelChange)="patchShippingAddress({ trackingNumber: $event })" /></label>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h3>Товари</h3>
+        @if (!lockItems) {
+          <p-button label="Додати товар" icon="pi pi-plus" size="small" (onClick)="addItem()" />
+        }
+      </div>
+      @for (item of editableSale().items; track item; let i = $index) {
+        <div class="item-row" [class.item-row--locked]="lockItems">
+          <input pInputText placeholder="Назва товару" [disabled]="lockItems" [ngModel]="item.name" (ngModelChange)="updateItem(i, { name: $event })" />
+          <input pInputText placeholder="SKU" [disabled]="lockItems" [ngModel]="item.sku" (ngModelChange)="updateItem(i, { sku: $event })" />
+          <div class="variant-cell">
+            @if (item.inventoryValueLabel) {
+              <span>{{ item.inventoryAttributeLabel }}: {{ item.inventoryValueLabel }}</span>
+            } @else {
+              <span class="muted">Без варіанту</span>
+            }
+          </div>
+          <p-inputNumber placeholder="К-сть" [min]="1" [ngModel]="item.quantity" (ngModelChange)="updateItem(i, { quantity: $event || 1 })" />
+          <p-inputNumber placeholder="Ціна" [min]="0" [disabled]="lockItems" [ngModel]="item.unitPrice" (ngModelChange)="updateItem(i, { unitPrice: $event || 0 })" />
+          <strong>{{ formatPrice(item.totalPrice, editableSale().currency) }}</strong>
+          @if (!lockItems) {
+            <p-button icon="pi pi-trash" severity="danger" [text]="true" (onClick)="removeItem(i)" />
+          }
+        </div>
+      }
+    </section>
+
+    <section>
+      <h3>Оплата і підсумок</h3>
+      <div class="form-grid">
+        <label>Метод<p-dropdown [options]="paymentMethodOptions" optionLabel="label" optionValue="value" [ngModel]="editableSale().payment.method" (ngModelChange)="patchPayment({ method: $event })" /></label>
+        <label>Статус оплати<p-dropdown [options]="paymentStatusOptions" optionLabel="label" optionValue="value" [ngModel]="editableSale().payment.status" (ngModelChange)="patchPayment({ status: $event })" /></label>
+        <label>Знижка<p-inputNumber [min]="0" [ngModel]="editableSale().discountTotal" (ngModelChange)="setDiscountTotal($event)" /></label>
+        <label>Доставка<p-inputNumber [min]="0" [ngModel]="editableSale().shippingCost" (ngModelChange)="setShippingCost($event)" /></label>
+      </div>
+      <div class="total-line">
+        <span>До сплати</span>
+        <strong>{{ formatPrice(editableSale().grandTotal, editableSale().currency) }}</strong>
+      </div>
+      <textarea pInputTextarea rows="3" placeholder="Нотатки" [ngModel]="editableSale().notes" (ngModelChange)="patchSale({ notes: $event })"></textarea>
+    </section>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <p-button label="Скасувати" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="close()" />
+      <p-button label="Зберегти" icon="pi pi-check" [loading]="saving()" [disabled]="!isValid || saving()" (onClick)="saveSale()" />
+    </div>
+  </ng-template>
+</p-dialog>

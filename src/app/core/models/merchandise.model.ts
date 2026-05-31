@@ -21,6 +21,23 @@ export type MerchandiseOwnershipType =
   | 'partner'
   | 'rental';
 
+export interface InventoryTrackedAttribute {
+  attribute_key: string;
+  attribute_label: string;
+}
+
+export interface InventoryAttributeQuantity {
+  value_key: string;
+  value_label: string;
+  quantity: number;
+}
+
+export interface MerchandiseInventory {
+  total_quantity: number;
+  tracked_attribute: InventoryTrackedAttribute | null;
+  attribute_quantities: InventoryAttributeQuantity[];
+}
+
 export interface Merchandise {
   _id: string;
   sku: string;
@@ -32,7 +49,7 @@ export interface Merchandise {
   shortDescription: string | null;
   specifications: MerchandiseSpecification[];
   images: string[];
-  stockQuantity: number;
+  inventory: MerchandiseInventory;
   purchasePrice: number;
   salePrice: number;
   retailPrice: number;
@@ -59,7 +76,7 @@ export interface CreateMerchandiseDto {
   shortDescription: string | null;
   specifications: MerchandiseSpecification[];
   images: string[];
-  stockQuantity: number;
+  inventory: MerchandiseInventory;
   purchasePrice: number;
   salePrice: number;
   retailPrice: number;
@@ -84,6 +101,9 @@ export interface MerchandiseListFilter {
   isActive?: boolean;
   inStock?: boolean;
   outOfStock?: boolean;
+  inventoryAttributeKey?: string;
+  inventoryValueKey?: string;
+  inventoryInStock?: boolean;
   minPrice?: number;
   maxPrice?: number;
   sortBy?: 'createdAt' | 'name' | 'salePrice' | 'stockQuantity';

@@ -178,13 +178,13 @@
             <div class="stock-item">
               <span class="stock-item__label">Наявність</span>
               <p-tag
-                [value]="getStockLabel(merchandise()!.stockQuantity)"
-                [severity]="getStockSeverity(merchandise()!.stockQuantity)"
+                [value]="getStockLabel(inventoryQuantity())"
+                [severity]="getStockSeverity(inventoryQuantity())"
               />
             </div>
             <div class="stock-item">
               <span class="stock-item__label">Кількість</span>
-              <span class="stock-item__value">{{ merchandise()!.stockQuantity }}&nbsp;шт.</span>
+              <span class="stock-item__value">{{ inventoryQuantity() }}</span>
             </div>
             <div class="stock-item">
               <span class="stock-item__label">Тип власності</span>
@@ -192,6 +192,19 @@
   {{ ownershipLabels[merchandise()!.ownershipType] }}
 </span>
             </div>
+            @if (inventoryAttributeLabel()) {
+              <div class="stock-item stock-item--full">
+                <span class="stock-item__label">{{ inventoryAttributeLabel() }}</span>
+                <div class="stock-breakdown">
+                  @for (row of inventoryRows(); track row.value_key) {
+                    <div class="stock-breakdown__row">
+                      <span class="stock-breakdown__name">{{ row.value_label }}</span>
+                      <span class="stock-breakdown__qty">{{ row.quantity }} pcs</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
           </div>
         </div>
 
