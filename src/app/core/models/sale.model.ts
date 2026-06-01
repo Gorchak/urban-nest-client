@@ -24,14 +24,22 @@ export interface SaleCustomer {
 export interface SaleShippingAddress {
   country: string;
   city: string;
+  cityRef?: string;
   region: string;
+  areaRef?: string;
   street: string;
   building: string;
   apartment: string;
   postalCode: string;
   deliveryService: string;
   warehouse: string;
+  warehouseRef?: string;
   trackingNumber: string;
+  novaPoshtaDocumentRef?: string;
+  novaPoshtaDocumentStatus?: string;
+  novaPoshtaDocumentError?: string;
+  novaPoshtaCostOnSite?: string;
+  novaPoshtaEstimatedDeliveryDate?: string;
 }
 
 export interface SalePayment {

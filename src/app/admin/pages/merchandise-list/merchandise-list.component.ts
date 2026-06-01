@@ -560,7 +560,7 @@ export class MerchandiseListComponent implements OnInit {
     this.cdr.markForCheck();
 
     try {
-      await this.merchandiseService.updateMerchandise(item._id, {
+      const updated = await this.merchandiseService.updateMerchandise(item._id, {
         inventory: {
           total_quantity: edit.newValue,
           tracked_attribute: null,
@@ -571,18 +571,7 @@ export class MerchandiseListComponent implements OnInit {
       map.delete(item._id);
       this.stockEdits.set(map);
 
-      const updatedList = this.merchandise().map((m) =>
-        m._id === item._id
-          ? {
-              ...m,
-              inventory: {
-                total_quantity: edit.newValue,
-                tracked_attribute: null,
-                attribute_quantities: [],
-              },
-            }
-          : m
-      );
+      const updatedList = this.merchandise().map((m) => (m._id === item._id ? updated : m));
       this.merchandise.set(updatedList);
 
       this.messageService.add({

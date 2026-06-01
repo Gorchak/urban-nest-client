@@ -5,7 +5,8 @@
   [draggable]="false"
   [resizable]="false"
   [header]="headerTitle"
-  [style]="{ width: '960px', maxWidth: '98vw' }"
+  [style]="{ width: '1120px', maxWidth: '98vw' }"
+  styleClass="sale-form-dialog"
   appendTo="body"
 >
   <div class="sale-form">
@@ -31,11 +32,72 @@
     <section>
       <h3>Доставка</h3>
       <div class="form-grid">
-        <label>Місто<input pInputText [ngModel]="editableSale().shippingAddress.city" (ngModelChange)="patchShippingAddress({ city: $event })" /></label>
-        <label>Область<input pInputText [ngModel]="editableSale().shippingAddress.region" (ngModelChange)="patchShippingAddress({ region: $event })" /></label>
-        <label>Служба<input pInputText [ngModel]="editableSale().shippingAddress.deliveryService" (ngModelChange)="patchShippingAddress({ deliveryService: $event })" /></label>
-        <label>Відділення<input pInputText [ngModel]="editableSale().shippingAddress.warehouse" (ngModelChange)="patchShippingAddress({ warehouse: $event })" /></label>
-        <label>ТТН<input pInputText [ngModel]="editableSale().shippingAddress.trackingNumber" (ngModelChange)="patchShippingAddress({ trackingNumber: $event })" /></label>
+        <label>
+          Служба
+          <p-dropdown
+            [options]="deliveryServiceOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="editableSale().shippingAddress.deliveryService"
+            (ngModelChange)="onDeliveryServiceChange($event)"
+            placeholder="Оберіть службу"
+          />
+        </label>
+        @if (editableSale().shippingAddress.deliveryService === 'nova_poshta') {
+          <label>
+            Область
+            <p-dropdown
+              [options]="novaPoshtaAreas()"
+              optionLabel="Description"
+              optionValue="Ref"
+              [filter]="true"
+              [loading]="novaPoshtaLoading()"
+              [ngModel]="editableSale().shippingAddress.areaRef"
+              (ngModelChange)="onNovaPoshtaAreaChange($event)"
+              placeholder="Оберіть область"
+            />
+          </label>
+          <label>
+            Місто
+            <p-autoComplete
+              [suggestions]="novaPoshtaCities()"
+              field="Description"
+              [forceSelection]="true"
+              [dropdown]="true"
+              [minLength]="0"
+              [delay]="250"
+              [disabled]="!editableSale().shippingAddress.areaRef"
+              [ngModel]="selectedNovaPoshtaCity()"
+              (completeMethod)="searchNovaPoshtaCities($event.query)"
+              (onSelect)="onNovaPoshtaCitySelect($event.value)"
+              placeholder="Оберіть місто"
+            />
+          </label>
+          <label class="span-2">
+            Відділення
+            <p-autoComplete
+              [suggestions]="novaPoshtaWarehouses()"
+              field="Description"
+              [forceSelection]="true"
+              [dropdown]="true"
+              [minLength]="0"
+              [delay]="250"
+              [disabled]="!editableSale().shippingAddress.cityRef"
+              [ngModel]="selectedNovaPoshtaWarehouse()"
+              (completeMethod)="searchNovaPoshtaWarehouses($event.query)"
+              (onSelect)="onNovaPoshtaWarehouseSelect($event.value)"
+              placeholder="Оберіть відділення"
+            />
+          </label>
+        } @else {
+          <label>Місто<input pInputText [ngModel]="editableSale().shippingAddress.city" (ngModelChange)="patchShippingAddress({ city: $event })" /></label>
+          <label>Область<input pInputText [ngModel]="editableSale().shippingAddress.region" (ngModelChange)="patchShippingAddress({ region: $event })" /></label>
+          <label>Відділення<input pInputText [ngModel]="editableSale().shippingAddress.warehouse" (ngModelChange)="patchShippingAddress({ warehouse: $event })" /></label>
+        }
+        <label>
+          {{ editableSale().shippingAddress.deliveryService === 'nova_poshta' ? 'ТТН' : 'Номер відправлення' }}
+          <input pInputText [ngModel]="editableSale().shippingAddress.trackingNumber" (ngModelChange)="patchShippingAddress({ trackingNumber: $event })" />
+        </label>
       </div>
     </section>
 

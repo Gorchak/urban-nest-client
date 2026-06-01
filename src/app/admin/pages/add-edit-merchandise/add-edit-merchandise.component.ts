@@ -10,6 +10,7 @@ import {
   computed,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -96,6 +97,8 @@ export class AddEditMerchandiseComponent implements OnChanges {
 
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() saved = new EventEmitter<void>();
+
+  @ViewChild(InventoryEditorComponent) private inventoryEditor?: InventoryEditorComponent;
 
   protected readonly TAB = TAB;
 
@@ -503,6 +506,9 @@ export class AddEditMerchandiseComponent implements OnChanges {
       return;
     }
 
+    const latestInventory = this.inventoryEditor?.getInventory() ?? this.inventory();
+    this.inventory.set(latestInventory);
+
     if (this.isInventoryInvalid()) {
       this.activeTabIndex.set(TAB.INVENTORY);
       this.cdr.markForCheck();
@@ -529,7 +535,7 @@ export class AddEditMerchandiseComponent implements OnChanges {
       shortDescription: v.shortDescription || null,
       specifications,
       images: this.imageUrls(),
-      inventory: this.inventory(),
+      inventory: latestInventory,
       purchasePrice: v.purchasePrice ?? 0,
       salePrice: v.salePrice ?? 0,
       retailPrice: v.retailPrice ?? 0,

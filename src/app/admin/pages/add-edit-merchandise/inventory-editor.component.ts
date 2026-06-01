@@ -100,7 +100,9 @@ export class InventoryEditorComponent implements OnChanges {
           slug: tracked.attribute_key,
           name: tracked.attribute_label || tracked.attribute_key,
           type: 'select',
-          value: (this.inventory?.attribute_quantities ?? []).map((row) => row.value_key),
+          value: (this.inventory?.attribute_quantities ?? []).map(
+            (row) => row.value_key,
+          ),
           options: (this.inventory?.attribute_quantities ?? []).map((row) => ({
             id: row.value_key,
             label: row.value_label,
@@ -138,6 +140,10 @@ export class InventoryEditorComponent implements OnChanges {
   protected totalQuantity = computed(() => {
     if (!this.trackByAttribute())
       return this.cleanQuantity(this.standaloneQuantity());
+
+    let test1 = this.valueRows().reduce((sum, row) => sum + row.quantity, 0);
+    debugger;
+
     return this.valueRows().reduce((sum, row) => sum + row.quantity, 0);
   });
 
@@ -171,11 +177,9 @@ export class InventoryEditorComponent implements OnChanges {
       this.submitted && this.trackByAttribute() && !this.selectedAttribute(),
   );
 
-  private emitTimer: ReturnType<typeof setTimeout> | null = null;
   private hydrating = false;
   private lastEmittedSnapshot = '';
   private ready = false;
-  private skipNextEmit = false;
 
   constructor() {
     effect(() => {
@@ -185,21 +189,6 @@ export class InventoryEditorComponent implements OnChanges {
       if (selected && !available.some((option) => option.value === selected)) {
         this.selectedAttributeKey.set(null);
       }
-    });
-
-    effect(() => {
-      const value = this.currentInventory();
-      if (this.hydrating || !this.ready) return;
-      if (this.skipNextEmit) {
-        this.skipNextEmit = false;
-        return;
-      }
-
-      if (this.emitTimer) clearTimeout(this.emitTimer);
-      this.emitTimer = setTimeout(() => {
-        this.lastEmittedSnapshot = this.snapshot(value);
-        this.inventoryChange.emit(value);
-      }, 250);
     });
   }
 
@@ -238,6 +227,7 @@ export class InventoryEditorComponent implements OnChanges {
   }
 
   protected onTrackToggle(value: boolean): void {
+    const previousTotal = this.totalQuantity();
     this.trackByAttribute.set(value);
     if (value) {
       const firstAttribute = this.attributeOptions()[0]?.value ?? null;
@@ -248,34 +238,41 @@ export class InventoryEditorComponent implements OnChanges {
     } else {
       this.selectedAttributeKey.set(null);
       this.quantitiesByValue.set({});
-      this.standaloneQuantity.set(this.totalQuantity());
+      this.standaloneQuantity.set(previousTotal);
     }
+    this.emitCurrentInventory();
   }
 
   protected onAttributeChange(value: string | null): void {
     this.selectedAttributeKey.set(value || null);
     this.syncQuantitiesForSelectedAttribute();
+    this.emitCurrentInventory();
   }
 
-  protected onStandaloneQuantityChange(value: number | null): void {
+  protected onStandaloneQuantityChange(value: number | string | null): void {
     this.standaloneQuantity.set(this.cleanQuantity(value));
+    this.emitCurrentInventory();
   }
 
-  protected onQuantityChange(valueKey: string, value: number | null): void {
+  protected onQuantityChange(valueKey: string, value: number | string | null): void {
     this.quantitiesByValue.update((current) => ({
       ...current,
       [valueKey]: this.cleanQuantity(value),
     }));
+    this.emitCurrentInventory();
   }
 
   protected isQuantityInvalid(row: InventoryAttributeQuantity): boolean {
     return row.quantity < 0 || !Number.isInteger(row.quantity);
   }
 
+  public getInventory(): MerchandiseInventory {
+    return this.currentInventory();
+  }
+
   private hydrate(inventory: MerchandiseInventory): void {
     this.hydrating = true;
     this.ready = true;
-    this.skipNextEmit = true;
 
     const normalized = {
       total_quantity: this.cleanQuantity(inventory.total_quantity),
@@ -300,6 +297,7 @@ export class InventoryEditorComponent implements OnChanges {
       ),
     );
 
+    this.lastEmittedSnapshot = this.snapshot(normalized);
     this.hydrating = false;
   }
 
@@ -313,7 +311,18 @@ export class InventoryEditorComponent implements OnChanges {
     );
   }
 
-  private cleanQuantity(value: number | null | undefined): number {
+  private emitCurrentInventory(): void {
+    if (this.hydrating || !this.ready) return;
+
+    const value = this.currentInventory();
+    const snapshot = this.snapshot(value);
+    if (snapshot === this.lastEmittedSnapshot) return;
+
+    this.lastEmittedSnapshot = snapshot;
+    this.inventoryChange.emit(value);
+  }
+
+  private cleanQuantity(value: number | string | null | undefined): number {
     const numeric = Number(value ?? 0);
     if (!Number.isFinite(numeric)) return 0;
     return Math.max(0, Math.floor(numeric));
@@ -341,7 +350,9 @@ export class InventoryEditorComponent implements OnChanges {
       sourceBySlug.set(source.slug, {
         ...categorySource,
         ...source,
-        options: source.options?.length ? source.options : categorySource?.options ?? [],
+        options: source.options?.length
+          ? source.options
+          : (categorySource?.options ?? []),
         isStockTrackable:
           source.isStockTrackable ?? categorySource?.isStockTrackable ?? false,
       });
@@ -364,7 +375,9 @@ export class InventoryEditorComponent implements OnChanges {
         .map((option) => [option.value, option.label]),
     );
     const selectedValues = this.extractSelectedValues(spec.value);
-    const values = selectedValues.length ? selectedValues : [...optionMap.keys()];
+    const values = selectedValues.length
+      ? selectedValues
+      : [...optionMap.keys()];
 
     return values.map((value) => ({
       value_key: value,

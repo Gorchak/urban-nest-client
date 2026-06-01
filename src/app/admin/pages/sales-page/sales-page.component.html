@@ -82,28 +82,58 @@
         </td>
         <td class="amount-cell">{{ formatPrice(sale.grandTotal, sale.currency) }}</td>
         <td>
-          <select
-            class="table-select payment-select"
-            [ngModel]="sale.payment.status"
-            (ngModelChange)="updatePaymentStatus(sale, $event)"
-            [attr.aria-label]="'Статус оплати ' + sale.orderNumber"
-          >
-            @for (option of paymentStatusOptions; track option.value) {
-              <option [ngValue]="option.value">{{ option.label }}</option>
+          <div class="inline-edit-cell">
+            <select
+              class="table-select payment-select"
+              [ngModel]="quickPaymentStatus(sale)"
+              (ngModelChange)="updatePaymentStatus(sale, $event)"
+              [disabled]="!isQuickEditing(sale)"
+              [attr.aria-label]="'Статус оплати ' + sale.orderNumber"
+            >
+              @for (option of paymentStatusOptions; track option.value) {
+                <option [ngValue]="option.value">{{ option.label }}</option>
+              }
+            </select>
+            @if (isQuickEditing(sale)) {
+              <button type="button" class="icon-action success" title="Зберегти" (click)="saveQuickEdit(sale)">
+                <i class="pi pi-check"></i>
+              </button>
+              <button type="button" class="icon-action" title="Скасувати" (click)="cancelQuickEdit(sale)">
+                <i class="pi pi-times"></i>
+              </button>
+            } @else {
+              <button type="button" class="icon-action" title="Редагувати оплату" (click)="startQuickEdit(sale)">
+                <i class="pi pi-pen-to-square"></i>
+              </button>
             }
-          </select>
+          </div>
         </td>
         <td>
-          <select
-            class="table-select status-select"
-            [ngModel]="sale.status"
-            (ngModelChange)="updateStatus(sale, $event)"
-            [attr.aria-label]="'Статус продажу ' + sale.orderNumber"
-          >
-            @for (option of statusOptions; track option.value) {
-              <option [ngValue]="option.value">{{ option.label }}</option>
+          <div class="inline-edit-cell">
+            <select
+              class="table-select status-select"
+              [ngModel]="quickStatus(sale)"
+              (ngModelChange)="updateStatus(sale, $event)"
+              [disabled]="!isQuickEditing(sale)"
+              [attr.aria-label]="'Статус продажу ' + sale.orderNumber"
+            >
+              @for (option of statusOptions; track option.value) {
+                <option [ngValue]="option.value">{{ option.label }}</option>
+              }
+            </select>
+            @if (isQuickEditing(sale)) {
+              <button type="button" class="icon-action success" title="Зберегти" (click)="saveQuickEdit(sale)">
+                <i class="pi pi-check"></i>
+              </button>
+              <button type="button" class="icon-action" title="Скасувати" (click)="cancelQuickEdit(sale)">
+                <i class="pi pi-times"></i>
+              </button>
+            } @else {
+              <button type="button" class="icon-action" title="Редагувати статус" (click)="startQuickEdit(sale)">
+                <i class="pi pi-pen-to-square"></i>
+              </button>
             }
-          </select>
+          </div>
         </td>
         <td>{{ sale.createdAt | date: 'dd.MM.yyyy' }}</td>
         <td>
@@ -113,6 +143,15 @@
             </button>
             <button type="button" class="icon-action" title="Редагувати" (click)="openEdit(sale)">
               <i class="pi pi-pencil"></i>
+            </button>
+            <button
+              type="button"
+              class="icon-action danger"
+              title="Видалити"
+              [disabled]="deletingSaleId() === sale._id"
+              (click)="deleteSale(sale)"
+            >
+              <i class="pi pi-trash"></i>
             </button>
           </div>
         </td>

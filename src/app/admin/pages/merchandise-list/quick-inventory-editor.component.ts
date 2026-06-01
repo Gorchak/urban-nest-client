@@ -7,6 +7,7 @@ import {
   OnChanges,
   Output,
   SimpleChanges,
+  ViewChild,
   computed,
   inject,
   signal,
@@ -52,6 +53,8 @@ export class QuickInventoryEditorComponent implements OnChanges {
 
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() saved = new EventEmitter<Merchandise>();
+
+  @ViewChild(InventoryEditorComponent) private inventoryEditor?: InventoryEditorComponent;
 
   protected loading = signal(false);
   protected saving = signal(false);
@@ -99,9 +102,11 @@ export class QuickInventoryEditorComponent implements OnChanges {
 
     this.saving.set(true);
     try {
+      const latestInventory = this.inventoryEditor?.getInventory() ?? this.inventory();
+      this.inventory.set(latestInventory);
       const updated = await this.merchandiseService.updateMerchandise(
         this.merchandise._id,
-        { inventory: this.inventory() },
+        { inventory: latestInventory },
       );
       this.saved.emit(updated);
       this.close();

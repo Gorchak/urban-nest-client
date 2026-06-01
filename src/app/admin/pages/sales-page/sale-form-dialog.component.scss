@@ -21,11 +21,27 @@
   gap: 0.75rem;
 }
 
+.span-2 {
+  grid-column: span 2;
+}
+
 label {
   display: grid;
   gap: 0.35rem;
   color: var(--text-color-secondary);
   font-size: 0.8rem;
+  min-width: 0;
+}
+
+input,
+textarea,
+::ng-deep .p-dropdown,
+::ng-deep .p-autocomplete,
+::ng-deep .p-autocomplete-input,
+::ng-deep .p-inputnumber,
+::ng-deep .p-inputnumber-input {
+  width: 100%;
+  min-width: 0;
 }
 
 .section-head,
@@ -38,14 +54,14 @@ label {
 
 .item-row {
   display: grid;
-  grid-template-columns: 1.4fr 0.75fr minmax(140px, 0.9fr) 105px 120px 120px 40px;
+  grid-template-columns: minmax(170px, 1.3fr) minmax(90px, 0.65fr) minmax(120px, 0.8fr) 92px 105px 105px 36px;
   gap: 0.5rem;
   align-items: center;
   margin-bottom: 0.5rem;
 }
 
 .item-row--locked {
-  grid-template-columns: 1.4fr 0.75fr minmax(140px, 0.9fr) 105px 120px 120px;
+  grid-template-columns: minmax(170px, 1.3fr) minmax(90px, 0.65fr) minmax(120px, 0.8fr) 92px 105px 105px;
 }
 
 .variant-cell {
@@ -77,10 +93,18 @@ textarea {
   width: 100%;
 }
 
+::ng-deep .sale-form-dialog .p-dialog-content {
+  overflow-x: hidden;
+}
+
 @media (max-width: 760px) {
   .form-grid,
   .item-row,
   .item-row--locked {
     grid-template-columns: 1fr;
+  }
+
+  .span-2 {
+    grid-column: auto;
   }
 }

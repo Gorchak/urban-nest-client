@@ -45,13 +45,16 @@ const emptySale = (): CreateSaleDto => ({
   shippingAddress: {
     country: 'Ukraine',
     city: '',
+    cityRef: '',
     region: '',
+    areaRef: '',
     street: '',
     building: '',
     apartment: '',
     postalCode: '',
     deliveryService: '',
     warehouse: '',
+    warehouseRef: '',
     trackingNumber: '',
   },
   payment: { method: 'card', status: 'unpaid', transactionId: '', paidAt: null },
@@ -110,6 +113,9 @@ export class SalesPageComponent implements OnInit {
   protected pagination = signal<SalePagination>({ total: 0, page: 1, limit: 20, pages: 0 });
   protected loading = signal(false);
   protected saving = signal(false);
+  protected deletingSaleId = signal<string | null>(null);
+  protected editingQuickSaleId = signal<string | null>(null);
+  protected quickEditDrafts = signal<Record<string, { status: SaleStatus; paymentStatus: SalePaymentStatus }>>({});
   protected search = signal('');
   protected statusFilter = signal<SaleStatus | null>(null);
 
@@ -204,6 +210,97 @@ export class SalesPageComponent implements OnInit {
 
   protected async onSaleSaved(): Promise<void> {
     await this.loadSales();
+  }
+
+  protected startQuickEdit(sale: Sale): void {
+    this.editingQuickSaleId.set(sale._id);
+    this.quickEditDrafts.update((drafts) => ({
+      ...drafts,
+      [sale._id]: { status: sale.status, paymentStatus: sale.payment.status },
+    }));
+  }
+
+  protected cancelQuickEdit(sale: Sale): void {
+    this.editingQuickSaleId.set(null);
+    this.quickEditDrafts.update((drafts) => {
+      const next = { ...drafts };
+      delete next[sale._id];
+      return next;
+    });
+  }
+
+  protected isQuickEditing(sale: Sale): boolean {
+    return this.editingQuickSaleId() === sale._id;
+  }
+
+  protected quickStatus(sale: Sale): SaleStatus {
+    return this.quickEditDrafts()[sale._id]?.status ?? sale.status;
+  }
+
+  protected quickPaymentStatus(sale: Sale): SalePaymentStatus {
+    return this.quickEditDrafts()[sale._id]?.paymentStatus ?? sale.payment.status;
+  }
+
+  protected setQuickStatus(sale: Sale, status: SaleStatus): void {
+    this.quickEditDrafts.update((drafts) => ({
+      ...drafts,
+      [sale._id]: {
+        status,
+        paymentStatus: drafts[sale._id]?.paymentStatus ?? sale.payment.status,
+      },
+    }));
+  }
+
+  protected setQuickPaymentStatus(sale: Sale, paymentStatus: SalePaymentStatus): void {
+    this.quickEditDrafts.update((drafts) => ({
+      ...drafts,
+      [sale._id]: {
+        status: drafts[sale._id]?.status ?? sale.status,
+        paymentStatus,
+      },
+    }));
+  }
+
+  protected async saveQuickEdit(sale: Sale): Promise<void> {
+    const draft = this.quickEditDrafts()[sale._id];
+    if (!draft) return;
+
+    let status = draft.status;
+    let paymentStatus = draft.paymentStatus;
+
+    if (status === 'pending_payment') paymentStatus = 'unpaid';
+    if (status === 'refunded') paymentStatus = 'refunded';
+    if (paymentStatus === 'unpaid') status = 'pending_payment';
+    if (paymentStatus === 'refunded') status = 'refunded';
+    if ((paymentStatus === 'paid' || paymentStatus === 'partially_paid') && status === 'pending_payment') {
+      status = 'processing';
+    }
+
+    await this.patchSaleInList(sale, {
+      status,
+      payment: { ...sale.payment, status: paymentStatus },
+    });
+    this.cancelQuickEdit(sale);
+  }
+
+  protected async deleteSale(sale: Sale): Promise<void> {
+    if (!confirm(`Видалити продаж ${sale.orderNumber}?`)) return;
+
+    this.deletingSaleId.set(sale._id);
+    try {
+      await this.salesService.deleteSale(sale._id);
+      this.messageService.add({ severity: 'success', summary: 'Видалено', detail: 'Продаж видалено' });
+      await this.loadSales();
+    } catch (err: any) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Помилка',
+        detail: err?.error?.message || 'Не вдалося видалити продаж',
+      });
+    } finally {
+      this.deletingSaleId.set(null);
+      this.cdr.markForCheck();
+    }
   }
 
   protected openMerchandiseDetails(merchandiseId: string | null | undefined): void {
@@ -304,28 +401,12 @@ export class SalesPageComponent implements OnInit {
 
   protected async updateStatus(sale: Sale, status: SaleStatus): Promise<void> {
     if (sale.status === status) return;
-
-    const payment = { ...sale.payment };
-    if (status === 'pending_payment') payment.status = 'unpaid';
-    if (status === 'refunded') payment.status = 'refunded';
-
-    await this.patchSaleInList(sale, { status, payment });
+    this.setQuickStatus(sale, status);
   }
 
   protected async updatePaymentStatus(sale: Sale, paymentStatus: SalePaymentStatus): Promise<void> {
     if (sale.payment.status === paymentStatus) return;
-
-    let status = sale.status;
-    if (paymentStatus === 'unpaid') status = 'pending_payment';
-    if (paymentStatus === 'refunded') status = 'refunded';
-    if ((paymentStatus === 'paid' || paymentStatus === 'partially_paid') && status === 'pending_payment') {
-      status = 'processing';
-    }
-
-    await this.patchSaleInList(sale, {
-      status,
-      payment: { ...sale.payment, status: paymentStatus },
-    });
+    this.setQuickPaymentStatus(sale, paymentStatus);
   }
 
   protected paymentStatusLabel(status: SalePaymentStatus): string {

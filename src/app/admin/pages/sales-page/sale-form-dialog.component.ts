@@ -18,9 +18,16 @@ import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextareaModule } from 'primeng/inputtextarea';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { MessageService } from 'primeng/api';
 
 import { SalesService } from '../../../core/services/sales.service';
+import {
+  NovaPoshtaArea,
+  NovaPoshtaCity,
+  NovaPoshtaService,
+  NovaPoshtaWarehouse,
+} from '../../../core/services/nova-poshta.service';
 import {
   CreateSaleDto,
   Sale,
@@ -40,13 +47,16 @@ export const createEmptySale = (): CreateSaleDto => ({
   shippingAddress: {
     country: 'Ukraine',
     city: '',
+    cityRef: '',
     region: '',
+    areaRef: '',
     street: '',
     building: '',
     apartment: '',
     postalCode: '',
     deliveryService: '',
     warehouse: '',
+    warehouseRef: '',
     trackingNumber: '',
   },
   payment: { method: 'card', status: 'unpaid', transactionId: '', paidAt: null },
@@ -87,12 +97,14 @@ export const createEmptySale = (): CreateSaleDto => ({
     InputTextModule,
     InputNumberModule,
     InputTextareaModule,
+    AutoCompleteModule,
   ],
   templateUrl: './sale-form-dialog.component.html',
   styleUrls: ['./sale-form-dialog.component.scss'],
 })
 export class SaleFormDialogComponent implements OnChanges {
   private salesService = inject(SalesService);
+  private novaPoshtaService = inject(NovaPoshtaService);
   private messageService = inject(MessageService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -105,7 +117,18 @@ export class SaleFormDialogComponent implements OnChanges {
   @Output() saved = new EventEmitter<Sale>();
 
   protected saving = signal(false);
+  protected novaPoshtaLoading = signal(false);
   protected editableSale = signal<CreateSaleDto>(createEmptySale());
+  protected novaPoshtaAreas = signal<NovaPoshtaArea[]>([]);
+  protected novaPoshtaCities = signal<NovaPoshtaCity[]>([]);
+  protected novaPoshtaWarehouses = signal<NovaPoshtaWarehouse[]>([]);
+  protected selectedNovaPoshtaCity = signal<NovaPoshtaCity | null>(null);
+  protected selectedNovaPoshtaWarehouse = signal<NovaPoshtaWarehouse | null>(null);
+
+  protected deliveryServiceOptions = [
+    { label: 'Нова пошта', value: 'nova_poshta' },
+    { label: 'Інша служба', value: 'custom' },
+  ];
 
   protected statusOptions: Array<{ label: string; value: SaleStatus; severity: 'warning' | 'info' | 'success' | 'danger' | 'secondary' }> = [
     { label: 'Очікує оплату', value: 'pending_payment', severity: 'warning' },
@@ -147,7 +170,10 @@ export class SaleFormDialogComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['visible']?.currentValue || (this.visible && changes['sale'])) {
       this.editableSale.set(this.sale ? this.cloneSale(this.sale) : createEmptySale());
+      this.selectedNovaPoshtaCity.set(null);
+      this.selectedNovaPoshtaWarehouse.set(null);
       this.recalculateTotals();
+      void this.prepareNovaPoshtaData();
     }
   }
 
@@ -171,6 +197,72 @@ export class SaleFormDialogComponent implements OnChanges {
       ...sale,
       shippingAddress: { ...sale.shippingAddress, ...patch },
     }));
+  }
+
+  protected async onDeliveryServiceChange(value: string): Promise<void> {
+    this.patchShippingAddress({
+      deliveryService: value,
+      ...(value === 'nova_poshta'
+        ? {}
+        : { areaRef: '', cityRef: '', warehouseRef: '', region: '', city: '', warehouse: '' }),
+    });
+
+    if (value === 'nova_poshta') {
+      await this.prepareNovaPoshtaData();
+    } else {
+      this.selectedNovaPoshtaCity.set(null);
+      this.selectedNovaPoshtaWarehouse.set(null);
+      this.novaPoshtaCities.set([]);
+      this.novaPoshtaWarehouses.set([]);
+    }
+  }
+
+  protected async onNovaPoshtaAreaChange(areaRef: string): Promise<void> {
+    const area = this.novaPoshtaAreas().find((item) => item.Ref === areaRef);
+    this.patchShippingAddress({
+      areaRef,
+      region: area?.Description || '',
+      city: '',
+      cityRef: '',
+      warehouse: '',
+      warehouseRef: '',
+    });
+    this.novaPoshtaCities.set([]);
+    this.novaPoshtaWarehouses.set([]);
+    this.selectedNovaPoshtaCity.set(null);
+    this.selectedNovaPoshtaWarehouse.set(null);
+    await this.loadNovaPoshtaCities(areaRef, '');
+  }
+
+  protected async searchNovaPoshtaCities(query = ''): Promise<void> {
+    await this.loadNovaPoshtaCities(this.editableSale().shippingAddress.areaRef, query);
+  }
+
+  protected async onNovaPoshtaCitySelect(city: NovaPoshtaCity): Promise<void> {
+    this.selectedNovaPoshtaCity.set(city);
+    this.patchShippingAddress({
+      cityRef: city.Ref,
+      city: city.Description || '',
+      warehouse: '',
+      warehouseRef: '',
+    });
+    this.novaPoshtaWarehouses.set([]);
+    this.selectedNovaPoshtaWarehouse.set(null);
+    await this.loadNovaPoshtaWarehouses(city.Ref, '');
+  }
+
+  protected async searchNovaPoshtaWarehouses(query = ''): Promise<void> {
+    const cityRef = this.editableSale().shippingAddress.cityRef;
+    if (!cityRef) return;
+    await this.loadNovaPoshtaWarehouses(cityRef, query);
+  }
+
+  protected onNovaPoshtaWarehouseSelect(warehouse: NovaPoshtaWarehouse): void {
+    this.selectedNovaPoshtaWarehouse.set(warehouse);
+    this.patchShippingAddress({
+      warehouseRef: warehouse.Ref,
+      warehouse: warehouse.Description || '',
+    });
   }
 
   protected patchPayment(patch: Partial<SalePayment>): void {
@@ -278,6 +370,73 @@ export class SaleFormDialogComponent implements OnChanges {
 
   protected formatPrice(value: number, currency = 'UAH'): string {
     return new Intl.NumberFormat('uk-UA', { style: 'currency', currency }).format(value || 0);
+  }
+
+  private async prepareNovaPoshtaData(): Promise<void> {
+    const address = this.editableSale().shippingAddress;
+    if (address.deliveryService !== 'nova_poshta') return;
+
+    await this.loadNovaPoshtaAreas();
+    if (address.areaRef) {
+      await this.loadNovaPoshtaCities(address.areaRef, address.city);
+      this.selectedNovaPoshtaCity.set(
+        this.novaPoshtaCities().find((city) => city.Ref === address.cityRef) ||
+        (address.cityRef ? { Ref: address.cityRef, Description: address.city, Area: address.areaRef } : null)
+      );
+    }
+    if (address.cityRef) {
+      await this.loadNovaPoshtaWarehouses(address.cityRef, address.warehouse);
+      this.selectedNovaPoshtaWarehouse.set(
+        this.novaPoshtaWarehouses().find((warehouse) => warehouse.Ref === address.warehouseRef) ||
+        (address.warehouseRef ? { Ref: address.warehouseRef, Description: address.warehouse, CityRef: address.cityRef } : null)
+      );
+    }
+  }
+
+  private async loadNovaPoshtaAreas(): Promise<void> {
+    if (this.novaPoshtaAreas().length) return;
+
+    this.novaPoshtaLoading.set(true);
+    try {
+      this.novaPoshtaAreas.set(await this.novaPoshtaService.getAreas());
+    } catch (err: any) {
+      this.showNovaPoshtaError(err);
+    } finally {
+      this.novaPoshtaLoading.set(false);
+      this.cdr.markForCheck();
+    }
+  }
+
+  private async loadNovaPoshtaCities(areaRef?: string, search = ''): Promise<void> {
+    this.novaPoshtaLoading.set(true);
+    try {
+      this.novaPoshtaCities.set(await this.novaPoshtaService.getCities(areaRef, search, search ? 100 : 500));
+    } catch (err: any) {
+      this.showNovaPoshtaError(err);
+    } finally {
+      this.novaPoshtaLoading.set(false);
+      this.cdr.markForCheck();
+    }
+  }
+
+  private async loadNovaPoshtaWarehouses(cityRef: string, search = ''): Promise<void> {
+    this.novaPoshtaLoading.set(true);
+    try {
+      this.novaPoshtaWarehouses.set(await this.novaPoshtaService.getWarehouses(cityRef, search, search ? 100 : 500));
+    } catch (err: any) {
+      this.showNovaPoshtaError(err);
+    } finally {
+      this.novaPoshtaLoading.set(false);
+      this.cdr.markForCheck();
+    }
+  }
+
+  private showNovaPoshtaError(err: any): void {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Нова пошта',
+      detail: err?.error?.message || 'Не вдалося отримати дані Нової пошти',
+    });
   }
 
   private cloneSale(sale: Sale | CreateSaleDto): CreateSaleDto {
