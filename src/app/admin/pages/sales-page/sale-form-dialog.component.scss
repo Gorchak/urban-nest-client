@@ -54,14 +54,14 @@ textarea,
 
 .item-row {
   display: grid;
-  grid-template-columns: minmax(170px, 1.3fr) minmax(90px, 0.65fr) minmax(120px, 0.8fr) 92px 105px 105px 36px;
+  grid-template-columns: minmax(160px, 1.25fr) minmax(85px, 0.6fr) minmax(150px, 1fr) 92px 105px 105px 36px 36px;
   gap: 0.5rem;
   align-items: center;
   margin-bottom: 0.5rem;
 }
 
 .item-row--locked {
-  grid-template-columns: minmax(170px, 1.3fr) minmax(90px, 0.65fr) minmax(120px, 0.8fr) 92px 105px 105px;
+  grid-template-columns: minmax(160px, 1.25fr) minmax(85px, 0.6fr) minmax(150px, 1fr) 92px 105px 105px 36px 36px;
 }
 
 .variant-cell {

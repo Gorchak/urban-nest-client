@@ -112,17 +112,37 @@
         <div class="item-row" [class.item-row--locked]="lockItems">
           <input pInputText placeholder="Назва товару" [disabled]="lockItems" [ngModel]="item.name" (ngModelChange)="updateItem(i, { name: $event })" />
           <input pInputText placeholder="SKU" [disabled]="lockItems" [ngModel]="item.sku" (ngModelChange)="updateItem(i, { sku: $event })" />
-          <div class="variant-cell">
-            @if (item.inventoryValueLabel) {
-              <span>{{ item.inventoryAttributeLabel }}: {{ item.inventoryValueLabel }}</span>
-            } @else {
-              <span class="muted">Без варіанту</span>
-            }
-          </div>
-          <p-inputNumber placeholder="К-сть" [min]="1" [ngModel]="item.quantity" (ngModelChange)="updateItem(i, { quantity: $event || 1 })" />
+          @if (hasVariants(item)) {
+            <p-dropdown
+              [options]="variantOptionsForItem(item)"
+              optionLabel="label"
+              optionValue="value"
+              [ngModel]="item.inventoryValueKey"
+              (ngModelChange)="onVariantChange(i, $event)"
+              placeholder="Варіант"
+            />
+          } @else {
+            <div class="variant-cell">
+              @if (item.inventoryValueLabel) {
+                <span>{{ item.inventoryAttributeLabel }}: {{ item.inventoryValueLabel }}</span>
+              } @else {
+                <span class="muted">Без варіанту</span>
+              }
+            </div>
+          }
+          <p-inputNumber
+            placeholder="К-сть"
+            [min]="1"
+            [max]="maxQuantityForItem(item)"
+            [ngModel]="item.quantity"
+            (ngModelChange)="onQuantityChange(i, $event)"
+          />
           <p-inputNumber placeholder="Ціна" [min]="0" [disabled]="lockItems" [ngModel]="item.unitPrice" (ngModelChange)="updateItem(i, { unitPrice: $event || 0 })" />
           <strong>{{ formatPrice(item.totalPrice, editableSale().currency) }}</strong>
-          @if (!lockItems) {
+          @if (canAddVariantItem(item)) {
+            <p-button icon="pi pi-plus" severity="secondary" [text]="true" (onClick)="addVariantItem(i)" />
+          }
+          @if (!lockItems || editableSale().items.length > 1) {
             <p-button icon="pi pi-trash" severity="danger" [text]="true" (onClick)="removeItem(i)" />
           }
         </div>

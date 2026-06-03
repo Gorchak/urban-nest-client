@@ -22,12 +22,14 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { MessageService } from 'primeng/api';
 
 import { SalesService } from '../../../core/services/sales.service';
+import { MerchandiseService } from '../../../core/services/merchandise.service';
 import {
   NovaPoshtaArea,
   NovaPoshtaCity,
   NovaPoshtaService,
   NovaPoshtaWarehouse,
 } from '../../../core/services/nova-poshta.service';
+import { Merchandise } from '../../../core/models/merchandise.model';
 import {
   CreateSaleDto,
   Sale,
@@ -84,6 +86,15 @@ export const createEmptySale = (): CreateSaleDto => ({
   notes: null,
 });
 
+interface SaleVariantOption {
+  label: string;
+  value: string;
+  quantity: number;
+  attributeKey: string;
+  attributeLabel: string;
+  valueLabel: string;
+}
+
 @Component({
   selector: 'app-sale-form-dialog',
   standalone: true,
@@ -104,6 +115,7 @@ export const createEmptySale = (): CreateSaleDto => ({
 })
 export class SaleFormDialogComponent implements OnChanges {
   private salesService = inject(SalesService);
+  private merchandiseService = inject(MerchandiseService);
   private novaPoshtaService = inject(NovaPoshtaService);
   private messageService = inject(MessageService);
   private cdr = inject(ChangeDetectorRef);
@@ -124,6 +136,8 @@ export class SaleFormDialogComponent implements OnChanges {
   protected novaPoshtaWarehouses = signal<NovaPoshtaWarehouse[]>([]);
   protected selectedNovaPoshtaCity = signal<NovaPoshtaCity | null>(null);
   protected selectedNovaPoshtaWarehouse = signal<NovaPoshtaWarehouse | null>(null);
+  protected merchandiseById = signal<Record<string, Merchandise>>({});
+  protected loadingMerchandise = signal(false);
 
   protected deliveryServiceOptions = [
     { label: 'Нова пошта', value: 'nova_poshta' },
@@ -174,6 +188,7 @@ export class SaleFormDialogComponent implements OnChanges {
       this.selectedNovaPoshtaWarehouse.set(null);
       this.recalculateTotals();
       void this.prepareNovaPoshtaData();
+      void this.prepareMerchandiseData();
     }
   }
 
@@ -295,8 +310,35 @@ export class SaleFormDialogComponent implements OnChanges {
     }));
   }
 
+  protected addVariantItem(sourceIndex: number): void {
+    const source = this.editableSale().items[sourceIndex];
+    if (!source?.merchandiseId) return;
+
+    const option = this.findNextVariantOption(source);
+    if (!option) return;
+
+    const nextItem = this.applyVariantToItem(
+      {
+        ...source,
+        quantity: 1,
+        totalPrice: source.unitPrice || 0,
+      },
+      option,
+    );
+
+    this.editableSale.update((sale) => ({
+      ...sale,
+      items: [
+        ...sale.items.slice(0, sourceIndex + 1),
+        nextItem,
+        ...sale.items.slice(sourceIndex + 1),
+      ],
+    }));
+    this.recalculateTotals();
+  }
+
   protected removeItem(index: number): void {
-    if (this.lockItems) return;
+    if (this.lockItems && this.editableSale().items.length <= 1) return;
     this.editableSale.update((sale) => ({ ...sale, items: sale.items.filter((_, i) => i !== index) }));
     this.recalculateTotals();
   }
@@ -311,6 +353,68 @@ export class SaleFormDialogComponent implements OnChanges {
       return { ...sale, items };
     });
     this.recalculateTotals();
+  }
+
+  protected onQuantityChange(index: number, value: number | null): void {
+    const item = this.editableSale().items[index];
+    const max = item ? this.maxQuantityForItem(item) : null;
+    const quantity = Math.max(1, Math.floor(Number(value || 1)));
+    this.updateItem(index, { quantity: max ? Math.min(quantity, max) : quantity });
+  }
+
+  protected variantOptionsForItem(item: SaleItem): SaleVariantOption[] {
+    if (!item.merchandiseId) return [];
+    const merchandise = this.merchandiseById()[item.merchandiseId];
+    const tracked = merchandise?.inventory?.tracked_attribute;
+    if (!tracked) return [];
+
+    return (merchandise.inventory.attribute_quantities ?? []).map((row) => ({
+      label: `${row.value_label} (${row.quantity} шт.)`,
+      value: row.value_key,
+      valueLabel: row.value_label,
+      quantity: row.quantity,
+      attributeKey: tracked.attribute_key,
+      attributeLabel: tracked.attribute_label,
+    }));
+  }
+
+  protected hasVariants(item: SaleItem): boolean {
+    return this.variantOptionsForItem(item).length > 0;
+  }
+
+  protected maxQuantityForItem(item: SaleItem): number | null {
+    if (!item.merchandiseId) return null;
+    const merchandise = this.merchandiseById()[item.merchandiseId];
+    if (!merchandise?.inventory) return null;
+
+    if (merchandise.inventory.tracked_attribute) {
+      const row = merchandise.inventory.attribute_quantities.find(
+        (variant) => variant.value_key === item.inventoryValueKey,
+      );
+      return row ? Math.max(1, row.quantity) : 1;
+    }
+
+    return Math.max(1, merchandise.inventory.total_quantity || 1);
+  }
+
+  protected onVariantChange(index: number, valueKey: string): void {
+    const item = this.editableSale().items[index];
+    const option = this.variantOptionsForItem(item).find((variant) => variant.value === valueKey);
+    if (!option) return;
+
+    const nextItem = this.applyVariantToItem(item, option);
+    this.updateItem(index, {
+      inventoryAttributeKey: nextItem.inventoryAttributeKey,
+      inventoryAttributeLabel: nextItem.inventoryAttributeLabel,
+      inventoryValueKey: nextItem.inventoryValueKey,
+      inventoryValueLabel: nextItem.inventoryValueLabel,
+      selectedAttributes: nextItem.selectedAttributes,
+      quantity: Math.min(item.quantity || 1, Math.max(1, option.quantity)),
+    });
+  }
+
+  protected canAddVariantItem(item: SaleItem): boolean {
+    return this.variantOptionsForItem(item).length > 1;
   }
 
   protected setDiscountTotal(value: number | null): void {
@@ -391,6 +495,75 @@ export class SaleFormDialogComponent implements OnChanges {
         (address.warehouseRef ? { Ref: address.warehouseRef, Description: address.warehouse, CityRef: address.cityRef } : null)
       );
     }
+  }
+
+  private async prepareMerchandiseData(): Promise<void> {
+    const ids = [...new Set(
+      this.editableSale().items
+        .map((item) => item.merchandiseId)
+        .filter((id): id is string => Boolean(id)),
+    )];
+    if (!ids.length) return;
+
+    this.loadingMerchandise.set(true);
+    try {
+      const loaded = await Promise.all(
+        ids.map((id) => this.merchandiseService.getMerchandiseById(id)),
+      );
+      this.merchandiseById.update((current) => {
+        const next = { ...current };
+        for (const item of loaded) next[item._id] = item;
+        return next;
+      });
+      this.ensureSelectedVariants();
+    } finally {
+      this.loadingMerchandise.set(false);
+      this.cdr.markForCheck();
+    }
+  }
+
+  private ensureSelectedVariants(): void {
+    this.editableSale.update((sale) => ({
+      ...sale,
+      items: sale.items.map((item) => {
+        if (item.inventoryValueKey || !this.hasVariants(item)) return item;
+        const option = this.variantOptionsForItem(item).find((variant) => variant.quantity > 0)
+          ?? this.variantOptionsForItem(item)[0];
+        return option ? this.applyVariantToItem(item, option) : item;
+      }),
+    }));
+  }
+
+  private applyVariantToItem(item: SaleItem, option: SaleVariantOption): SaleItem {
+    const quantity = Math.min(item.quantity || 1, Math.max(1, option.quantity));
+    return {
+      ...item,
+      inventoryAttributeKey: option.attributeKey,
+      inventoryAttributeLabel: option.attributeLabel,
+      inventoryValueKey: option.value,
+      inventoryValueLabel: option.valueLabel,
+      selectedAttributes: [{ label: option.attributeLabel, value: option.valueLabel }],
+      quantity,
+      totalPrice: quantity * (item.unitPrice || 0),
+    };
+  }
+
+  private findNextVariantOption(item: SaleItem): SaleVariantOption | null {
+    const options = this.variantOptionsForItem(item);
+    if (!options.length) return null;
+
+    const used = new Set(
+      this.editableSale().items
+        .filter((saleItem) => saleItem.merchandiseId === item.merchandiseId)
+        .map((saleItem) => saleItem.inventoryValueKey)
+        .filter(Boolean),
+    );
+
+    return options.find((option) => option.quantity > 0 && !used.has(option.value))
+      ?? options.find((option) => !used.has(option.value))
+      ?? options.find((option) => option.quantity > 0)
+      ?? options[0]
+      ?? null;
   }
 
   private async loadNovaPoshtaAreas(): Promise<void> {
