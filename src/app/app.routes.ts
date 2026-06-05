@@ -7,7 +7,7 @@ import { UsersPageComponent } from './admin/pages/users-page/users-page.componen
 import { adminAccessGuard } from './core/guards/admin-access.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'admin', pathMatch: 'full' },
+  { path: '', redirectTo: 'admin/products', pathMatch: 'full' },
   { path: 'admin/access', component: AdminAccessPageComponent },
   { path: 'admin', redirectTo: 'admin/users', pathMatch: 'full' },
   { path: 'admin/categories', component: AdminCategoriesPageWithTabsComponent, canActivate: [adminAccessGuard] },
