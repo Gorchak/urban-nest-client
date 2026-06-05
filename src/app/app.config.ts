@@ -14,8 +14,10 @@ export const appConfig: ApplicationConfig = {
     provideAuth0({
       domain: "dev-dzbrmq5bhosgit5b.us.auth0.com",
       clientId: "e5g0EST75dgAgcy6LXHoXHUkT0hheqYV",
+      cacheLocation: 'localstorage',
       authorizationParams: {
         redirect_uri: window.location.origin,
+        scope: 'openid profile email',
       },
     }),
   ]

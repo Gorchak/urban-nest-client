@@ -1,3 +1,5 @@
+<p-toast position="top-right" />
+
 <header class="admin-navbar">
   <div class="navbar-container">
     @if (isLoading()) {
@@ -12,7 +14,7 @@
         <img src="/assets/ulia_title.svg.svg" alt="Ulia" class="logo-title" />
       </a>
 
-      <p-menubar [model]="navItems" class="desktop-nav"></p-menubar>
+      <p-menubar [model]="navItems()" class="desktop-nav"></p-menubar>
 
       @if (isAuthenticated()) {
         @if (user(); as currentUser) {
@@ -45,18 +47,23 @@
           <img src="/assets/ulia_title.svg.svg" alt="Urban Nest" class="logo-title" />
         </a>
       </div>
-      @for (item of navItems; track item.routerLink) {
-        <a [routerLink]="item.routerLink" class="mobile-menu-item" (click)="toggleMobileMenu()">
+      @for (item of navItems(); track item.routerLink) {
+        <a
+          [routerLink]="item.routerLink"
+          class="mobile-menu-item"
+          [class.mobile-menu-item--active]="isActive(item.routerLink)"
+          (click)="toggleMobileMenu()"
+        >
           <i [class]="item.icon"></i>
           <span>{{ item.label }}</span>
         </a>
       }
       @if (isAuthenticated()) {
         <hr />
-        <a routerLink="/admin/settings" class="mobile-menu-item" (click)="toggleMobileMenu()">
+        <button class="mobile-menu-item" (click)="openProfileSettings(); toggleMobileMenu()">
           <i class="pi pi-cog"></i>
           <span>Налаштування</span>
-        </a>
+        </button>
         <button class="mobile-menu-item mobile-logout" (click)="logout(); toggleMobileMenu()">
           <i class="pi pi-sign-out"></i>
           <span>Вихід</span>
@@ -69,3 +76,11 @@
 
   <p-menu #menu [model]="dropdownItems" [popup]="true" class="user-dropdown"></p-menu>
 </header>
+
+<app-user-profile-dialog
+  [visible]="showProfileDialog()"
+  (visibleChange)="showProfileDialog.set($event)"
+  [user]="profileUser()"
+  [showAdminFields]="false"
+  (saved)="onProfileSaved($event)"
+/>

@@ -80,6 +80,36 @@
   background-color: var(--pc);
   color: #fff;
 }
+::ng-deep
+  .admin-navbar
+  .desktop-nav
+  .p-menubar-root-list
+  > li.admin-nav-item--active
+  > .p-menuitem-content
+  > .p-menuitem-link,
+::ng-deep
+  .admin-navbar
+  .desktop-nav
+  .p-menubar-root-list
+  > li.admin-nav-item--active
+  > .p-menuitem-link {
+  background-color: var(--pc);
+  color: #fff;
+}
+::ng-deep
+  .admin-navbar
+  .desktop-nav
+  .p-menubar-root-list
+  > li.admin-nav-item--active
+  .p-menuitem-icon,
+::ng-deep
+  .admin-navbar
+  .desktop-nav
+  .p-menubar-root-list
+  > li.admin-nav-item--active
+  .p-menuitem-text {
+  color: #fff;
+}
 .admin-navbar .user-panel {
   display: flex;
   align-items: center;
@@ -233,6 +263,10 @@
   }
   .admin-navbar .mobile-menu .mobile-menu-item:hover {
     background-color: var(--sh);
+  }
+  .admin-navbar .mobile-menu .mobile-menu-item.mobile-menu-item--active {
+    background-color: var(--pc);
+    color: #fff;
   }
   .admin-navbar .mobile-menu .mobile-menu-item.mobile-logout {
     color: var(--r5);

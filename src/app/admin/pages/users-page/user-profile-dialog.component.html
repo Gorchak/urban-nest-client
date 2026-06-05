@@ -1,0 +1,168 @@
+<p-dialog
+  [visible]="visible"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  header="Профіль користувача"
+  [style]="{ width: '980px', maxWidth: '98vw' }"
+  appendTo="body"
+>
+  @if (user) {
+    <div class="profile-form">
+      <section>
+        <h3>Основне</h3>
+        <div class="form-grid">
+          <label>Email<input pInputText type="email" [ngModel]="editable().email" (ngModelChange)="patch({ email: $event })" /></label>
+          <label>Прізвище<input pInputText [ngModel]="editable().lastName" (ngModelChange)="patch({ lastName: $event })" /></label>
+          <label>Ім'я<input pInputText [ngModel]="editable().firstName" (ngModelChange)="patch({ firstName: $event })" /></label>
+          <label>По-батькові<input pInputText [ngModel]="editable().middleName" (ngModelChange)="patch({ middleName: $event })" /></label>
+          <label>Телефон<input pInputText [ngModel]="editable().phone" (ngModelChange)="patch({ phone: $event })" /></label>
+          <label class="span-2">Адреса проживання<textarea pInputTextarea rows="2" [ngModel]="editable().residentialAddress" (ngModelChange)="patch({ residentialAddress: $event })"></textarea></label>
+        </div>
+        <app-single-image-picker
+          label="Аватарка"
+          placeholder="https://..."
+          [ngModel]="editable().avatarUrl"
+          (ngModelChange)="patch({ avatarUrl: $event })"
+        />
+      </section>
+
+      @if (showAdminFields) {
+        <section>
+          <h3>Права і власні поля</h3>
+          <div class="roles-row">
+            <label class="checkbox-label">
+              <p-checkbox
+                [binary]="true"
+                [ngModel]="!!editable().appMetadata.isAdmin"
+                (ngModelChange)="setRole('isAdmin', $event)"
+              />
+              <span>isAdmin</span>
+            </label>
+            <label class="checkbox-label">
+              <p-checkbox
+                [binary]="true"
+                [ngModel]="!!editable().appMetadata.isModerator"
+                (ngModelChange)="setRole('isModerator', $event)"
+              />
+              <span>isModerator</span>
+            </label>
+          </div>
+
+          <div class="custom-fields">
+            @for (field of editable().customFields; track field; let i = $index) {
+              <div class="custom-field-row">
+                <input pInputText placeholder="Ключ" [ngModel]="field.key" (ngModelChange)="updateCustomField(i, { key: $event })" />
+                <input pInputText placeholder="Значення" [ngModel]="field.value" (ngModelChange)="updateCustomField(i, { value: $event })" />
+                <button type="button" class="icon-action danger" title="Видалити поле" (click)="removeCustomField(i)">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
+            }
+            <p-button label="Додати поле" icon="pi pi-plus" severity="secondary" [outlined]="true" (onClick)="addCustomField()" />
+          </div>
+        </section>
+      }
+
+      <section>
+        <h3>Доставка</h3>
+        <div class="form-grid">
+          <label>
+            Служба доставки
+            <p-dropdown
+              [options]="deliveryServiceOptions"
+              optionLabel="label"
+              optionValue="value"
+              [ngModel]="editable().delivery.service"
+              (ngModelChange)="onDeliveryServiceChange($event)"
+              placeholder="Оберіть службу"
+            />
+          </label>
+          @if (editable().delivery.service === 'nova_poshta') {
+            <label>
+              Область
+              <p-dropdown
+                [options]="novaPoshtaAreas()"
+                optionLabel="Description"
+                optionValue="Ref"
+                [filter]="true"
+                [loading]="novaPoshtaLoading()"
+                [ngModel]="editable().delivery.areaRef"
+                (ngModelChange)="onNovaPoshtaAreaChange($event)"
+                placeholder="Оберіть область"
+              />
+            </label>
+            <label>
+              Місто
+              <p-autoComplete
+                [suggestions]="novaPoshtaCities()"
+                field="Description"
+                [forceSelection]="true"
+                [dropdown]="true"
+                [minLength]="0"
+                [delay]="250"
+                [disabled]="!editable().delivery.areaRef"
+                [ngModel]="selectedNovaPoshtaCity()"
+                (completeMethod)="searchNovaPoshtaCities($event.query)"
+                (onSelect)="onNovaPoshtaCitySelect($event.value)"
+                placeholder="Оберіть місто"
+              />
+            </label>
+            <label class="span-2">
+              Відділення
+              <p-autoComplete
+                [suggestions]="novaPoshtaWarehouses()"
+                field="Description"
+                [forceSelection]="true"
+                [dropdown]="true"
+                [minLength]="0"
+                [delay]="250"
+                [disabled]="!editable().delivery.cityRef"
+                [ngModel]="selectedNovaPoshtaWarehouse()"
+                (completeMethod)="searchNovaPoshtaWarehouses($event.query)"
+                (onSelect)="onNovaPoshtaWarehouseSelect($event.value)"
+                placeholder="Оберіть відділення"
+              />
+            </label>
+          } @else {
+            <label>Місто<input pInputText [ngModel]="editable().delivery.city" (ngModelChange)="patchDelivery({ city: $event })" /></label>
+            <label>Область<input pInputText [ngModel]="editable().delivery.region" (ngModelChange)="patchDelivery({ region: $event })" /></label>
+            <label class="span-2">Адреса/відділення<input pInputText [ngModel]="editable().delivery.warehouse" (ngModelChange)="patchDelivery({ warehouse: $event })" /></label>
+          }
+        </div>
+      </section>
+
+      <section>
+        <h3>Пароль</h3>
+        <div class="password-row">
+          <label>
+            Новий пароль
+            <p-password
+              [ngModel]="editable().password"
+              (ngModelChange)="patch({ password: $event })"
+              [feedback]="true"
+              [toggleMask]="true"
+              placeholder="Мінімум 8 символів"
+            />
+          </label>
+          <p-button
+            label="Надіслати відновлення"
+            icon="pi pi-envelope"
+            severity="secondary"
+            [outlined]="true"
+            [loading]="resettingPassword()"
+            (onClick)="sendPasswordReset()"
+          />
+        </div>
+      </section>
+    </div>
+  }
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <p-button label="Скасувати" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="close()" />
+      <p-button label="Зберегти" icon="pi pi-check" [loading]="saving()" [disabled]="saving()" (onClick)="save()" />
+    </div>
+  </ng-template>
+</p-dialog>

@@ -20,9 +20,12 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { MessageService } from 'primeng/api';
+import { AuthService } from '@auth0/auth0-angular';
+import { filter, firstValueFrom, take, timeout } from 'rxjs';
 
 import { SalesService } from '../../../core/services/sales.service';
 import { MerchandiseService } from '../../../core/services/merchandise.service';
+import { UsersService } from '../../../core/services/users.service';
 import {
   NovaPoshtaArea,
   NovaPoshtaCity,
@@ -41,6 +44,7 @@ import {
   SaleShippingAddress,
   SaleStatus,
 } from '../../../core/models/sale.model';
+import { Auth0User, UserDeliveryProfile } from '../../../core/models/user.model';
 
 export const createEmptySale = (): CreateSaleDto => ({
   orderNumber: `UN-${Date.now().toString().slice(-6)}`,
@@ -114,9 +118,11 @@ interface SaleVariantOption {
   styleUrls: ['./sale-form-dialog.component.scss'],
 })
 export class SaleFormDialogComponent implements OnChanges {
+  private auth = inject(AuthService);
   private salesService = inject(SalesService);
   private merchandiseService = inject(MerchandiseService);
   private novaPoshtaService = inject(NovaPoshtaService);
+  private usersService = inject(UsersService);
   private messageService = inject(MessageService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -189,6 +195,9 @@ export class SaleFormDialogComponent implements OnChanges {
       this.recalculateTotals();
       void this.prepareNovaPoshtaData();
       void this.prepareMerchandiseData();
+      if (this.mode === 'new' && !this.sale) {
+        void this.prefillFromActiveUser();
+      }
     }
   }
 
@@ -495,6 +504,111 @@ export class SaleFormDialogComponent implements OnChanges {
         (address.warehouseRef ? { Ref: address.warehouseRef, Description: address.warehouse, CityRef: address.cityRef } : null)
       );
     }
+  }
+
+  private async prefillFromActiveUser(): Promise<void> {
+    try {
+      await firstValueFrom(this.auth.isLoading$.pipe(
+        filter((isLoading) => !isLoading),
+        take(1),
+        timeout({ first: 5000 }),
+      ));
+
+      const isAuthenticated = await firstValueFrom(this.auth.isAuthenticated$.pipe(
+        take(1),
+        timeout({ first: 3000 }),
+      ));
+      if (!isAuthenticated) return;
+
+      const authUser = await firstValueFrom(this.auth.user$.pipe(
+        filter((user): user is NonNullable<typeof user> => Boolean(user)),
+        take(1),
+        timeout({ first: 5000 }),
+      ));
+
+      const authUserId = authUser.sub;
+      let profile: Auth0User | null = null;
+
+      if (authUserId) {
+        try {
+          profile = await this.usersService.getUserById(authUserId);
+        } catch {
+          profile = null;
+        }
+      }
+
+      if (!this.visible || this.mode !== 'new' || this.sale) return;
+
+      this.applyActiveUserProfile(profile, authUser);
+      await this.prepareNovaPoshtaData();
+    } catch {
+      // Profile prefill is optional; opening a sale form should not fail because of it.
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  private applyActiveUserProfile(profile: Auth0User | null, authUser: any): void {
+    const metadata = profile?.userMetadata || {};
+    const delivery = metadata.delivery || {};
+    const fallbackNames = this.splitDisplayName(profile?.name || authUser?.name || '');
+
+    const firstName = String(metadata.firstName || authUser?.given_name || fallbackNames.firstName || '');
+    const lastName = String(metadata.lastName || authUser?.family_name || fallbackNames.lastName || '');
+    const middleName = String(metadata.middleName || '');
+    const email = String(profile?.email || authUser?.email || '');
+    const phone = String(metadata.phone || '');
+    const residentialAddress = String(metadata.residentialAddress || '');
+
+    this.editableSale.update((sale) => ({
+      ...sale,
+      customer: {
+        ...sale.customer,
+        firstName: this.keepOrFill(sale.customer.firstName, firstName),
+        lastName: this.keepOrFill(sale.customer.lastName, [lastName, middleName].filter(Boolean).join(' ')),
+        phone: this.keepOrFill(sale.customer.phone, phone),
+        email: this.keepOrFill(sale.customer.email, email),
+      },
+      shippingAddress: {
+        ...sale.shippingAddress,
+        deliveryService: this.keepOrFill(sale.shippingAddress.deliveryService, delivery.service || ''),
+        areaRef: this.keepOrFill(sale.shippingAddress.areaRef || '', delivery.areaRef || ''),
+        region: this.keepOrFill(sale.shippingAddress.region, delivery.region || ''),
+        cityRef: this.keepOrFill(sale.shippingAddress.cityRef || '', delivery.cityRef || ''),
+        city: this.keepOrFill(sale.shippingAddress.city, delivery.city || ''),
+        warehouseRef: this.keepOrFill(sale.shippingAddress.warehouseRef || '', delivery.warehouseRef || ''),
+        warehouse: this.keepOrFill(sale.shippingAddress.warehouse, delivery.warehouse || ''),
+        street: this.keepOrFill(sale.shippingAddress.street, residentialAddress),
+      },
+    }));
+
+    this.setSelectedNovaPoshtaPlaceholders(delivery);
+  }
+
+  private setSelectedNovaPoshtaPlaceholders(delivery: UserDeliveryProfile): void {
+    if (delivery.service !== 'nova_poshta') return;
+
+    this.selectedNovaPoshtaCity.set(
+      delivery.cityRef
+        ? { Ref: delivery.cityRef, Description: delivery.city || '', Area: delivery.areaRef || '' }
+        : null,
+    );
+    this.selectedNovaPoshtaWarehouse.set(
+      delivery.warehouseRef
+        ? { Ref: delivery.warehouseRef, Description: delivery.warehouse || '', CityRef: delivery.cityRef || '' }
+        : null,
+    );
+  }
+
+  private keepOrFill(current: string | undefined, next: string): string {
+    return current?.trim() ? current : next;
+  }
+
+  private splitDisplayName(name: string): { firstName: string; lastName: string } {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return { firstName: '', lastName: '' };
+    if (parts.length === 1) return { firstName: parts[0], lastName: '' };
+    return { firstName: parts[0], lastName: parts.slice(1).join(' ') };
   }
 
   private async prepareMerchandiseData(): Promise<void> {

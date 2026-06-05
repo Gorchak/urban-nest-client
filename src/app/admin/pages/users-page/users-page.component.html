@@ -1,0 +1,105 @@
+<p-toast position="top-right" />
+
+<div class="users-page">
+  <div class="page-header">
+    <div>
+      <h1>Користувачі</h1>
+      <p>Профілі, права доступу і дані доставки з Auth0</p>
+    </div>
+    <p-button label="Оновити" icon="pi pi-refresh" severity="secondary" [outlined]="true" (onClick)="loadUsers()" />
+  </div>
+
+  <div class="users-toolbar">
+    <p-iconField iconPosition="left" styleClass="search-field">
+      <p-inputIcon styleClass="pi pi-search" />
+      <input
+        pInputText
+        [ngModel]="search()"
+        (ngModelChange)="onSearchChange($event)"
+        placeholder="Пошук за email, іменем або нікнеймом..."
+      />
+    </p-iconField>
+  </div>
+
+  <p-table
+    [value]="users()"
+    [loading]="loading()"
+    [lazy]="true"
+    [totalRecords]="pagination().total"
+    [rows]="pagination().limit"
+    [first]="(pagination().page - 1) * pagination().limit"
+    (onPage)="onPageChange($event)"
+    [paginator]="true"
+    [rowsPerPageOptions]="[10, 20, 50]"
+    responsiveLayout="scroll"
+    styleClass="users-table"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Користувач</th>
+        <th>Email</th>
+        <th>Права</th>
+        <th>Провайдер</th>
+        <th>Останній вхід</th>
+        <th>Дії</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-user>
+      <tr>
+        <td>
+          <div class="user-cell">
+            @if (user.picture) {
+              <img [src]="user.picture" [alt]="displayName(user)" />
+            } @else {
+              <p-avatar icon="pi pi-user" shape="circle" />
+            }
+            <div>
+              <strong>{{ displayName(user) }}</strong>
+              <span>{{ user.userId }}</span>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="email-cell">
+            <span>{{ user.email }}</span>
+            <p-tag [value]="user.emailVerified ? 'Підтверджено' : 'Не підтверджено'" [severity]="user.emailVerified ? 'success' : 'warning'" />
+          </div>
+        </td>
+        <td>
+          <div class="roles-cell">
+            @if (user.appMetadata?.isAdmin) {
+              <p-tag value="isAdmin" severity="danger" />
+            }
+            @if (user.appMetadata?.isModerator) {
+              <p-tag value="isModerator" severity="info" />
+            }
+            @if (!user.appMetadata?.isAdmin && !user.appMetadata?.isModerator) {
+              <span class="muted">Немає</span>
+            }
+          </div>
+        </td>
+        <td>{{ providerLabel(user) }}</td>
+        <td>{{ user.lastLogin ? (user.lastLogin | date: 'dd.MM.yyyy HH:mm') : 'Немає' }}</td>
+        <td>
+          <button type="button" class="icon-action" title="Редагувати профіль" (click)="openProfile(user)">
+            <i class="pi pi-pencil"></i>
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6">Користувачів не знайдено.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<app-user-profile-dialog
+  [visible]="showProfileDialog()"
+  (visibleChange)="showProfileDialog.set($event)"
+  [user]="selectedUser()"
+  (saved)="onUserSaved($event)"
+/>

@@ -1,0 +1,23 @@
+<div class="access-page">
+  <section class="access-panel">
+    @if (loading()) {
+      <i class="pi pi-spin pi-spinner"></i>
+      <h1>Перевіряємо доступ</h1>
+      <p>Зачекайте кілька секунд.</p>
+    } @else if (!access()?.isAuthenticated) {
+      <i class="pi pi-lock"></i>
+      <h1>Потрібно залогінитись</h1>
+      <p>Увійдіть в обліковий запис, щоб переглядати сторінки адмін-панелі.</p>
+      <p-button label="Увійти" icon="pi pi-sign-in" (onClick)="login()" />
+    } @else if (!access()?.isAdmin) {
+      <i class="pi pi-ban"></i>
+      <h1>Немає прав доступу</h1>
+      <p>Ваш обліковий запис не має прав адміністратора, тому перегляд адмін-сторінок недоступний.</p>
+    } @else {
+      <i class="pi pi-check-circle"></i>
+      <h1>Доступ підтверджено</h1>
+      <p>Ваш обліковий запис має права адміністратора.</p>
+      <p-button label="Перейти до сторінки" icon="pi pi-arrow-right" (onClick)="goToAdmin()" />
+    }
+  </section>
+</div>

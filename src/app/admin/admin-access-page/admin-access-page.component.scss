@@ -1,0 +1,38 @@
+:host {
+  display: block;
+  min-height: calc(100vh - 60px);
+  background: var(--surface-50, #f9fafb);
+}
+
+.access-page {
+  display: grid;
+  place-items: center;
+  min-height: calc(100vh - 60px);
+  padding: 1.5rem;
+}
+
+.access-panel {
+  width: min(520px, 100%);
+  border: 1px solid var(--surface-200, #e5e7eb);
+  border-radius: 8px;
+  background: #fff;
+  padding: 2rem;
+  text-align: center;
+}
+
+.access-panel i {
+  display: inline-flex;
+  margin-bottom: 1rem;
+  color: var(--primary-color, #3b82f6);
+  font-size: 2rem;
+}
+
+.access-panel h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.access-panel p {
+  margin: 0.75rem 0 1.25rem;
+  color: var(--text-color-secondary);
+}
