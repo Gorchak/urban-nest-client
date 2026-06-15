@@ -40,8 +40,10 @@ export class MerchandiseService {
       let params = new HttpParams();
       if (filter.categoryId) params = params.set('categoryId', filter.categoryId);
       if (filter.categorySlug) params = params.set('categorySlug', filter.categorySlug);
+      if (filter.includeChildren !== undefined) params = params.set('includeChildren', String(filter.includeChildren));
       if (filter.search) params = params.set('search', filter.search);
       if (filter.isActive !== undefined) params = params.set('isActive', String(filter.isActive));
+      if (filter.isVisible !== undefined) params = params.set('isVisible', String(filter.isVisible));
       if (filter.inStock !== undefined) params = params.set('inStock', String(filter.inStock));
       if (filter.outOfStock !== undefined) params = params.set('outOfStock', String(filter.outOfStock));
       if (filter.inventoryAttributeKey) params = params.set('inventoryAttributeKey', filter.inventoryAttributeKey);
@@ -76,6 +78,22 @@ export class MerchandiseService {
     try {
       const response = await firstValueFrom(
         this.http.get<ApiResponse<Merchandise>>(`${this.apiUrl}/${id}`)
+      );
+      return response.data;
+    } catch (err: any) {
+      this.error.set(err.message || 'Failed to fetch merchandise item');
+      throw err;
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async getMerchandiseBySlug(slug: string): Promise<Merchandise> {
+    this.loading.set(true);
+    this.error.set(null);
+    try {
+      const response = await firstValueFrom(
+        this.http.get<ApiResponse<Merchandise>>(`${this.apiUrl}/slug/${encodeURIComponent(slug)}`)
       );
       return response.data;
     } catch (err: any) {

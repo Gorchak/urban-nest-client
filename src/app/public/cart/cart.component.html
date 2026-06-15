@@ -1,0 +1,40 @@
+@if (cartService.isOpen()) {
+  <button class="backdrop" type="button" aria-label="Закрити кошик" (click)="close()"></button>
+  <aside>
+    <header><div><span>Ваш вибір</span><h2>Кошик</h2></div><button type="button" (click)="close()"><i class="ri-close-line"></i></button></header>
+    @if (cartService.cart()?.items?.length) {
+      <div class="items">
+        @for (item of cartService.cart()!.items; track key(item)) {
+          <article>
+            <div class="image">
+              @if (item.product?.images?.[0]) { <img [src]="item.product!.images[0]" [alt]="item.product!.name" /> }
+              @else { <i class="ri-image-line"></i> }
+            </div>
+            <div class="info">
+              <h3>{{ item.product?.name || 'Товар недоступний' }}</h3>
+              @if (item.inventoryValueLabel) { <span>{{ item.inventoryValueLabel }}</span> }
+              <strong>{{ formatPrice((item.product?.salePrice || 0) * item.quantity, item.product?.currency) }}</strong>
+              <div class="quantity">
+                <button type="button" (click)="changeQuantity(item, item.quantity - 1)">−</button>
+                <input type="number" min="1" [ngModel]="item.quantity" (ngModelChange)="changeQuantity(item, $event)" />
+                <button type="button" (click)="changeQuantity(item, item.quantity + 1)">+</button>
+              </div>
+            </div>
+            <button class="remove" type="button" (click)="remove(item)"><i class="ri-delete-bin-line"></i></button>
+          </article>
+        }
+      </div>
+      <footer>
+        <div class="total"><span>Разом</span><strong>{{ formatPrice(cartService.subtotal()) }}</strong></div>
+        <a class="checkout" routerLink="/checkout" (click)="close()">Оформити замовлення</a>
+        @if (!oneClickOpen()) {
+          <button class="one-click" type="button" (click)="oneClickOpen.set(true)">Купити в 1 клік</button>
+        } @else {
+          <div class="phone"><input type="tel" [ngModel]="phone()" (ngModelChange)="phone.set($event)" placeholder="+380..." /><button type="button">Купити</button></div>
+        }
+      </footer>
+    } @else {
+      <div class="empty"><i class="ri-shopping-bag-line"></i><h3>Кошик порожній</h3><button type="button" (click)="close()">Продовжити покупки</button></div>
+    }
+  </aside>
+}

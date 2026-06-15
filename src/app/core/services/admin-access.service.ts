@@ -62,7 +62,7 @@ export class AdminAccessService {
                 const user = response.data;
                 return {
                   isAuthenticated: true,
-                  isAdmin: user.appMetadata?.isAdmin === true,
+                  isAdmin: user.appMetadata?.isAdmin === true || user.appMetadata?.isModerator === true,
                   user,
                 };
               }),

@@ -72,6 +72,7 @@ export interface SaleInventoryAdjustment {
 export interface Sale {
   _id: string;
   orderNumber: string;
+  userId?: string | null;
   status: SaleStatus;
   customer: SaleCustomer;
   shippingAddress: SaleShippingAddress;
@@ -83,6 +84,7 @@ export interface Sale {
   grandTotal: number;
   currency: string;
   notes: string | null;
+  doNotCall?: boolean;
   inventoryAdjustment?: SaleInventoryAdjustment;
   createdAt: string;
   updatedAt: string;

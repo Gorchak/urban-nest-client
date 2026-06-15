@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { AdminNavbarComponent } from './admin/admin-navbar/admin-navbar.component';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -10,4 +11,14 @@ import { AdminNavbarComponent } from './admin/admin-navbar/admin-navbar.componen
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {}
+export class AppComponent {
+  private router = inject(Router);
+
+  protected isAdminRoute = signal(this.router.url.startsWith('/admin'));
+
+  constructor() {
+    this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => this.isAdminRoute.set(event.urlAfterRedirects.startsWith('/admin')));
+  }
+}

@@ -1,0 +1,101 @@
+<app-public-header />
+<main>
+  @if (loading()) {
+    <div class="state">Завантажуємо товар...</div>
+  } @else if (error()) {
+    <div class="state"><h1>{{ error() }}</h1><a routerLink="/">На головну</a></div>
+  } @else {
+   @if (product(); as item) {
+    <nav class="breadcrumbs">
+      <a routerLink="/">Головна</a><i class="ri-arrow-right-s-line"></i>
+      @if (category(); as currentCategory) { <a [routerLink]="['/category', currentCategory.slug]">{{ currentCategory.name }}</a><i class="ri-arrow-right-s-line"></i> }
+      <span>{{ item.name }}</span>
+    </nav>
+
+    <section class="product">
+      <div class="gallery">
+        <div class="thumbs">
+          @for (image of item.images; track image; let index = $index) {
+            <button [class.active]="activeImage() === index" (click)="activeImage.set(index)"><img [src]="optimizedUrl(image, 180)" [alt]="item.name" /></button>
+          }
+        </div>
+        <div class="main-image">
+          @if (item.images[activeImage()]) { <img [src]="optimizedUrl(item.images[activeImage()], 1400)" [alt]="item.name" /> }
+          @else { <i class="ri-image-line"></i> }
+        </div>
+      </div>
+
+      <div class="summary">
+        <span class="sku">Артикул {{ item.sku }}</span>
+        <h1>{{ item.name }}</h1>
+        @if (item.shortDescription) { <p class="lead">{{ item.shortDescription }}</p> }
+        <strong class="price">{{ formatPrice(item) }}</strong>
+        <div class="availability" [class.available]="item.inventory.total_quantity > 0">
+          <i [class]="item.inventory.total_quantity > 0 ? 'ri-checkbox-circle-line' : 'ri-time-line'"></i>
+          {{ item.inventory.total_quantity > 0 ? 'В наявності' : 'Під замовлення' }}
+        </div>
+
+        @if (item.inventory.tracked_attribute && availableVariants().length) {
+          <div class="variants">
+            <div class="variants__head">
+              <span>Оберіть: {{ item.inventory.tracked_attribute.attribute_label }}</span>
+              <small>{{ availableVariants().length }} доступно</small>
+            </div>
+            <div class="variants__list">
+              @for (variant of availableVariants(); track variant.value_key) {
+                <button [class.active]="selectedVariant() === variant.value_key" (click)="selectVariant(variant)">
+                  {{ variant.value_label }} <small>{{ variant.quantity }} шт.</small>
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <button
+          type="button"
+          class="add-to-cart"
+          [disabled]="addingToCart() || item.inventory.total_quantity < 1 || (item.inventory.tracked_attribute && !selectedVariant())"
+          (click)="addToCart()"
+        >
+          <i class="ri-shopping-bag-line"></i>
+          {{ addingToCart() ? 'Додаємо...' : 'Додати в кошик' }}
+        </button>
+
+        <div class="service-notes">
+          <span><i class="ri-truck-line"></i> Доставка по Україні</span>
+          <span><i class="ri-shield-check-line"></i> Перевірена якість</span>
+          <span><i class="ri-exchange-line"></i> Просте повернення</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="details">
+      <div>
+        <span>Опис</span>
+        <h2>Про товар</h2>
+        <p>{{ item.description || item.shortDescription || 'Детальний опис незабаром з’явиться.' }}</p>
+      </div>
+      @if (displaySpecifications().length) {
+        <dl>
+          @for (entry of displaySpecifications(); track entry.spec.referenceId) {
+            <div><dt>{{ specificationLabel(entry.spec, entry.definition) }}</dt><dd>{{ specificationValue(entry.spec, entry.definition) }}</dd></div>
+          }
+        </dl>
+      }
+    </section>
+
+    @if (recentlyViewed().length) {
+      <section class="collection">
+        <header><span>Історія переглядів</span><h2>Нещодавно переглянуті</h2></header>
+        <div class="cards">@for (recent of recentlyViewed(); track recent._id) { <app-public-product-card [product]="recent" /> }</div>
+      </section>
+    }
+    @if (relatedProducts().length) {
+      <section class="collection">
+        <header><span>Може сподобатися</span><h2>Схожі товари</h2></header>
+        <div class="cards">@for (related of relatedProducts(); track related._id) { <app-public-product-card [product]="related" /> }</div>
+      </section>
+    }
+   }
+  }
+</main>

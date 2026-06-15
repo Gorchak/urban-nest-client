@@ -1,0 +1,103 @@
+<div class="home">
+  <app-public-header />
+
+  <div class="home-search">
+    <label class="search">
+      <i class="ri-search-line"></i>
+      <input type="search" [ngModel]="searchQuery()" (ngModelChange)="onSearchChange($event)" placeholder="Знайти річ" />
+      @if (searchQuery()) {
+        <button type="button" (click)="clearSearch()" aria-label="Очистити пошук"><i class="ri-close-line"></i></button>
+      }
+    </label>
+  </div>
+
+  <main>
+    @if (loading()) {
+      <section class="hero hero--loading">
+        <div class="skeleton skeleton--eyebrow"></div>
+        <div class="skeleton skeleton--title"></div>
+        <div class="skeleton skeleton--copy"></div>
+      </section>
+      <div class="loading-grid">
+        @for (item of [1, 2, 3, 4]; track item) { <div class="skeleton loading-card"></div> }
+      </div>
+    } @else if (error()) {
+      <section class="state">
+        <i class="ri-wifi-off-line"></i>
+        <h1>Каталог тимчасово недоступний</h1>
+        <p>{{ error() }}</p>
+      </section>
+    } @else {
+      <section
+        class="hero"
+        [class.hero--with-image]="heroCategory() && categoryImage(heroCategory()!)"
+        [style.background-image]="heroCategory() && categoryImage(heroCategory()!) ? 'linear-gradient(90deg, rgba(22, 20, 18, .82), rgba(22, 20, 18, .14)), url(' + optimizedUrl(categoryImage(heroCategory()!), 1800) + ')' : null"
+      >
+        <div class="hero__content">
+          <span class="eyebrow">ULIA / SELECTED GOODS</span>
+          <h1>Сукні для особливих моментів</h1>
+          <p>Колекція жіночних силуетів, обраних з увагою до кожної деталі.</p>
+          @if (heroCategory()) {
+            <a class="primary-button" [routerLink]="['/category', heroCategory()!.slug]">
+              Дивитися {{ heroCategory()!.name }} <i class="ri-arrow-right-line"></i>
+            </a>
+          }
+        </div>
+      </section>
+
+      @if (sections().length) {
+        <div class="category-sections">
+          @for (section of sections(); track section.category._id; let sectionIndex = $index) {
+            <section class="category-story" [class.category-story--reverse]="sectionIndex % 2" [id]="sectionId(section.category)">
+              <a class="category-story__image" [routerLink]="['/category', section.category.slug]">
+                @if (categoryImage(section.category)) {
+                  <img [src]="optimizedUrl(categoryImage(section.category), 1400)" [alt]="section.category.name" loading="lazy" />
+                } @else {
+                  <i class="ri-image-line"></i>
+                }
+              </a>
+              <div class="category-story__copy">
+                <span class="eyebrow">#{{ section.category.name.toLocaleLowerCase('uk-UA') }}</span>
+                <h2>{{ section.category.shortDescription || section.category.name }}</h2>
+                <p>{{ section.category.description || 'Речі, які легко поєднувати та приємно обирати знову.' }}</p>
+                <a class="story-link" [routerLink]="['/category', section.category.slug]">
+                  Дивитися категорію <i class="ri-arrow-right-line"></i>
+                </a>
+              </div>
+            </section>
+
+            <section class="product-row">
+              <header>
+                <div><span class="eyebrow">Добірка 0{{ sectionIndex + 1 }}</span><h3>{{ section.category.name }}</h3></div>
+                <a [routerLink]="['/category', section.category.slug]">Усі товари <i class="ri-arrow-right-line"></i></a>
+              </header>
+              <div class="products">
+                @for (product of section.products; track product._id) { <app-public-product-card [product]="product" /> }
+              </div>
+            </section>
+          }
+        </div>
+
+        @if (!searchQuery() && recentlyViewed().length) {
+          <section class="recently-viewed">
+            <header>
+              <div><span class="eyebrow">Історія переглядів</span><h2>Нещодавно переглянуті</h2></div>
+            </header>
+            <div class="products">
+              @for (product of recentlyViewed(); track product._id) { <app-public-product-card [product]="product" /> }
+            </div>
+          </section>
+        }
+      } @else {
+        <section class="state">
+          <i class="ri-search-eye-line"></i>
+          <h1>{{ searchQuery() ? 'Нічого не знайдено' : 'Каталог готується' }}</h1>
+          <p>{{ searchQuery() ? 'Спробуйте інший запит.' : 'Додайте видимі товари до активних категорій.' }}</p>
+          @if (searchQuery()) { <button type="button" class="primary-button" (click)="clearSearch()">Показати всі товари</button> }
+        </section>
+      }
+    }
+  </main>
+
+  <app-public-footer />
+</div>

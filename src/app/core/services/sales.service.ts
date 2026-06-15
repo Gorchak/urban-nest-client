@@ -65,6 +65,13 @@ export class SalesService {
     return response.data;
   }
 
+  async checkout(data: CreateSaleDto): Promise<Sale> {
+    const response = await firstValueFrom(
+      this.http.post<ApiResponse<Sale>>(`${this.apiUrl}/checkout`, data),
+    );
+    return response.data;
+  }
+
   async updateSale(id: string, data: UpdateSaleDto): Promise<Sale> {
     const response = await firstValueFrom(
       this.http.put<ApiResponse<Sale>>(`${this.apiUrl}/${id}`, data),

@@ -1,0 +1,15 @@
+:host { display:block; min-height:100vh; color:#171714; background:#f5f2eb; font-family:Arial,Helvetica,sans-serif; }
+* { box-sizing:border-box; } main { padding:0 3vw 7rem; }
+.hero { min-height:430px; margin:0 -3vw; padding:5vw 6vw; display:flex; align-items:end; background:#d9d0c3 center/cover; }
+.hero.with-image { color:#fff; } .hero span,.catalog header span { font-size:10px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; }
+h1,h2 { margin:0; font-family:Georgia,serif; font-weight:400; letter-spacing:-.055em; }
+h1 { max-width:900px; font-size:clamp(4rem,10vw,9rem); line-height:.86; } .hero p { max-width:550px; line-height:1.5; }
+.children { display:grid; grid-template-columns:repeat(4,1fr); border-left:1px solid rgba(23,23,20,.18); }
+.children a { min-height:180px; position:relative; padding:1rem; display:flex; align-items:end; overflow:hidden; color:#fff; background:#171714; border-right:1px solid rgba(245,242,235,.3); text-decoration:none; }
+.children img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.65; transition:transform .4s; }.children a:hover img{transform:scale(1.04)}.children span{position:relative;font-family:Georgia,serif;font-size:2rem}
+.catalog { padding-top:7rem; }.catalog header { padding-bottom:1.5rem; display:flex; align-items:end; justify-content:space-between; gap:2rem; border-bottom:1px solid #171714; }.catalog h2,.description h2{font-size:clamp(3rem,6vw,6rem)}
+.filters { display:flex; flex-wrap:wrap; align-items:center; gap:.75rem; }.filters input,.filters select{padding:.75rem;border:1px solid rgba(23,23,20,.35);background:transparent}.filters label{font-size:11px}
+.grid { display:grid; grid-template-columns:repeat(4,1fr); border-left:1px solid rgba(23,23,20,.18); }.grid app-public-product-card{border-right:1px solid rgba(23,23,20,.18);border-bottom:1px solid rgba(23,23,20,.18)}
+.pagination { padding-top:2rem; display:flex; justify-content:center; gap:.5rem; }.pagination button{width:38px;height:38px;border:1px solid #171714;background:transparent}.pagination button.active{background:#171714;color:#fff}
+.description { margin-top:8rem; padding-top:2rem; border-top:1px solid #171714; }.description p{max-width:850px;line-height:1.7;white-space:pre-wrap}.state{min-height:50vh;display:grid;place-content:center;text-align:center}
+@media(max-width:900px){.children,.grid{grid-template-columns:repeat(2,1fr)}.catalog header{align-items:start;flex-direction:column}}@media(max-width:560px){.grid{grid-template-columns:1fr 1fr}.children{grid-template-columns:1fr}.filters{align-items:stretch;flex-direction:column}.filters input,.filters select{width:100%}}

@@ -1,2 +1,4 @@
-<app-admin-navbar />
+@if (isAdminRoute()) {
+  <app-admin-navbar />
+}
 <router-outlet />

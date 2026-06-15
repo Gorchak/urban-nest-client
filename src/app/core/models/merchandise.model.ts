@@ -99,6 +99,7 @@ export interface MerchandiseListFilter {
   includeChildren?: boolean;
   search?: string;
   isActive?: boolean;
+  isVisible?: boolean;
   inStock?: boolean;
   outOfStock?: boolean;
   inventoryAttributeKey?: string;

@@ -5,9 +5,22 @@ import { MerchandiseListComponent } from './admin/pages/merchandise-list/merchan
 import { SalesPageComponent } from './admin/pages/sales-page/sales-page.component';
 import { UsersPageComponent } from './admin/pages/users-page/users-page.component';
 import { adminAccessGuard } from './core/guards/admin-access.guard';
+import { HomePageComponent } from './public/home-page/home-page.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'admin/products', pathMatch: 'full' },
+  { path: '', component: HomePageComponent, pathMatch: 'full' },
+  {
+    path: 'category/:slug',
+    loadComponent: () => import('./public/category-page/category-page.component').then((module) => module.CategoryPageComponent),
+  },
+  {
+    path: 'product/:slug',
+    loadComponent: () => import('./public/product-page/product-page.component').then((module) => module.ProductPageComponent),
+  },
+  {
+    path: 'checkout',
+    loadComponent: () => import('./public/checkout-page/checkout-page.component').then((module) => module.CheckoutPageComponent),
+  },
   { path: 'admin/access', component: AdminAccessPageComponent },
   { path: 'admin', redirectTo: 'admin/users', pathMatch: 'full' },
   { path: 'admin/categories', component: AdminCategoriesPageWithTabsComponent, canActivate: [adminAccessGuard] },
