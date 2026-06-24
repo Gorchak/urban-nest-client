@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -7,13 +7,13 @@ import { Category } from '../../core/models/category.model';
 import { Merchandise, MerchandiseListFilter, MerchandisePagination } from '../../core/models/merchandise.model';
 import { CategoriesService } from '../../core/services/categories.service';
 import { MerchandiseService } from '../../core/services/merchandise.service';
-import { PublicHeaderComponent } from '../shared/public-header.component';
 import { PublicProductCardComponent } from '../shared/public-product-card.component';
+import { PublicFooterComponent } from '../shared/public-footer.component';
 
 @Component({
   selector: 'app-category-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, PublicHeaderComponent, PublicProductCardComponent],
+  imports: [CommonModule, FormsModule, RouterLink, PublicProductCardComponent, PublicFooterComponent],
   templateUrl: './category-page.component.html',
   styleUrl: './category-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,7 +26,6 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
   private routeSubscription?: Subscription;
 
   protected category = signal<Category | null>(null);
-  protected categories = signal<Category[]>([]);
   protected products = signal<Merchandise[]>([]);
   protected pagination = signal<MerchandisePagination>({ total: 0, page: 1, limit: 12, pages: 0 });
   protected loading = signal(true);
@@ -34,11 +33,6 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
   protected search = signal('');
   protected sort = signal('createdAt_desc');
   protected inStockOnly = signal(false);
-
-  protected children = computed(() => {
-    const category = this.category();
-    return category ? this.categories().filter((item) => item.parentId === category._id && item.isActive && item.isVisible) : [];
-  });
 
   ngOnInit(): void {
     this.routeSubscription = this.route.paramMap.subscribe(() => void this.load());
@@ -53,7 +47,6 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
       const slug = this.route.snapshot.paramMap.get('slug');
       const category = categories.find((item) => item.slug === slug && item.isActive && item.isVisible);
       if (!category) throw new Error('Категорію не знайдено');
-      this.categories.set(categories);
       this.category.set(category);
       const [sortBy, sortOrder] = this.sort().split('_');
       const filter: MerchandiseListFilter = {

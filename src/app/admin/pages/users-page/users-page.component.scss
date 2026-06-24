@@ -105,8 +105,22 @@
 }
 
 @media (max-width: 760px) {
+  :host { padding:1rem 16px 3rem; }
   .page-header {
     align-items: stretch;
     flex-direction: column;
   }
+  .page-header ::ng-deep .p-button { width:100%; min-height:46px; }
+  .page-header p { font-size:.875rem; line-height:1.45; }
+  .users-toolbar { padding:.75rem; }
+  .search-field input { min-height:46px; font-size:16px; }
+  ::ng-deep .users-table .p-datatable-wrapper { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  ::ng-deep .users-table table { min-width:940px; }
+  ::ng-deep .users-table th,
+  ::ng-deep .users-table td { padding:.7rem .65rem; }
+  ::ng-deep .users-table th:last-child,
+  ::ng-deep .users-table td:last-child { position:sticky; right:0; z-index:1; background:#fff; box-shadow:-8px 0 12px rgba(17,24,39,.06); }
+  ::ng-deep .users-table th:last-child { z-index:2; background:var(--surface-50,#f9fafb); }
+  ::ng-deep .users-table .p-paginator { flex-wrap:wrap; gap:.2rem; padding:.75rem .25rem; }
+  .icon-action { width:42px; height:42px; }
 }

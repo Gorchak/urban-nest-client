@@ -2,25 +2,33 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, computed
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-
 import { Category } from '../../core/models/category.model';
 import { Merchandise } from '../../core/models/merchandise.model';
 import { CategoriesService } from '../../core/services/categories.service';
 import { MerchandiseService } from '../../core/services/merchandise.service';
 import { PublicProductCardComponent } from '../shared/public-product-card.component';
-import { PublicHeaderComponent } from '../shared/public-header.component';
 import { PublicFooterComponent } from '../shared/public-footer.component';
 import { RecentlyViewedService } from '../services/recently-viewed.service';
 
 interface CategorySection {
   category: Category;
+  title: string;
   products: Merchandise[];
 }
+
+const HOME_CATEGORY_ORDER = [
+  { title: 'Одяг', aliases: ['одяг', 'odyag', 'odiah', 'clothing', 'clothes'] },
+  { title: 'Кераміка', aliases: ['кераміка', 'keramika', 'keramica', 'ceramics', 'ceramic'] },
+  { title: 'Взуття', aliases: ['взуття', 'vzuttia', 'shoes', 'footwear'] },
+  { title: 'Сумки', aliases: ['сумки', 'sumky', 'sumki', 'bags', 'bag'] },
+  { title: 'Декор для дому', aliases: ['декор для дому', 'декор', 'dekor dlia domu', 'dekor dlya domu', 'dekor', 'home decor', 'decor'] },
+  { title: 'Аксесуари', aliases: ['аксесуари', 'aksesuari', 'aksessuary', 'accessories', 'accessory'] },
+];
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, PublicHeaderComponent, PublicProductCardComponent, PublicFooterComponent],
+  imports: [CommonModule, FormsModule, RouterLink, PublicProductCardComponent, PublicFooterComponent],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,52 +51,48 @@ export class HomePageComponent implements OnInit {
       .sort((a, b) => a.sortOrder - b.sortOrder),
   );
 
-  protected rootCategories = computed(() =>
-    this.visibleCategories().filter((category) => !category.parentId),
-  );
-
-  protected sections = computed<CategorySection[]>(() => {
+  protected filteredProducts = computed(() => {
     const query = this.searchQuery().trim().toLocaleLowerCase('uk-UA');
-    const products = this.merchandise().filter((product) => {
+    return this.merchandise().filter((product) => {
       if (!product.isActive || !product.isVisible) return false;
       if (!query) return true;
       return `${product.name} ${product.shortDescription ?? ''} ${product.sku}`
         .toLocaleLowerCase('uk-UA')
         .includes(query);
     });
+  });
 
-    return this.rootCategories()
-      .map((category) => {
-        const categoryIds = new Set([
-          category._id,
-          ...this.visibleCategories()
-            .filter((candidate) => candidate.parentId === category._id)
-            .map((candidate) => candidate._id),
-        ]);
+  protected newArrivals = computed(() =>
+    [...this.filteredProducts()]
+      .filter((product) => product.isNewArrival)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 5),
+  );
+
+  protected sections = computed<CategorySection[]>(() => {
+    const categories = this.visibleCategories();
+    return HOME_CATEGORY_ORDER
+      .map((definition) => {
+        const category = categories.find((candidate) => {
+          const keys = [candidate.name, candidate.slug].map((value) => this.normalizeCategoryKey(value));
+          return definition.aliases.some((alias) => keys.includes(this.normalizeCategoryKey(alias)));
+        });
+        if (!category) return null;
+        const categoryIds = this.categoryTreeIds(category, categories);
         return {
           category,
-          products: products.filter((product) => categoryIds.has(product.categoryId)).slice(0, 5),
+          title: definition.title,
+          products: this.filteredProducts().filter((product) => categoryIds.has(product.categoryId)).slice(0, 5),
         };
       })
-      .filter((section) => section.products.length > 0);
+      .filter((section): section is CategorySection => Boolean(section?.products.length));
   });
 
-  protected featuredCategories = computed(() => {
-    const withProducts = new Set(this.sections().map((section) => section.category._id));
-    return this.rootCategories()
-      .filter((category) => withProducts.has(category._id))
-      .sort((a, b) => Number(b.isFeatured) - Number(a.isFeatured) || a.sortOrder - b.sortOrder)
-      .slice(0, 4);
-  });
-
-  protected heroCategory = computed(() =>
-    this.featuredCategories().find((category) => this.categoryImage(category)) ?? this.featuredCategories()[0] ?? null,
-  );
   protected recentlyViewed = computed(() => this.recentlyViewedService.resolve(this.merchandise()).slice(0, 5));
 
   async ngOnInit(): Promise<void> {
     try {
-      const [categories, merchandiseResult] = await Promise.all([
+      const [categories, merchandiseResult, newArrivalsResult] = await Promise.all([
         this.categoriesService.getCategories(1, 200),
         this.merchandiseService.getMerchandiseList({
           isActive: true,
@@ -97,9 +101,18 @@ export class HomePageComponent implements OnInit {
           sortOrder: 'desc',
           limit: 100,
         }),
+        this.merchandiseService.getMerchandiseList({
+          isActive: true,
+          isVisible: true,
+          isNewArrival: true,
+          sortBy: 'createdAt',
+          sortOrder: 'desc',
+          limit: 100,
+        }),
       ]);
       this.categories.set(categories);
-      this.merchandise.set(merchandiseResult.data);
+      const products = new Map([...merchandiseResult.data, ...newArrivalsResult.data].map((product) => [product._id, product]));
+      this.merchandise.set([...products.values()]);
     } catch {
       this.error.set('Не вдалося завантажити каталог. Спробуйте оновити сторінку.');
     } finally {
@@ -108,44 +121,32 @@ export class HomePageComponent implements OnInit {
     }
   }
 
-  protected onSearchChange(value: string): void {
-    this.searchQuery.set(value);
-  }
-
-  protected clearSearch(): void {
-    this.searchQuery.set('');
-  }
-
-  protected scrollToCategory(category: Category): void {
-    document.getElementById(this.sectionId(category))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  protected sectionId(category: Category): string {
-    return `category-${category.slug || category._id}`;
-  }
-
+  protected onSearchChange(value: string): void { this.searchQuery.set(value); }
+  protected clearSearch(): void { this.searchQuery.set(''); }
+  protected sectionId(category: Category): string { return `category-${category.slug || category._id}`; }
   protected categoryImage(category: Category): string {
     return category.bannerImage || category.coverImage || category.image || category.images?.[0] || '';
   }
-
-  protected productImage(product: Merchandise, index = 0): string {
-    return product.images?.[index] ?? '';
-  }
-
   protected optimizedUrl(url: string, width = 900): string {
-    if (!url?.includes('res.cloudinary.com')) return url;
-    return url.replace('/upload/', `/upload/f_auto,q_auto,w_${width}/`);
+    return url?.includes('res.cloudinary.com') ? url.replace('/upload/', `/upload/f_auto,q_auto,w_${width}/`) : url;
   }
 
-  protected formatPrice(product: Merchandise): string {
-    return new Intl.NumberFormat('uk-UA', {
-      style: 'currency',
-      currency: product.currency,
-      maximumFractionDigits: 0,
-    }).format(product.salePrice);
+  private normalizeCategoryKey(value: string): string {
+    return value.toLocaleLowerCase('uk-UA').replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
   }
 
-  protected stockLabel(product: Merchandise): string {
-    return (product.inventory?.total_quantity ?? 0) > 0 ? 'В наявності' : 'Під замовлення';
+  private categoryTreeIds(root: Category, categories: Category[]): Set<string> {
+    const ids = new Set([root._id]);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const category of categories) {
+        if (category.parentId && ids.has(category.parentId) && !ids.has(category._id)) {
+          ids.add(category._id);
+          changed = true;
+        }
+      }
+    }
+    return ids;
   }
 }

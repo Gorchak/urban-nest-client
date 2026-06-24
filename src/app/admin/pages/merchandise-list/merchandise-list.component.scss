@@ -376,6 +376,7 @@
   }
 }
 @media (max-width: 640px) {
+  :host { padding:1rem 16px 3rem; }
   .page-header {
     flex-direction: column;
     align-items: flex-start;
@@ -386,4 +387,29 @@
     flex-wrap: nowrap;
     -webkit-overflow-scrolling: touch;
   }
+  .page-header ::ng-deep .p-button { width:100%; min-height:46px; }
+  .tabs-section { margin-right:-16px; }
+  .category-tabs { padding-right:16px; scrollbar-width:none; }
+  .subcategory-row { padding-right:16px; }
+  ::ng-deep .subcategory-dropdown { width:100%; min-height:46px; }
+  .filters-bar { align-items:stretch; flex-direction:column; padding:.75rem; }
+  .search-field,
+  ::ng-deep .filter-dropdown,
+  .price-range { width:100%; flex-basis:auto; }
+  .search-input { min-height:46px; font-size:16px; }
+  ::ng-deep .filter-dropdown { min-height:46px; }
+  .price-range { display:grid; grid-template-columns:1fr auto 1fr; }
+  ::ng-deep .price-range .price-input { width:100%; }
+  ::ng-deep .price-range .p-inputnumber-input { width:100%; min-height:46px; font-size:16px; }
+  .table-wrapper { margin:0; overflow:visible; }
+  ::ng-deep .merchandise-table .p-datatable-wrapper { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  ::ng-deep .merchandise-table table { min-width:1040px; }
+  ::ng-deep .merchandise-table .p-datatable-thead > tr > th,
+  ::ng-deep .merchandise-table .p-datatable-tbody > tr > td { padding:.65rem .6rem; }
+  ::ng-deep .merchandise-table .p-datatable-thead > tr > th:last-child,
+  ::ng-deep .merchandise-table .p-datatable-tbody > tr > td:last-child { position:sticky; right:0; z-index:1; background:#fff; box-shadow:-8px 0 12px rgba(17,24,39,.06); }
+  ::ng-deep .merchandise-table .p-datatable-thead > tr > th:last-child { z-index:2; background:var(--surface-50,#f9fafb); }
+  ::ng-deep .merchandise-table .p-paginator { flex-wrap:wrap; gap:.2rem; padding:.75rem .25rem; }
+  ::ng-deep .merchandise-table .p-paginator-current { width:100%; text-align:center; }
+  .action-buttons ::ng-deep .p-button { width:42px; height:42px; }
 }

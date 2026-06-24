@@ -141,6 +141,15 @@
 
 // ── Responsive ────────────────────────────────────────────────────────────────
 @media (max-width: 640px) {
+  ::ng-deep .merchandise-dialog { width:100vw!important; max-width:100vw!important; height:100dvh; max-height:100dvh!important; margin:0; border-radius:0; }
+  ::ng-deep .merchandise-dialog .p-dialog-header { padding:1rem; }
+  ::ng-deep .merchandise-dialog .p-dialog-content { flex:1; padding:0; }
+  ::ng-deep .merchandise-dialog .p-tabview-nav-container { overflow-x:auto; scrollbar-width:none; }
+  ::ng-deep .merchandise-dialog .p-tabview-nav { width:max-content; }
+  ::ng-deep .merchandise-dialog .p-tabview-nav-link { min-height:48px; padding:.8rem 1rem; white-space:nowrap; }
+  ::ng-deep .merchandise-dialog .p-tabview-panels { padding:1rem; }
+  ::ng-deep .merchandise-dialog input,
+  ::ng-deep .merchandise-dialog textarea { font-size:16px; }
   .form-grid,
   .specs-grid {
     grid-template-columns: 1fr;
@@ -149,4 +158,6 @@
   .field--full {
     grid-column: span 1;
   }
+  .dialog-footer { position:sticky; bottom:0; z-index:2; display:grid; grid-template-columns:1fr 1fr; padding:.75rem 1rem calc(.75rem + env(safe-area-inset-bottom)); background:#fff; }
+  .dialog-footer ::ng-deep .p-button { width:100%; min-height:46px; }
 }

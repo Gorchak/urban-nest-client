@@ -1,4 +1,3 @@
-<app-public-header />
 <main>
   @if (loading()) {
     <div class="state">Завантажуємо товар...</div>
@@ -29,7 +28,13 @@
         <span class="sku">Артикул {{ item.sku }}</span>
         <h1>{{ item.name }}</h1>
         @if (item.shortDescription) { <p class="lead">{{ item.shortDescription }}</p> }
-        <strong class="price">{{ formatPrice(item) }}</strong>
+        <div class="price-block">
+          @if (hasDiscount(item)) {
+            <span class="sale-badge">−{{ item.discountPercentage }}%</span>
+            <del>{{ formatPrice(item, item.salePrice) }}</del>
+          }
+          <strong class="price">{{ formatPrice(item) }}</strong>
+        </div>
         <div class="availability" [class.available]="item.inventory.total_quantity > 0">
           <i [class]="item.inventory.total_quantity > 0 ? 'ri-checkbox-circle-line' : 'ri-time-line'"></i>
           {{ item.inventory.total_quantity > 0 ? 'В наявності' : 'Під замовлення' }}
@@ -99,3 +104,4 @@
    }
   }
 </main>
+<app-public-footer />

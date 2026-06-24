@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, HostListener, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MenubarModule } from 'primeng/menubar';
@@ -83,6 +83,16 @@ export class AdminNavbarComponent {
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen.update(val => !val);
+  }
+
+  @HostListener('document:keydown.escape')
+  protected closeMobileMenuOnEscape(): void {
+    this.isMobileMenuOpen.set(false);
+  }
+
+  @HostListener('window:resize')
+  protected closeMobileMenuOnDesktop(): void {
+    if (window.innerWidth > 768) this.isMobileMenuOpen.set(false);
   }
 
   login(): void {

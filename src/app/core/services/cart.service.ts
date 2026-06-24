@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AddCartItemDto, Cart } from '../models/cart.model';
+import { Merchandise, getDiscountedPrice } from '../models/merchandise.model';
 
 interface ApiResponse<T> { success: boolean; message: string; data: T; }
 
@@ -16,7 +17,11 @@ export class CartService {
   loading = signal(false);
   isOpen = signal(false);
   itemCount = computed(() => this.cart()?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0);
-  subtotal = computed(() => this.cart()?.items.reduce((sum, item) => sum + (item.product?.salePrice ?? 0) * item.quantity, 0) ?? 0);
+  subtotal = computed(() => this.cart()?.items.reduce((sum, item) => sum + this.unitPrice(item.product) * item.quantity, 0) ?? 0);
+
+  unitPrice(product: Merchandise | null | undefined): number {
+    return product ? getDiscountedPrice(product) : 0;
+  }
 
   async load(): Promise<Cart> {
     this.loading.set(true);

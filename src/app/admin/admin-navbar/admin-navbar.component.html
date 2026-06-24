@@ -34,13 +34,13 @@
     }
   </div>
 
-  <button class="mobile-toggle" (click)="toggleMobileMenu()">
-    <i class="pi pi-bars"></i>
+  <button class="mobile-toggle" type="button" [attr.aria-expanded]="isMobileMenuOpen()" aria-controls="admin-mobile-menu" [attr.aria-label]="isMobileMenuOpen() ? 'Закрити меню' : 'Відкрити меню'" (click)="toggleMobileMenu()">
+    <i [class]="isMobileMenuOpen() ? 'pi pi-times' : 'pi pi-bars'"></i>
   </button>
 
   @if (isMobileMenuOpen()) {
     <div class="mobile-menu-overlay" (click)="toggleMobileMenu()"></div>
-    <div class="mobile-menu">
+    <div id="admin-mobile-menu" class="mobile-menu">
       <div class="mobile-menu-header">
         <a routerLink="/" class="mobile-logo">
           <img src="/assets/logo.svg.svg" alt="Ulia" class="logo-icon" />

@@ -163,10 +163,12 @@ export class AddEditMerchandiseComponent implements OnChanges {
     description: ['', [Validators.maxLength(10000)]],
     purchasePrice: [0, [Validators.required, Validators.min(0)]],
     salePrice: [0, [Validators.required, Validators.min(0)]],
+    discountPercentage: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
     retailPrice: [0, [Validators.required, Validators.min(0)]],
     currency: ['UAH'],
     isActive: [true],
     isVisible: [true],
+    isNewArrival: [false],
     ownershipType: ['owned', [Validators.required]],
     // ── Tab 2: Specifications (dynamic FormArray) ─────────────────
     specifications: this.fb.array([]),
@@ -245,10 +247,12 @@ export class AddEditMerchandiseComponent implements OnChanges {
       description: '',
       purchasePrice: 0,
       salePrice: 0,
+      discountPercentage: 0,
       retailPrice: 0,
       currency: 'UAH',
       isActive: true,
       isVisible: true,
+      isNewArrival: false,
       ownershipType: 'owned',
       seoTitle: '',
       seoDescription: '',
@@ -284,10 +288,12 @@ export class AddEditMerchandiseComponent implements OnChanges {
       description: m.description ?? '',
       purchasePrice: m.purchasePrice,
       salePrice: m.salePrice,
+      discountPercentage: m.discountPercentage ?? 0,
       retailPrice: m.retailPrice,
       currency: m.currency,
       isActive: m.isActive,
       isVisible: m.isVisible,
+      isNewArrival: m.isNewArrival ?? false,
       ownershipType: m.ownershipType ?? 'owned',
       seoTitle: m.seoTitle ?? '',
       seoDescription: m.seoDescription ?? '',
@@ -427,7 +433,7 @@ export class AddEditMerchandiseComponent implements OnChanges {
 
   protected isTab1Invalid(): boolean {
     return ['sku', 'name', 'slug', 'categoryId', 'shortDescription', 'description',
-      'purchasePrice', 'salePrice', 'retailPrice', 'ownershipType'].some(
+      'purchasePrice', 'salePrice', 'discountPercentage', 'retailPrice', 'ownershipType'].some(
       (f) => this.form.get(f)?.invalid
     );
   }
@@ -538,10 +544,12 @@ export class AddEditMerchandiseComponent implements OnChanges {
       inventory: latestInventory,
       purchasePrice: v.purchasePrice ?? 0,
       salePrice: v.salePrice ?? 0,
+      discountPercentage: v.discountPercentage ?? 0,
       retailPrice: v.retailPrice ?? 0,
       currency: v.currency || 'UAH',
       isActive: v.isActive,
       isVisible: v.isVisible,
+      isNewArrival: v.isNewArrival,
       ownershipType: v.ownershipType || 'owned',
       seoTitle: v.seoTitle || null,
       seoDescription: v.seoDescription || null,

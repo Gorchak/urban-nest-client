@@ -13,7 +13,13 @@
             <div class="info">
               <h3>{{ item.product?.name || 'Товар недоступний' }}</h3>
               @if (item.inventoryValueLabel) { <span>{{ item.inventoryValueLabel }}</span> }
-              <strong>{{ formatPrice((item.product?.salePrice || 0) * item.quantity, item.product?.currency) }}</strong>
+              @if (hasDiscount(item.product)) {
+                <div class="discount-line">
+                  <del>{{ formatPrice((item.product?.salePrice || 0) * item.quantity, item.product?.currency) }}</del>
+                  <span>−{{ item.product!.discountPercentage }}%</span>
+                </div>
+              }
+              <strong>{{ formatPrice(cartService.unitPrice(item.product) * item.quantity, item.product?.currency) }}</strong>
               <div class="quantity">
                 <button type="button" (click)="changeQuantity(item, item.quantity - 1)">−</button>
                 <input type="number" min="1" [ngModel]="item.quantity" (ngModelChange)="changeQuantity(item, $event)" />

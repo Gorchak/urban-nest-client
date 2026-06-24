@@ -198,6 +198,13 @@
   }
 }
 @media (max-width: 768px) {
+  .admin-navbar {
+    position: relative;
+    height: 64px;
+  }
+  .admin-navbar .navbar-container {
+    padding: 0 64px 0 16px;
+  }
   .admin-navbar ::ng-deep .desktop-nav {
     display: none;
   }
@@ -205,7 +212,14 @@
     display: none;
   }
   .admin-navbar .mobile-toggle {
-    display: block;
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    z-index: 1001;
   }
   .admin-navbar .mobile-menu-overlay {
     display: block;
@@ -223,11 +237,12 @@
     position: fixed;
     top: 0;
     right: 0;
-    width: 280px;
-    height: 100%;
+    width: min(320px, 88vw);
+    height: 100dvh;
     background: var(--sa);
     z-index: 999;
-    padding: 16px;
+    padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
+    overflow-y: auto;
     box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
     animation: slideIn 0.3s ease-out;
   }
@@ -252,7 +267,12 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    min-height: 48px;
     padding: 12px;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    text-align: left;
     text-decoration: none;
     color: var(--tc);
     border-radius: 4px;

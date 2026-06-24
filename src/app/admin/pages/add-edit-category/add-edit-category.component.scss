@@ -453,6 +453,15 @@
   font-size: 0.875rem;
 }
 @media (max-width: 640px) {
+  ::ng-deep .category-form-dialog { width:100vw!important; max-width:100vw!important; height:100dvh; max-height:100dvh!important; margin:0; border-radius:0; }
+  ::ng-deep .category-form-dialog .p-dialog-header { padding:1rem; }
+  ::ng-deep .category-form-dialog .p-dialog-content { flex:1; padding:0 1rem 1rem; }
+  ::ng-deep .category-form-dialog .p-dialog-footer { padding:.75rem 1rem calc(.75rem + env(safe-area-inset-bottom)); }
+  ::ng-deep .category-form-dialog .p-tabview-nav-container { overflow-x:auto; scrollbar-width:none; }
+  ::ng-deep .category-form-dialog .p-tabview-nav { width:max-content; }
+  ::ng-deep .category-form-dialog .p-tabview-nav-link { min-height:48px; padding:.75rem; white-space:nowrap; }
+  ::ng-deep .category-form-dialog input,
+  ::ng-deep .category-form-dialog textarea { font-size:16px; }
   .category-form .form-row {
     grid-template-columns: 1fr;
   }
@@ -464,8 +473,12 @@
     height: auto;
   }
   .specs-col {
-    height: 340px;
+    height:auto;
+    max-height:420px;
   }
+  .dialog-footer { display:grid; grid-template-columns:1fr 1fr; width:100%; }
+  .dialog-footer__upload-status { grid-column:1/-1; }
+  .dialog-footer ::ng-deep .p-button { width:100%; min-height:46px; }
 }
 
 // ::ng-deep .flag-item {

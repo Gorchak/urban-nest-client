@@ -44,6 +44,7 @@ export class MerchandiseService {
       if (filter.search) params = params.set('search', filter.search);
       if (filter.isActive !== undefined) params = params.set('isActive', String(filter.isActive));
       if (filter.isVisible !== undefined) params = params.set('isVisible', String(filter.isVisible));
+      if (filter.isNewArrival !== undefined) params = params.set('isNewArrival', String(filter.isNewArrival));
       if (filter.inStock !== undefined) params = params.set('inStock', String(filter.inStock));
       if (filter.outOfStock !== undefined) params = params.set('outOfStock', String(filter.outOfStock));
       if (filter.inventoryAttributeKey) params = params.set('inventoryAttributeKey', filter.inventoryAttributeKey);

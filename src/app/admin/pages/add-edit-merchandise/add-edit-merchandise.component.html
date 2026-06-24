@@ -218,6 +218,22 @@
             />
           </div>
 
+          <div class="field">
+            <label for="discountPercentage" class="field-label required">Знижка, %</label>
+            <p-inputNumber
+              id="discountPercentage"
+              formControlName="discountPercentage"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="2"
+              [min]="0"
+              [max]="100"
+              suffix=" %"
+              mode="decimal"
+              styleClass="w-full"
+            />
+            <small class="field-hint">Вкажіть 0, якщо товар продається без знижки.</small>
+          </div>
+
           <ng-container *ngIf="false">
           <!-- Stock -->
           <div class="field">
@@ -266,6 +282,15 @@
               inputId="isVisible"
             />
             <label for="isVisible" class="ml-2">Видимий</label>
+          </div>
+
+          <div class="field field--inline">
+            <p-checkbox
+              formControlName="isNewArrival"
+              binary="true"
+              inputId="isNewArrival"
+            />
+            <label for="isNewArrival" class="ml-2">Новинка</label>
           </div>
 
           <!-- Ownership type -->

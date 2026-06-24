@@ -60,6 +60,9 @@ export interface SaleItem {
   inventoryValueKey?: string | null;
   inventoryValueLabel?: string | null;
   quantity: number;
+  listUnitPrice?: number;
+  discountPercentage?: number;
+  discountAmount?: number;
   unitPrice: number;
   totalPrice: number;
 }

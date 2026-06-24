@@ -1,4 +1,6 @@
 @if (isAdminRoute()) {
   <app-admin-navbar />
+} @else {
+  <app-public-header />
 }
 <router-outlet />

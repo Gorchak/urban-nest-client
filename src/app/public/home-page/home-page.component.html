@@ -1,6 +1,4 @@
 <div class="home">
-  <app-public-header />
-
   <div class="home-search">
     <label class="search">
       <i class="ri-search-line"></i>
@@ -13,13 +11,12 @@
 
   <main>
     @if (loading()) {
-      <section class="hero hero--loading">
+      <section class="loading-heading">
         <div class="skeleton skeleton--eyebrow"></div>
         <div class="skeleton skeleton--title"></div>
-        <div class="skeleton skeleton--copy"></div>
       </section>
       <div class="loading-grid">
-        @for (item of [1, 2, 3, 4]; track item) { <div class="skeleton loading-card"></div> }
+        @for (item of [1, 2, 3, 4, 5]; track item) { <div class="skeleton loading-card"></div> }
       </div>
     } @else if (error()) {
       <section class="state">
@@ -28,37 +25,31 @@
         <p>{{ error() }}</p>
       </section>
     } @else {
-      <section
-        class="hero"
-        [class.hero--with-image]="heroCategory() && categoryImage(heroCategory()!)"
-        [style.background-image]="heroCategory() && categoryImage(heroCategory()!) ? 'linear-gradient(90deg, rgba(22, 20, 18, .82), rgba(22, 20, 18, .14)), url(' + optimizedUrl(categoryImage(heroCategory()!), 1800) + ')' : null"
-      >
-        <div class="hero__content">
-          <span class="eyebrow">ULIA / SELECTED GOODS</span>
-          <h1>Сукні для особливих моментів</h1>
-          <p>Колекція жіночних силуетів, обраних з увагою до кожної деталі.</p>
-          @if (heroCategory()) {
-            <a class="primary-button" [routerLink]="['/category', heroCategory()!.slug]">
-              Дивитися {{ heroCategory()!.name }} <i class="ri-arrow-right-line"></i>
-            </a>
-          }
-        </div>
-      </section>
+      @if (newArrivals().length || sections().length) {
+        @if (newArrivals().length) {
+          <section class="new-arrivals">
+            <header class="section-header">
+              <div><span class="eyebrow">Щойно додано</span><h1>Новинки</h1></div>
+            </header>
+            <div class="products">
+              @for (product of newArrivals(); track product._id) { <app-public-product-card [product]="product" /> }
+            </div>
+          </section>
+        }
 
-      @if (sections().length) {
         <div class="category-sections">
           @for (section of sections(); track section.category._id; let sectionIndex = $index) {
             <section class="category-story" [class.category-story--reverse]="sectionIndex % 2" [id]="sectionId(section.category)">
               <a class="category-story__image" [routerLink]="['/category', section.category.slug]">
                 @if (categoryImage(section.category)) {
-                  <img [src]="optimizedUrl(categoryImage(section.category), 1400)" [alt]="section.category.name" loading="lazy" />
+                  <img [src]="optimizedUrl(categoryImage(section.category), 1400)" [alt]="section.title" loading="lazy" />
                 } @else {
                   <i class="ri-image-line"></i>
                 }
               </a>
               <div class="category-story__copy">
-                <span class="eyebrow">#{{ section.category.name.toLocaleLowerCase('uk-UA') }}</span>
-                <h2>{{ section.category.shortDescription || section.category.name }}</h2>
+                <span class="eyebrow">#{{ section.title.toLocaleLowerCase('uk-UA') }}</span>
+                <h2>{{ section.category.shortDescription || section.title }}</h2>
                 <p>{{ section.category.description || 'Речі, які легко поєднувати та приємно обирати знову.' }}</p>
                 <a class="story-link" [routerLink]="['/category', section.category.slug]">
                   Дивитися категорію <i class="ri-arrow-right-line"></i>
@@ -67,8 +58,8 @@
             </section>
 
             <section class="product-row">
-              <header>
-                <div><span class="eyebrow">Добірка 0{{ sectionIndex + 1 }}</span><h3>{{ section.category.name }}</h3></div>
+              <header class="section-header">
+                <div><span class="eyebrow">Добірка 0{{ sectionIndex + 1 }}</span><h2>{{ section.title }}</h2></div>
                 <a [routerLink]="['/category', section.category.slug]">Усі товари <i class="ri-arrow-right-line"></i></a>
               </header>
               <div class="products">
@@ -80,7 +71,7 @@
 
         @if (!searchQuery() && recentlyViewed().length) {
           <section class="recently-viewed">
-            <header>
+            <header class="section-header">
               <div><span class="eyebrow">Історія переглядів</span><h2>Нещодавно переглянуті</h2></div>
             </header>
             <div class="products">
@@ -93,7 +84,7 @@
           <i class="ri-search-eye-line"></i>
           <h1>{{ searchQuery() ? 'Нічого не знайдено' : 'Каталог готується' }}</h1>
           <p>{{ searchQuery() ? 'Спробуйте інший запит.' : 'Додайте видимі товари до активних категорій.' }}</p>
-          @if (searchQuery()) { <button type="button" class="primary-button" (click)="clearSearch()">Показати всі товари</button> }
+          @if (searchQuery()) { <button type="button" class="story-link" (click)="clearSearch()">Показати всі товари</button> }
         </section>
       }
     }

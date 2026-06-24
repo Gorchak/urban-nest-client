@@ -1,0 +1,43 @@
+<main>
+  <section class="heading">
+    <span>Щойно додано</span>
+    <h1>Новинки</h1>
+    <p>Нові знахідки, які щойно з'явилися в нашій добірці.</p>
+  </section>
+
+  <section class="catalog">
+    <header>
+      <span>Знайдено {{ pagination().total }}</span>
+      <div class="filters">
+        <input type="search" [ngModel]="search()" (ngModelChange)="search.set($event)" (keyup.enter)="load(1)" placeholder="Пошук серед новинок" />
+        <select [ngModel]="sort()" (ngModelChange)="sort.set($event); load(1)">
+          <option value="createdAt_desc">Спочатку нові</option>
+          <option value="salePrice_asc">Ціна: від меншої</option>
+          <option value="salePrice_desc">Ціна: від більшої</option>
+          <option value="name_asc">Назва А-Я</option>
+        </select>
+        <label><input type="checkbox" [ngModel]="inStockOnly()" (ngModelChange)="inStockOnly.set($event); load(1)" /> Тільки в наявності</label>
+      </div>
+    </header>
+
+    @if (loading()) {
+      <div class="state">Завантажуємо новинки...</div>
+    } @else if (error()) {
+      <div class="state">{{ error() }}</div>
+    } @else if (products().length) {
+      <div class="grid">
+        @for (product of products(); track product._id) { <app-public-product-card [product]="product" [emphasis]="true" /> }
+      </div>
+      @if (pagination().pages > 1) {
+        <div class="pagination">
+          @for (page of pageNumbers(); track page) {
+            <button [class.active]="page === pagination().page" (click)="load(page)">{{ page }}</button>
+          }
+        </div>
+      }
+    } @else {
+      <div class="state">Новинок за вибраними параметрами не знайдено.</div>
+    }
+  </section>
+</main>
+<app-public-footer />

@@ -3,18 +3,18 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Category, CategorySpecification } from '../../core/models/category.model';
-import { InventoryAttributeQuantity, Merchandise, MerchandiseSpecification } from '../../core/models/merchandise.model';
+import { InventoryAttributeQuantity, Merchandise, MerchandiseSpecification, getDiscountedPrice, hasDiscount as merchandiseHasDiscount } from '../../core/models/merchandise.model';
 import { CategoriesService } from '../../core/services/categories.service';
 import { MerchandiseService } from '../../core/services/merchandise.service';
-import { PublicHeaderComponent } from '../shared/public-header.component';
 import { PublicProductCardComponent } from '../shared/public-product-card.component';
+import { PublicFooterComponent } from '../shared/public-footer.component';
 import { RecentlyViewedService } from '../services/recently-viewed.service';
 import { CartService } from '../../core/services/cart.service';
 
 @Component({
   selector: 'app-product-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, PublicHeaderComponent, PublicProductCardComponent],
+  imports: [CommonModule, RouterLink, PublicProductCardComponent, PublicFooterComponent],
   templateUrl: './product-page.component.html',
   styleUrl: './product-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -109,8 +109,10 @@ export class ProductPageComponent implements OnInit, OnDestroy {
       this.addingToCart.set(false);
     }
   }
-  protected formatPrice(product: Merchandise): string {
-    return new Intl.NumberFormat('uk-UA', { style: 'currency', currency: product.currency, maximumFractionDigits: 0 }).format(product.salePrice);
+  protected hasDiscount(product: Merchandise): boolean { return merchandiseHasDiscount(product); }
+  protected finalPrice(product: Merchandise): number { return getDiscountedPrice(product); }
+  protected formatPrice(product: Merchandise, value = getDiscountedPrice(product)): string {
+    return new Intl.NumberFormat('uk-UA', { style: 'currency', currency: product.currency, maximumFractionDigits: 2 }).format(value);
   }
   protected optimizedUrl(url: string, width = 1000): string {
     return url.includes('res.cloudinary.com') ? url.replace('/upload/', `/upload/f_auto,q_auto,w_${width}/`) : url;

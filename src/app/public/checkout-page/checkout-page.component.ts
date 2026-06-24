@@ -10,7 +10,6 @@ import { SalesService } from '../../core/services/sales.service';
 import { Auth0User } from '../../core/models/user.model';
 import { CreateSaleDto, SalePaymentMethod } from '../../core/models/sale.model';
 import { NovaPoshtaArea, NovaPoshtaCity, NovaPoshtaService, NovaPoshtaWarehouse } from '../../core/services/nova-poshta.service';
-import { PublicHeaderComponent } from '../shared/public-header.component';
 
 interface CheckoutForm {
   firstName: string; lastName: string; email: string; phone: string;
@@ -29,7 +28,7 @@ const emptyForm = (): CheckoutForm => ({
 @Component({
   selector: 'app-checkout-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, PublicHeaderComponent],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './checkout-page.component.html',
   styleUrl: './checkout-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -67,7 +66,7 @@ export class CheckoutPageComponent implements OnInit {
   protected login(): void { this.auth.loginWithRedirect({ appState: { target: '/checkout' } }); }
   protected requiresStreet(): boolean { return this.form().deliveryService === 'courier'; }
   protected formatPrice(value: number): string {
-    return new Intl.NumberFormat('uk-UA', { style: 'currency', currency: 'UAH', maximumFractionDigits: 0 }).format(value);
+    return new Intl.NumberFormat('uk-UA', { style: 'currency', currency: 'UAH', maximumFractionDigits: 2 }).format(value);
   }
 
   protected async onDeliveryChange(service: string): Promise<void> {

@@ -1,7 +1,40 @@
-<app-public-header />
 <main>
   @if (loading()) {
-    <div class="state">Завантажуємо категорію...</div>
+    <div class="category-skeleton" aria-hidden="true">
+      <section class="skeleton-hero">
+        <div>
+          <span class="skeleton-block skeleton-eyebrow"></span>
+          <span class="skeleton-block skeleton-title"></span>
+          <span class="skeleton-block skeleton-copy"></span>
+        </div>
+      </section>
+
+      <section class="skeleton-catalog">
+        <header>
+          <div>
+            <span class="skeleton-block skeleton-count"></span>
+            <span class="skeleton-block skeleton-heading"></span>
+          </div>
+          <div class="skeleton-filters">
+            <span class="skeleton-block"></span>
+            <span class="skeleton-block"></span>
+            <span class="skeleton-block"></span>
+          </div>
+        </header>
+        <div class="skeleton-grid">
+          @for (_ of [1, 2, 3, 4, 5, 6, 7, 8]; track $index) {
+            <article class="skeleton-card">
+              <div class="skeleton-block skeleton-media"></div>
+              <div class="skeleton-card__body">
+                <span class="skeleton-block skeleton-sku"></span>
+                <span class="skeleton-block skeleton-name"></span>
+                <span class="skeleton-block skeleton-price"></span>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+    </div>
   } @else if (error()) {
     <div class="state"><h1>{{ error() }}</h1><a routerLink="/">На головну</a></div>
   } @else {
@@ -13,17 +46,6 @@
         @if (current.shortDescription) { <p>{{ current.shortDescription }}</p> }
       </div>
     </section>
-
-    @if (children().length) {
-      <nav class="children">
-        @for (child of children(); track child._id) {
-          <a [routerLink]="['/category', child.slug]">
-            @if (categoryImage(child)) { <img [src]="optimizedUrl(categoryImage(child))" [alt]="child.name" /> }
-            <span>{{ child.name }}</span>
-          </a>
-        }
-      </nav>
-    }
 
     <section class="catalog">
       <header>
@@ -59,3 +81,4 @@
    }
   }
 </main>
+<app-public-footer />

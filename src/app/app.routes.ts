@@ -6,9 +6,11 @@ import { SalesPageComponent } from './admin/pages/sales-page/sales-page.componen
 import { UsersPageComponent } from './admin/pages/users-page/users-page.component';
 import { adminAccessGuard } from './core/guards/admin-access.guard';
 import { HomePageComponent } from './public/home-page/home-page.component';
+import { NewArrivalsPageComponent } from './public/new-arrivals-page/new-arrivals-page.component';
 
 export const routes: Routes = [
   { path: '', component: HomePageComponent, pathMatch: 'full' },
+  { path: 'new-arrivals', component: NewArrivalsPageComponent },
   {
     path: 'category/:slug',
     loadComponent: () => import('./public/category-page/category-page.component').then((module) => module.CategoryPageComponent),

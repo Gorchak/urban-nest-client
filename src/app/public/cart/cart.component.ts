@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CartItem } from '../../core/models/cart.model';
 import { CartService } from '../../core/services/cart.service';
+import { Merchandise, hasDiscount } from '../../core/models/merchandise.model';
 
 @Component({
   selector: 'app-cart',
@@ -11,6 +12,12 @@ import { CartService } from '../../core/services/cart.service';
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss',
+  styles: [`
+    .discount-line { margin-top: .65rem; display: flex; align-items: center; gap: .5rem; font-size: 10px; }
+    .discount-line del { opacity: .55; }
+    .discount-line span { padding: .2rem .35rem; background: #c85436; color: #fff; font-weight: 700; opacity: 1; }
+    .discount-line + strong { margin-top: .35rem; }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CartComponent {
@@ -24,7 +31,8 @@ export class CartComponent {
     await this.cartService.updateItem(this.key(item), Math.max(1, quantity));
   }
   protected async remove(item: CartItem): Promise<void> { await this.cartService.removeItem(this.key(item)); }
+  protected hasDiscount(product: Merchandise | null | undefined): boolean { return product ? hasDiscount(product) : false; }
   protected formatPrice(value: number, currency = 'UAH'): string {
-    return new Intl.NumberFormat('uk-UA', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
+    return new Intl.NumberFormat('uk-UA', { style: 'currency', currency, maximumFractionDigits: 2 }).format(value);
   }
 }

@@ -36,3 +36,11 @@
   margin: 0.75rem 0 1.25rem;
   color: var(--text-color-secondary);
 }
+
+@media(max-width:640px){
+  :host,.access-page{min-height:calc(100dvh - 64px)}
+  .access-page{padding:16px}
+  .access-panel{padding:1.5rem 1rem}
+  .access-panel h1{font-size:1.25rem}
+  .access-panel ::ng-deep .p-button{width:100%;min-height:46px}
+}

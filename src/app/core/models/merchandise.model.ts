@@ -52,10 +52,12 @@ export interface Merchandise {
   inventory: MerchandiseInventory;
   purchasePrice: number;
   salePrice: number;
+  discountPercentage: number;
   retailPrice: number;
   currency: MerchandiseCurrency;
   isActive: boolean;
   isVisible: boolean;
+  isNewArrival: boolean;
   ownershipType: MerchandiseOwnershipType;
   seoTitle: string | null;
   seoDescription: string | null;
@@ -79,10 +81,12 @@ export interface CreateMerchandiseDto {
   inventory: MerchandiseInventory;
   purchasePrice: number;
   salePrice: number;
+  discountPercentage: number;
   retailPrice: number;
   currency: MerchandiseCurrency;
   isActive: boolean;
   isVisible: boolean;
+  isNewArrival: boolean;
   ownershipType: MerchandiseOwnershipType;
   seoTitle: string | null;
   seoDescription: string | null;
@@ -100,6 +104,7 @@ export interface MerchandiseListFilter {
   search?: string;
   isActive?: boolean;
   isVisible?: boolean;
+  isNewArrival?: boolean;
   inStock?: boolean;
   outOfStock?: boolean;
   inventoryAttributeKey?: string;
@@ -123,4 +128,14 @@ export interface MerchandisePagination {
 export interface MerchandiseListResponse {
   data: Merchandise[];
   pagination: MerchandisePagination;
+}
+
+export function getDiscountedPrice(product: Pick<Merchandise, 'salePrice' | 'discountPercentage'>): number {
+  const price = Math.max(0, Number(product.salePrice) || 0);
+  const discount = Math.min(100, Math.max(0, Number(product.discountPercentage) || 0));
+  return Math.round(price * (1 - discount / 100) * 100) / 100;
+}
+
+export function hasDiscount(product: Pick<Merchandise, 'discountPercentage'>): boolean {
+  return Number(product.discountPercentage) > 0;
 }

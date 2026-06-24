@@ -1,0 +1,110 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  color: #171714;
+  background: #f5f2eb;
+  font-family: Arial, Helvetica, sans-serif;
+}
+* {
+  box-sizing: border-box;
+}
+main {
+  padding: 0 3vw 7rem;
+}
+.heading {
+  padding: clamp(4rem, 8vw, 3rem) 3vw clamp(3rem, 6vw, 3rem);
+}
+.heading > span,
+.catalog > header > span {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.heading h1 {
+  margin: 0.5rem 0 1rem;
+  font-family: Georgia, serif;
+  font-size: clamp(5rem, 12vw, 7rem);
+  font-weight: 400;
+  letter-spacing: -0.07em;
+  line-height: 0.82;
+}
+.heading p {
+  max-width: 520px;
+  font-size: 17px;
+  line-height: 1.6;
+}
+.catalog > header {
+  padding-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  border-bottom: 1px solid #171714;
+}
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+.filters input,
+.filters select {
+  padding: 0.8rem;
+  border: 1px solid rgba(23, 23, 20, 0.35);
+  background: transparent;
+  font: inherit;
+}
+.filters label {
+  font-size: 12px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-left: 1px solid rgba(23, 23, 20, 0.18);
+}
+.grid app-public-product-card {
+  border-right: 1px solid rgba(23, 23, 20, 0.18);
+  border-bottom: 1px solid rgba(23, 23, 20, 0.18);
+}
+.pagination {
+  padding-top: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.pagination button {
+  width: 38px;
+  height: 38px;
+  border: 1px solid #171714;
+  background: transparent;
+}
+.pagination button.active {
+  background: #171714;
+  color: #fff;
+}
+.state {
+  min-height: 42vh;
+  display: grid;
+  place-content: center;
+  text-align: center;
+}
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .catalog > header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+@media (max-width: 560px) {
+  .filters {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .filters input,
+  .filters select {
+    width: 100%;
+  }
+}
