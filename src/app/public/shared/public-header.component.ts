@@ -73,7 +73,7 @@ import { CartComponent } from '../cart/cart.component';
           <span class="user-loading"></span>
         } @else {
          @if (currentUser(); as user) {
-          <button type="button" class="user-button" (click)="toggleProfileMenu()">
+          <button type="button" class="user-button" [attr.aria-label]="'Відкрити профіль ' + displayName(user)" (click)="toggleProfileMenu()">
             @if (avatar(user)) {
               <img [src]="avatar(user)" [alt]="displayName(user)" />
             } @else {
@@ -84,12 +84,15 @@ import { CartComponent } from '../cart/cart.component';
           </button>
           @if (profileMenuOpen()) {
             <div class="profile-menu">
+              @if (canAccessAdmin()) {
+                <a class="profile-admin-link" routerLink="/admin" (click)="profileMenuOpen.set(false)"><i class="ri-dashboard-line"></i> Адмін-панель</a>
+              }
               <button type="button" (click)="openProfileSettings()"><i class="ri-settings-3-line"></i> Налаштування</button>
               <button type="button" class="logout" (click)="logout()"><i class="ri-logout-box-r-line"></i> Вийти</button>
             </div>
           }
          } @else {
-          <button type="button" class="login-button" (click)="login()"><i class="ri-login-box-line"></i> Увійти</button>
+          <button type="button" class="login-button" aria-label="Увійти або зареєструватися" (click)="login()"><i class="ri-login-box-line"></i> Увійти</button>
          }
         }
       </div>
@@ -189,8 +192,8 @@ import { CartComponent } from '../cart/cart.component';
     .user-button img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; }
     .user-button > i:first-child { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid rgba(23,23,20,.25); border-radius: 50%; }
     .profile-menu { position: absolute; top: calc(100% + 14px); right: 0; z-index: 2; min-width: 190px; padding: .4rem; background: #fff; border: 1px solid rgba(23,23,20,.16); box-shadow: 0 12px 35px rgba(23,23,20,.14); }
-    .profile-menu button { width: 100%; padding: .8rem; display: flex; gap: .65rem; border: 0; background: transparent; color: inherit; text-align: left; }
-    .profile-menu button:hover { background: #f5f2eb; }.profile-menu .logout { color: #b33b2e; }
+    .profile-menu button,.profile-admin-link { width: 100%; padding: .8rem; display: flex; align-items:center; gap: .65rem; border: 0; background: transparent; color: inherit; font-size:inherit; text-align: left; text-decoration:none; }
+    .profile-menu button:hover,.profile-admin-link:hover { background: #f5f2eb; }.profile-menu .logout { color: #b33b2e; }
     .user-loading { width: 80px; height: 34px; background: rgba(23,23,20,.08); animation: pulse 1s infinite alternate; }
     .mobile-nav,.mobile-menu-backdrop { display:none; }
     @keyframes pulse { to { opacity: .45; } }
@@ -205,8 +208,15 @@ import { CartComponent } from '../cart/cart.component';
       .main-nav { display:none; }
       .actions { gap:.15rem; }
       .menu-button { display:grid; order:3; }
-      .cart-button { width:42px; height:42px; }
-      .admin-link,.login-button,.user-button,.user-loading { display:none; }
+      .cart-button { width:42px; height:42px; order:1; }
+      .admin-link,.user-loading { display:none; }
+      .login-button,.user-button { width:42px; height:42px; padding:0; display:grid; place-items:center; order:2; border-radius:50%; }
+      .login-button { font-size:0; }
+      .login-button i { font-size:21px; }
+      .user-button { gap:0; }
+      .user-button span,.user-button > i:last-child { display:none; }
+      .user-button img { width:32px; height:32px; }
+      .user-button > i:first-child { width:34px; height:34px; font-size:18px; }
       .mobile-menu-backdrop { position:fixed; inset:64px 0 0; z-index:3; display:block; background:rgba(23,23,20,.4); backdrop-filter:blur(2px); }
       .mobile-nav { position:absolute; top:100%; right:0; left:0; z-index:4; max-height:calc(100dvh - 64px); padding:10px 16px calc(24px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; overflow-y:auto; border-bottom:1px solid rgba(23,23,20,.2); background:#f5f2eb; box-shadow:0 18px 35px rgba(23,23,20,.16); }
       .mobile-nav__primary>a,.mobile-category__row { min-height:55px; display:flex; align-items:center; border-bottom:1px solid rgba(23,23,20,.14); }
