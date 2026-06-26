@@ -137,23 +137,15 @@
         </td>
         <td>{{ sale.createdAt | date: 'dd.MM.yyyy' }}</td>
         <td>
-          <div class="row-actions">
-            <button type="button" class="icon-action" title="Перегляд" (click)="openDetails(sale)">
-              <i class="pi pi-eye"></i>
-            </button>
-            <button type="button" class="icon-action" title="Редагувати" (click)="openEdit(sale)">
-              <i class="pi pi-pencil"></i>
-            </button>
-            <button
-              type="button"
-              class="icon-action danger"
-              title="Видалити"
-              [disabled]="deletingSaleId() === sale._id"
-              (click)="deleteSale(sale)"
-            >
-              <i class="pi pi-trash"></i>
-            </button>
-          </div>
+          <app-admin-action-menu
+            [showView]="true"
+            [showEdit]="true"
+            [showDelete]="true"
+            [deleteDisabled]="deletingSaleId() === sale._id"
+            (view)="openDetails(sale)"
+            (edit)="openEdit(sale)"
+            (delete)="deleteSale(sale)"
+          />
         </td>
       </tr>
     </ng-template>

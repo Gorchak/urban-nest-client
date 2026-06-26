@@ -166,6 +166,7 @@
         <th class="col-stock">Склад</th>
         <th class="col-price">Закупочна</th>
         <th class="col-price">Продаж</th>
+        <th class="col-discount">Знижка</th>
         <th class="col-active">Активний</th>
         <th class="col-date">Додано</th>
         <th class="col-actions">Дії</th>
@@ -283,6 +284,47 @@
           {{ formatPrice(item.salePrice, item.currency) }}
         </td>
 
+        <!-- Discount -->
+        <td class="col-discount">
+          <div class="discount-edit-wrapper">
+            <div class="discount-input-shell">
+              <input
+                type="number"
+                class="discount-input"
+                [ngModel]="getDiscountDisplayValue(item)"
+                (ngModelChange)="onDiscountInputChange(item, $event)"
+                min="0"
+                max="100"
+                step="1"
+              />
+              <span>%</span>
+            </div>
+            @if (isDiscountDirty(item._id)) {
+              <div class="discount-action-buttons">
+                <button
+                  type="button"
+                  class="stock-action-btn stock-action-btn-submit"
+                  [disabled]="submittingDiscount().has(item._id)"
+                  (click)="submitDiscount(item)"
+                >
+                  @if (submittingDiscount().has(item._id)) {
+                    <i class="pi pi-spinner pi-spin"></i>
+                  } @else {
+                    <i class="pi pi-check"></i>
+                  }
+                </button>
+                <button
+                  type="button"
+                  class="stock-action-btn stock-action-btn-revert"
+                  (click)="revertDiscount(item)"
+                >
+                  <i class="pi pi-times"></i>
+                </button>
+              </div>
+            }
+          </div>
+        </td>
+
         <!-- Active -->
         <td class="col-active">
           <p-tag
@@ -298,37 +340,16 @@
 
         <!-- Actions -->
         <td class="col-actions">
-          <div class="action-buttons">
-            <p-button
-              icon="pi pi-eye"
-              severity="secondary"
-              [text]="true"
-              size="small"
-              (onClick)="openMerchandiseDetails(item._id)"
-            />
-            <p-button
-              icon="pi pi-shopping-cart"
-              severity="success"
-              [text]="true"
-              size="small"
-              pTooltip="Продаж"
-              (onClick)="openSaleDialog(item)"
-            />
-            <p-button
-              icon="pi pi-pencil"
-              severity="secondary"
-              [text]="true"
-              size="small"
-              (onClick)="openEdit(item)"
-            />
-            <p-button
-              icon="pi pi-trash"
-              severity="danger"
-              [text]="true"
-              size="small"
-              (onClick)="confirmDelete(item)"
-            />
-          </div>
+          <app-admin-action-menu
+            [showView]="true"
+            [showSale]="true"
+            [showEdit]="true"
+            [showDelete]="true"
+            (view)="openMerchandiseDetails(item._id)"
+            (sale)="openSaleDialog(item)"
+            (edit)="openEdit(item)"
+            (delete)="confirmDelete(item)"
+          />
         </td>
 
       </tr>
@@ -336,7 +357,7 @@
 
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="10">
+        <td colspan="11">
           <div class="empty-state">
             <i class="pi pi-inbox"></i>
             <p>Товарів не знайдено</p>
@@ -354,7 +375,7 @@
 
     <ng-template pTemplate="loadingbody">
       <tr *ngFor="let i of [1,2,3,4,5]">
-        <td *ngFor="let j of [1,2,3,4,5,6,7,8,9,10]">
+        <td *ngFor="let j of [1,2,3,4,5,6,7,8,9,10,11]">
           <p-skeleton height="20px" />
         </td>
       </tr>

@@ -45,6 +45,7 @@ import {
   SaleStatus,
 } from '../../../core/models/sale.model';
 import { Auth0User, UserDeliveryProfile } from '../../../core/models/user.model';
+import { formatCurrency } from '../../../core/utils/price-format';
 
 export const createEmptySale = (): CreateSaleDto => ({
   orderNumber: `UN-${Date.now().toString().slice(-6)}`,
@@ -162,6 +163,7 @@ export class SaleFormDialogComponent implements OnChanges {
   protected paymentMethodOptions: Array<{ label: string; value: SalePaymentMethod }> = [
     { label: 'Картка', value: 'card' },
     { label: 'Післяплата', value: 'cash_on_delivery' },
+    { label: 'Google Pay', value: 'google_pay' },
     { label: 'Банківський переказ', value: 'bank_transfer' },
     { label: 'Онлайн', value: 'online' },
   ];
@@ -482,7 +484,7 @@ export class SaleFormDialogComponent implements OnChanges {
   }
 
   protected formatPrice(value: number, currency = 'UAH'): string {
-    return new Intl.NumberFormat('uk-UA', { style: 'currency', currency }).format(value || 0);
+    return formatCurrency(value, currency);
   }
 
   private async prepareNovaPoshtaData(): Promise<void> {

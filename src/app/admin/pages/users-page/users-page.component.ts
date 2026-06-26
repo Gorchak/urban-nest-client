@@ -22,6 +22,7 @@ import { MessageService } from 'primeng/api';
 import { Auth0User } from '../../../core/models/user.model';
 import { UsersService } from '../../../core/services/users.service';
 import { UserProfileDialogComponent } from './user-profile-dialog.component';
+import { AdminActionMenuComponent } from '../../components/admin-action-menu/admin-action-menu.component';
 
 @Component({
   selector: 'app-users-page',
@@ -40,6 +41,7 @@ import { UserProfileDialogComponent } from './user-profile-dialog.component';
     IconFieldModule,
     InputIconModule,
     UserProfileDialogComponent,
+    AdminActionMenuComponent,
   ],
   templateUrl: './users-page.component.html',
   styleUrls: ['./users-page.component.scss'],

@@ -6,10 +6,13 @@ import { Category, CategorySpecification } from '../../core/models/category.mode
 import { InventoryAttributeQuantity, Merchandise, MerchandiseSpecification, getDiscountedPrice, hasDiscount as merchandiseHasDiscount } from '../../core/models/merchandise.model';
 import { CategoriesService } from '../../core/services/categories.service';
 import { MerchandiseService } from '../../core/services/merchandise.service';
+import { SeoService } from '../../core/services/seo.service';
+import { StructuredDataService } from '../../core/services/structured-data.service';
 import { PublicProductCardComponent } from '../shared/public-product-card.component';
 import { PublicFooterComponent } from '../shared/public-footer.component';
 import { RecentlyViewedService } from '../services/recently-viewed.service';
 import { CartService } from '../../core/services/cart.service';
+import { formatCurrency } from '../../core/utils/price-format';
 
 @Component({
   selector: 'app-product-page',
@@ -23,6 +26,8 @@ export class ProductPageComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private merchandiseService = inject(MerchandiseService);
   private categoriesService = inject(CategoriesService);
+  private seo = inject(SeoService);
+  private structuredData = inject(StructuredDataService);
   private recentlyViewedService = inject(RecentlyViewedService);
   private cartService = inject(CartService);
   private cdr = inject(ChangeDetectorRef);
@@ -81,6 +86,31 @@ export class ProductPageComponent implements OnInit, OnDestroy {
       this.allProducts.set(productsResult.data);
       this.product.set(product);
       this.category.set(categories.find((item) => item._id === product.categoryId) ?? null);
+      this.seo.setPage({
+        title: product.seoTitle || `${product.name} | Ulia`,
+        description: product.seoDescription || product.shortDescription || product.description,
+        keywords: product.seoKeywords,
+        canonicalUrl: product.canonicalUrl || `/product/${product.slug}`,
+        ogImage: product.ogImage || product.images?.[0],
+        type: 'product',
+      });
+      this.structuredData.set('product', {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: product.name,
+        description: product.seoDescription || product.shortDescription || product.description || product.name,
+        sku: product.sku,
+        image: product.images || [],
+        offers: {
+          '@type': 'Offer',
+          price: this.finalPrice(product),
+          priceCurrency: product.currency,
+          availability: (product.inventory?.total_quantity ?? 0) > 0
+            ? 'https://schema.org/InStock'
+            : 'https://schema.org/OutOfStock',
+          url: product.canonicalUrl || `/product/${product.slug}`,
+        },
+      });
       const firstAvailable = product.inventory?.attribute_quantities?.find((row) => row.quantity > 0);
       this.selectedVariant.set(firstAvailable?.value_key ?? null);
       this.recentlyViewedService.add(product);
@@ -104,7 +134,7 @@ export class ProductPageComponent implements OnInit, OnDestroy {
         inventoryValueKey: variant?.value_key ?? null,
         inventoryValueLabel: variant?.value_label ?? null,
         quantity: 1,
-      });
+      }, product);
     } finally {
       this.addingToCart.set(false);
     }
@@ -112,7 +142,7 @@ export class ProductPageComponent implements OnInit, OnDestroy {
   protected hasDiscount(product: Merchandise): boolean { return merchandiseHasDiscount(product); }
   protected finalPrice(product: Merchandise): number { return getDiscountedPrice(product); }
   protected formatPrice(product: Merchandise, value = getDiscountedPrice(product)): string {
-    return new Intl.NumberFormat('uk-UA', { style: 'currency', currency: product.currency, maximumFractionDigits: 2 }).format(value);
+    return formatCurrency(value, product.currency);
   }
   protected optimizedUrl(url: string, width = 1000): string {
     return url.includes('res.cloudinary.com') ? url.replace('/upload/', `/upload/f_auto,q_auto,w_${width}/`) : url;

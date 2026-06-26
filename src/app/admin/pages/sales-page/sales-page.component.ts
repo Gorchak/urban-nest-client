@@ -25,6 +25,7 @@ import { MessageService } from 'primeng/api';
 import { SalesService } from '../../../core/services/sales.service';
 import { SaleFormDialogComponent } from './sale-form-dialog.component';
 import { MerchandiseDetailsComponent } from '../merchandise-details/merchandise-details.component';
+import { AdminActionMenuComponent } from '../../components/admin-action-menu/admin-action-menu.component';
 import {
   CreateSaleDto,
   Sale,
@@ -37,6 +38,7 @@ import {
   SaleShippingAddress,
   SaleStatus,
 } from '../../../core/models/sale.model';
+import { formatCurrency } from '../../../core/utils/price-format';
 
 const emptySale = (): CreateSaleDto => ({
   orderNumber: `UN-${Date.now().toString().slice(-6)}`,
@@ -100,6 +102,7 @@ const emptySale = (): CreateSaleDto => ({
     InputIconModule,
     SaleFormDialogComponent,
     MerchandiseDetailsComponent,
+    AdminActionMenuComponent,
   ],
   templateUrl: './sales-page.component.html',
   styleUrls: ['./sales-page.component.scss'],
@@ -138,6 +141,7 @@ export class SalesPageComponent implements OnInit {
   protected paymentMethodOptions: Array<{ label: string; value: SalePaymentMethod }> = [
     { label: 'Картка', value: 'card' },
     { label: 'Післяплата', value: 'cash_on_delivery' },
+    { label: 'Google Pay', value: 'google_pay' },
     { label: 'Банківський переказ', value: 'bank_transfer' },
     { label: 'Онлайн', value: 'online' },
   ];
@@ -437,7 +441,7 @@ export class SalesPageComponent implements OnInit {
   }
 
   protected formatPrice(value: number, currency = 'UAH'): string {
-    return new Intl.NumberFormat('uk-UA', { style: 'currency', currency }).format(value || 0);
+    return formatCurrency(value, currency);
   }
 
   protected customerName(sale: Sale): string {

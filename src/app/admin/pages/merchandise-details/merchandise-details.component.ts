@@ -24,6 +24,7 @@ import { MerchandiseService } from '../../../core/services/merchandise.service';
 import { CategoriesService } from '../../../core/services/categories.service';
 import { Merchandise, MerchandiseSpecification } from '../../../core/models/merchandise.model';
 import { Category } from '../../../core/models/category.model';
+import { formatCurrency } from '../../../core/utils/price-format';
 
 // ── Display maps ──────────────────────────────────────────────────────────────
 
@@ -194,11 +195,7 @@ export class MerchandiseDetailsComponent implements OnChanges {
   // ── Formatters ────────────────────────────────────────────────────────────
 
   protected formatPrice(price: number, currency = 'UAH'): string {
-    return new Intl.NumberFormat('uk-UA', {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 2,
-    }).format(price);
+    return formatCurrency(price, currency);
   }
 
   protected formatDate(raw: string | null | undefined): string {

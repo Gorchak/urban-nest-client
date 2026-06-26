@@ -1,0 +1,128 @@
+<main>
+  <section class="heading">
+    <span>Кабінет користувача</span>
+    <h1>Історія замовлень</h1>
+  </section>
+
+  @if (!isAuthenticated()) {
+    <section class="auth-state">
+      <i class="ri-user-line"></i>
+      <h2>Увійдіть, щоб переглянути свої замовлення</h2>
+      <button type="button" (click)="login()">Увійти</button>
+    </section>
+  } @else {
+    <section class="toolbar">
+      <label>
+        Категорія
+        <div class="category-select" [class.open]="categoryMenuOpen()">
+          <button type="button" class="category-select__button" [attr.aria-expanded]="categoryMenuOpen()" (click)="toggleCategoryMenu()">
+            <span>{{ selectedCategoryLabel() }}</span>
+            <i class="ri-arrow-down-s-line"></i>
+          </button>
+          @if (categoryMenuOpen()) {
+            <div class="category-select__menu">
+              <button type="button" [class.active]="!selectedCategoryId()" (click)="onCategoryChange('')">
+                <i class="ri-apps-2-line"></i>
+                <span>Всі категорії</span>
+              </button>
+              @for (category of categories(); track category._id) {
+                <button type="button" [class.active]="selectedCategoryId() === category._id" (click)="onCategoryChange(category._id)">
+                  <i [class]="category.icon || 'ri-price-tag-3-line'"></i>
+                  <span>{{ category.name }}</span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </label>
+      <div>
+        <span>{{ pagination().total }}</span>
+        <small>замовлень</small>
+      </div>
+    </section>
+
+    @if (loading()) {
+      <section class="orders skeleton-list" aria-label="Завантаження замовлень">
+        @for (_ of [1, 2, 3]; track _) {
+          <article>
+            <span class="skeleton media"></span>
+            <div>
+              <span class="skeleton line short"></span>
+              <span class="skeleton line"></span>
+              <span class="skeleton line tiny"></span>
+            </div>
+            <span class="skeleton amount"></span>
+          </article>
+        }
+      </section>
+    } @else if (error()) {
+      <section class="empty-state">
+        <i class="ri-error-warning-line"></i>
+        <h2>{{ error() }}</h2>
+      </section>
+    } @else if (!sales().length) {
+      <section class="empty-state">
+        <i class="ri-file-list-3-line"></i>
+        <h2>Замовлень поки немає</h2>
+      </section>
+    } @else {
+      <section class="orders">
+        @for (sale of sales(); track sale._id) {
+          <article>
+            <div class="order-main">
+              <div class="order-topline">
+                <code>{{ sale.orderNumber }}</code>
+                <time>{{ sale.createdAt | date: 'dd.MM.yyyy' }}</time>
+              </div>
+              <h2>
+                @if (sale.items[0].merchandiseSlug) {
+                  <a [routerLink]="['/product', sale.items[0].merchandiseSlug]">{{ itemSummary(sale) }}</a>
+                } @else {
+                  {{ itemSummary(sale) }}
+                }
+              </h2>
+              <div class="items">
+                @for (item of sale.items; track item.sku + item.name) {
+                  @if (item.merchandiseSlug) {
+                    <a [routerLink]="['/product', item.merchandiseSlug]">{{ item.quantity }} x {{ item.name }}</a>
+                  } @else {
+                    <span>{{ item.quantity }} x {{ item.name }}</span>
+                  }
+                }
+              </div>
+            </div>
+
+            <div class="status-area">
+              <span class="badge" [ngClass]="statusClass(sale.status)">{{ statusLabels[sale.status] }}</span>
+              <small>{{ paymentLabels[sale.payment.status] }}</small>
+            </div>
+
+            <div class="amount-area">
+              <strong>{{ formatPrice(sale.grandTotal, sale.currency) }}</strong>
+              @if (needsPayment(sale)) {
+                <button type="button">Оплатити</button>
+              }
+            </div>
+          </article>
+        }
+      </section>
+
+      <nav class="pagination" aria-label="Пагінація історії замовлень">
+        <button type="button" [disabled]="pagination().page === 1" (click)="goToPage(pagination().page - 1)">
+          <i class="ri-arrow-left-s-line"></i>
+        </button>
+        @for (page of pageNumbers(); track page) {
+          <button type="button" [class.active]="page === pagination().page" (click)="goToPage(page)">{{ page }}</button>
+        }
+        <button type="button" [disabled]="pagination().page >= pagination().pages" (click)="goToPage(pagination().page + 1)">
+          <i class="ri-arrow-right-s-line"></i>
+        </button>
+      </nav>
+
+      <footer class="summary">
+        <span>Загальна сума покупок</span>
+        <strong>{{ formatPrice(pagination().grandTotal || 0) }}</strong>
+      </footer>
+    }
+  }
+</main>

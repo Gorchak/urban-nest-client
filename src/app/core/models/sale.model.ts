@@ -9,6 +9,7 @@ export type SaleStatus =
 export type SalePaymentMethod =
   | 'card'
   | 'cash_on_delivery'
+  | 'google_pay'
   | 'bank_transfer'
   | 'online';
 
@@ -47,10 +48,17 @@ export interface SalePayment {
   status: SalePaymentStatus;
   transactionId: string;
   paidAt: string | null;
+  cardNetwork?: string | null;
+  cardDetails?: string | null;
+  tokenizationType?: string | null;
 }
 
 export interface SaleItem {
   merchandiseId: string | null;
+  merchandiseSlug?: string | null;
+  categoryId?: string | null;
+  categorySlug?: string | null;
+  categoryName?: string | null;
   sku: string;
   name: string;
   image: string | null;
@@ -101,6 +109,7 @@ export interface SaleListFilter {
   search?: string;
   status?: SaleStatus;
   paymentStatus?: SalePaymentStatus;
+  categoryId?: string;
   page?: number;
   limit?: number;
 }
@@ -110,6 +119,7 @@ export interface SalePagination {
   page: number;
   limit: number;
   pages: number;
+  grandTotal?: number;
 }
 
 export interface SaleListResponse {

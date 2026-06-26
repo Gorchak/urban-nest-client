@@ -39,6 +39,7 @@ export class SalesService {
       if (filter.search) params = params.set('search', filter.search);
       if (filter.status) params = params.set('status', filter.status);
       if (filter.paymentStatus) params = params.set('paymentStatus', filter.paymentStatus);
+      if (filter.categoryId) params = params.set('categoryId', filter.categoryId);
       if (filter.page) params = params.set('page', String(filter.page));
       if (filter.limit) params = params.set('limit', String(filter.limit));
 
@@ -52,6 +53,32 @@ export class SalesService {
       };
     } catch (err: any) {
       this.error.set(err.message || 'Failed to fetch sales');
+      throw err;
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async getMySales(filter: SaleListFilter = {}): Promise<SaleListResponse> {
+    this.loading.set(true);
+    this.error.set(null);
+    try {
+      let params = new HttpParams();
+      if (filter.status) params = params.set('status', filter.status);
+      if (filter.paymentStatus) params = params.set('paymentStatus', filter.paymentStatus);
+      if (filter.categoryId) params = params.set('categoryId', filter.categoryId);
+      if (filter.page) params = params.set('page', String(filter.page));
+      if (filter.limit) params = params.set('limit', String(filter.limit));
+
+      const response = await firstValueFrom(
+        this.http.get<ApiResponse<Sale[]>>(`${this.apiUrl}/my`, { params }),
+      );
+      return {
+        data: response.data,
+        pagination: response.pagination ?? { total: 0, page: 1, limit: 10, pages: 0, grandTotal: 0 },
+      };
+    } catch (err: any) {
+      this.error.set(err.message || 'Failed to fetch purchase history');
       throw err;
     } finally {
       this.loading.set(false);

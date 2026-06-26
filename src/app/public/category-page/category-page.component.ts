@@ -7,6 +7,7 @@ import { Category } from '../../core/models/category.model';
 import { Merchandise, MerchandiseListFilter, MerchandisePagination } from '../../core/models/merchandise.model';
 import { CategoriesService } from '../../core/services/categories.service';
 import { MerchandiseService } from '../../core/services/merchandise.service';
+import { SeoService } from '../../core/services/seo.service';
 import { PublicProductCardComponent } from '../shared/public-product-card.component';
 import { PublicFooterComponent } from '../shared/public-footer.component';
 
@@ -22,17 +23,21 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private categoriesService = inject(CategoriesService);
   private merchandiseService = inject(MerchandiseService);
+  private seo = inject(SeoService);
   private cdr = inject(ChangeDetectorRef);
   private routeSubscription?: Subscription;
 
   protected category = signal<Category | null>(null);
+  protected subcategories = signal<Category[]>([]);
   protected products = signal<Merchandise[]>([]);
   protected pagination = signal<MerchandisePagination>({ total: 0, page: 1, limit: 12, pages: 0 });
   protected loading = signal(true);
+  protected catalogLoading = signal(false);
   protected error = signal<string | null>(null);
   protected search = signal('');
   protected sort = signal('createdAt_desc');
   protected inStockOnly = signal(false);
+  protected selectedSubcategoryId = signal('');
 
   ngOnInit(): void {
     this.routeSubscription = this.route.paramMap.subscribe(() => void this.load());
@@ -47,10 +52,47 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
       const slug = this.route.snapshot.paramMap.get('slug');
       const category = categories.find((item) => item.slug === slug && item.isActive && item.isVisible);
       if (!category) throw new Error('Категорію не знайдено');
+      if (this.category()?._id !== category._id) this.selectedSubcategoryId.set('');
+      this.subcategories.set(
+        categories
+          .filter((item) => item.parentId === category._id && item.isActive && item.isVisible)
+          .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.name.localeCompare(b.name, 'uk')),
+      );
       this.category.set(category);
+      this.seo.setPage({
+        title: category.seoTitle || `${category.name} | Ulia`,
+        description: category.seoDescription || category.shortDescription || category.description,
+        keywords: category.seoKeywords,
+        canonicalUrl: category.canonicalUrl || `/category/${category.slug}`,
+        ogImage: category.ogImage || this.categoryImage(category),
+      });
+      await this.loadProducts(page, false);
+    } catch (error: any) {
+      this.error.set(error?.message ?? 'Не вдалося завантажити категорію');
+    } finally {
+      this.loading.set(false);
+      this.cdr.markForCheck();
+    }
+  }
+
+  protected async onSubcategoryChange(categoryId: string): Promise<void> {
+    this.selectedSubcategoryId.set(categoryId);
+    await this.loadProducts(1);
+  }
+
+  protected async onFiltersChange(page = 1): Promise<void> {
+    await this.loadProducts(page);
+  }
+
+  protected async loadProducts(page = 1, showCatalogLoading = true): Promise<void> {
+    const category = this.category();
+    if (!category) return;
+    if (showCatalogLoading) this.catalogLoading.set(true);
+    try {
       const [sortBy, sortOrder] = this.sort().split('_');
+      const categoryId = this.selectedSubcategoryId() || category._id;
       const filter: MerchandiseListFilter = {
-        categoryId: category._id,
+        categoryId,
         includeChildren: true,
         isActive: true,
         isVisible: true,
@@ -64,10 +106,8 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
       const result = await this.merchandiseService.getMerchandiseList(filter);
       this.products.set(result.data);
       this.pagination.set(result.pagination);
-    } catch (error: any) {
-      this.error.set(error?.message ?? 'Не вдалося завантажити категорію');
     } finally {
-      this.loading.set(false);
+      if (showCatalogLoading) this.catalogLoading.set(false);
       this.cdr.markForCheck();
     }
   }

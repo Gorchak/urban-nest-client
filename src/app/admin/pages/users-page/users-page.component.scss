@@ -119,7 +119,7 @@
   ::ng-deep .users-table th,
   ::ng-deep .users-table td { padding:.7rem .65rem; }
   ::ng-deep .users-table th:last-child,
-  ::ng-deep .users-table td:last-child { position:sticky; right:0; z-index:1; background:#fff; box-shadow:-8px 0 12px rgba(17,24,39,.06); }
+  ::ng-deep .users-table td:last-child { position:sticky; right:0; z-index:1; min-width:96px; text-align:center; background:#fff; box-shadow:-8px 0 12px rgba(17,24,39,.06); }
   ::ng-deep .users-table th:last-child { z-index:2; background:var(--surface-50,#f9fafb); }
   ::ng-deep .users-table .p-paginator { flex-wrap:wrap; gap:.2rem; padding:.75rem .25rem; }
   .icon-action { width:42px; height:42px; }

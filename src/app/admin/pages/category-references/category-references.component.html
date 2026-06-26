@@ -46,13 +46,6 @@
 
     <ng-template pTemplate="body" let-ref>
       <tr>
-        <td class="text-center">
-          @if (ref.isStockTrackable) {
-            <i class="pi pi-check flag-yes"></i>
-          } @else {
-            <i class="pi pi-minus flag-no"></i>
-          }
-        </td>
         <td>
           <div class="ref-name-cell">
             <span class="ref-name">{{ ref.name }}</span>
@@ -92,6 +85,13 @@
             <i class="pi pi-minus flag-no"></i>
           }
         </td>
+        <td class="text-center">
+          @if (ref.isStockTrackable) {
+            <i class="pi pi-check flag-yes"></i>
+          } @else {
+            <i class="pi pi-minus flag-no"></i>
+          }
+        </td>
         <td>
           <span [class]="ref.isActive ? 'status-active' : 'status-inactive'">
             {{ ref.isActive ? 'Активна' : 'Неактивна' }}
@@ -99,22 +99,12 @@
         </td>
         <td>{{ ref.sortOrder }}</td>
         <td>
-          <div class="action-buttons">
-            <p-button
-              icon="pi pi-pencil"
-              [rounded]="true"
-              [outlined]="true"
-              severity="success"
-              (onClick)="openEdit(ref)"
-            ></p-button>
-            <p-button
-              icon="pi pi-trash"
-              [rounded]="true"
-              [outlined]="true"
-              severity="danger"
-              (onClick)="confirmDelete(ref)"
-            ></p-button>
-          </div>
+          <app-admin-action-menu
+            [showEdit]="true"
+            [showDelete]="true"
+            (edit)="openEdit(ref)"
+            (delete)="confirmDelete(ref)"
+          />
         </td>
       </tr>
     </ng-template>

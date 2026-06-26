@@ -37,6 +37,8 @@ import { MerchandiseDetailsComponent } from '../merchandise-details/merchandise-
 import { QuickInventoryEditorComponent } from './quick-inventory-editor.component';
 import { SaleFormDialogComponent, createEmptySale } from '../sales-page/sale-form-dialog.component';
 import { CreateSaleDto, Sale } from '../../../core/models/sale.model';
+import { AdminActionMenuComponent } from '../../components/admin-action-menu/admin-action-menu.component';
+import { formatCurrency } from '../../../core/utils/price-format';
 
 interface SubcategoryOption {
   label: string;
@@ -77,6 +79,7 @@ interface StockEditState {
     MerchandiseDetailsComponent,
     QuickInventoryEditorComponent,
     SaleFormDialogComponent,
+    AdminActionMenuComponent,
   ],
   templateUrl: './merchandise-list.component.html',
   styleUrls: ['./merchandise-list.component.scss'],
@@ -179,6 +182,9 @@ export class MerchandiseListComponent implements OnInit {
   // ── Stock editing ───────────────────────────────────────────────────────
   protected stockEdits = signal<Map<string, StockEditState>>(new Map());
   protected submittingStock = signal<Set<string>>(new Set());
+
+  protected discountEdits = signal<Map<string, number>>(new Map());
+  protected submittingDiscount = signal<Set<string>>(new Set());
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -458,11 +464,71 @@ export class MerchandiseListComponent implements OnInit {
   }
 
   protected formatPrice(price: number, currency: string): string {
-    return new Intl.NumberFormat('uk-UA', {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 2,
-    }).format(price);
+    return formatCurrency(price, currency);
+  }
+
+  protected getDiscountDisplayValue(item: Merchandise): number {
+    const edit = this.discountEdits().get(item._id);
+    return edit ?? item.discountPercentage ?? 0;
+  }
+
+  protected isDiscountDirty(id: string): boolean {
+    return this.discountEdits().has(id);
+  }
+
+  protected onDiscountInputChange(item: Merchandise, value: number | string | null): void {
+    if (value === null || value === '') return;
+
+    const numeric = Math.min(100, Math.max(0, Number(value) || 0));
+    const normalized = Math.round(numeric * 100) / 100;
+    const originalValue = item.discountPercentage || 0;
+    const map = new Map(this.discountEdits());
+
+    originalValue === normalized ? map.delete(item._id) : map.set(item._id, normalized);
+
+    this.discountEdits.set(map);
+    this.cdr.markForCheck();
+  }
+
+  protected revertDiscount(item: Merchandise): void {
+    const map = new Map(this.discountEdits());
+    map.delete(item._id);
+    this.discountEdits.set(map);
+    this.cdr.markForCheck();
+  }
+
+  protected async submitDiscount(item: Merchandise): Promise<void> {
+    const edit = this.discountEdits().get(item._id);
+    if (edit === undefined) return;
+
+    const submitting = new Set(this.submittingDiscount());
+    submitting.add(item._id);
+    this.submittingDiscount.set(submitting);
+    this.cdr.markForCheck();
+
+    try {
+      const updated = await this.merchandiseService.updateMerchandise(item._id, {
+        discountPercentage: edit,
+      });
+      const map = new Map(this.discountEdits());
+      map.delete(item._id);
+      this.discountEdits.set(map);
+      this.merchandise.set(this.merchandise().map((m) => (m._id === item._id ? updated : m)));
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Знижку оновлено',
+      });
+    } catch {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Не вдалося оновити знижку',
+      });
+    } finally {
+      const submitting = new Set(this.submittingDiscount());
+      submitting.delete(item._id);
+      this.submittingDiscount.set(submitting);
+      this.cdr.markForCheck();
+    }
   }
 
   private createSaleDraftFromMerchandise(item: Merchandise): CreateSaleDto {

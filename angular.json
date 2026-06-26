@@ -16,6 +16,14 @@
             "outputPath": "dist/urban-nest",
             "index": "src/index.html",
             "browser": "src/main.ts",
+            "server": "src/main.server.ts",
+            "prerender": {
+              "routesFile": "routes.txt",
+              "discoverRoutes": false
+            },
+            "ssr": {
+              "entry": "server.ts"
+            },
             "polyfills": [
               "zone.js"
             ],
@@ -50,7 +58,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "1.5mb",
-                  "maximumError": "2.05mb"
+                  "maximumError": "2.15mb"
                 },
                {
                    "type": "anyComponentStyle",

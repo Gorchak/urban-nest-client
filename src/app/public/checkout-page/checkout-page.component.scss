@@ -22,6 +22,11 @@ textarea { resize: vertical; }
 .checkbox { display: flex; align-items: center; gap: .7rem; margin-top: 1.25rem; cursor: pointer; }
 .checkbox input { width: 19px; height: 19px; margin: 0; accent-color: #171714; }
 .delivery-note { margin: 1rem 0 0; padding: 1rem; border: 1px solid rgba(23, 23, 20, .2); font-size: 15px; line-height: 1.5; }
+.google-pay-box { margin-top: 1rem; display: grid; gap: .65rem; }
+.google-pay-box p { margin: 0; font-size: 14px; line-height: 1.45; }
+.google-pay-box small { color: rgba(23, 23, 20, .62); font-size: 12px; }
+.google-pay-button { min-height: 40px; }
+.google-pay-error { color: #b33b2e; }
 .empty-cart-notice { margin-bottom: 2rem; padding: 1.25rem; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; border: 1px solid #c85436; background: rgba(200, 84, 54, .08); }
 .empty-cart-notice i { font-size: 28px; color: #c85436; }
 .empty-cart-notice div { display: grid; gap: .3rem; }

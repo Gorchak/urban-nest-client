@@ -4,7 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "npm run build:ssg-routes && ng build",
+    "build:ssg-routes": "node tools/generate-prerender-routes.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -17,8 +18,11 @@
     "@angular/forms": "^17.0.0",
     "@angular/platform-browser": "^17.0.0",
     "@angular/platform-browser-dynamic": "^17.0.0",
+    "@angular/platform-server": "^17.0.0",
     "@angular/router": "^17.0.0",
+    "@angular/ssr": "^17.0.9",
     "@auth0/auth0-angular": "^2.9.0",
+    "express": "^4.19.2",
     "primeicons": "^7.0.0",
     "primeng": "^17.18.15",
     "remixicon": "^4.9.1",

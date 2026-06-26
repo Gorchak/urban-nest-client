@@ -51,25 +51,43 @@
       <header>
         <div><span>Знайдено {{ pagination().total }}</span><h2>Усі товари</h2></div>
         <div class="filters">
-          <input type="search" [ngModel]="search()" (ngModelChange)="search.set($event)" (keyup.enter)="load(1)" placeholder="Пошук у категорії" />
-          <select [ngModel]="sort()" (ngModelChange)="sort.set($event); load(1)">
+          <input type="search" [ngModel]="search()" (ngModelChange)="search.set($event)" (keyup.enter)="onFiltersChange(1)" placeholder="Пошук у категорії" />
+          @if (subcategories().length) {
+            <label class="subcategory-filter">
+              <span>Підкатегорія</span>
+              <select [ngModel]="selectedSubcategoryId()" (ngModelChange)="onSubcategoryChange($event)" aria-label="Фільтр за підкатегорією">
+                <option value="">Усі підкатегорії</option>
+                @for (subcategory of subcategories(); track subcategory._id) {
+                  <option [value]="subcategory._id">{{ subcategory.name }}</option>
+                }
+              </select>
+            </label>
+          }
+          <select [ngModel]="sort()" (ngModelChange)="sort.set($event); onFiltersChange(1)">
             <option value="createdAt_desc">Спочатку нові</option>
             <option value="salePrice_asc">Ціна: від меншої</option>
             <option value="salePrice_desc">Ціна: від більшої</option>
             <option value="name_asc">Назва А-Я</option>
           </select>
-          <label><input type="checkbox" [ngModel]="inStockOnly()" (ngModelChange)="inStockOnly.set($event); load(1)" /> Тільки в наявності</label>
+          <label><input type="checkbox" [ngModel]="inStockOnly()" (ngModelChange)="inStockOnly.set($event); onFiltersChange(1)" /> Тільки в наявності</label>
         </div>
       </header>
 
-      @if (products().length) {
-        <div class="grid">
-          @for (product of products(); track product._id) { <app-public-product-card [product]="product" [emphasis]="true" /> }
+      @if (catalogLoading() && !products().length) {
+        <div class="state">Оновлюємо товари...</div>
+      } @else if (products().length) {
+        <div class="catalog-results" [class.catalog-results--loading]="catalogLoading()">
+          @if (catalogLoading()) {
+            <div class="catalog-loader">Оновлюємо товари...</div>
+          }
+          <div class="grid">
+            @for (product of products(); track product._id) { <app-public-product-card [product]="product" [emphasis]="true" /> }
+          </div>
         </div>
         @if (pagination().pages > 1) {
           <div class="pagination">
             @for (page of pageNumbers(); track page) {
-              <button [class.active]="page === pagination().page" (click)="load(page)">{{ page }}</button>
+              <button [class.active]="page === pagination().page" [disabled]="catalogLoading()" (click)="onFiltersChange(page)">{{ page }}</button>
             }
           </div>
         }

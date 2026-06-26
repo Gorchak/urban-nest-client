@@ -60,30 +60,14 @@
         </td>
         <td>{{ category.sortOrder }}</td>
         <td>
-          <p-button
-            icon="pi pi-eye"
-            [rounded]="true"
-            [outlined]="true"
-            severity="info"
-            pTooltip="Переглянути"
-            (onClick)="openDetails(category)"
-          ></p-button>
-          <p-button
-            icon="pi pi-pencil"
-            [rounded]="true"
-            [outlined]="true"
-            severity="success"
-            pTooltip="Редагувати"
-            (onClick)="openEdit(category)"
-          ></p-button>
-          <p-button
-            icon="pi pi-trash"
-            [rounded]="true"
-            [outlined]="true"
-            severity="danger"
-            pTooltip="Видалити"
-            (onClick)="confirmDelete(category)"
-          ></p-button>
+          <app-admin-action-menu
+            [showView]="true"
+            [showEdit]="true"
+            [showDelete]="true"
+            (view)="openDetails(category)"
+            (edit)="openEdit(category)"
+            (delete)="confirmDelete(category)"
+          />
         </td>
       </tr>
     </ng-template>

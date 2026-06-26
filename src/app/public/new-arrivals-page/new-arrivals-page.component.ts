@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Merchandise, MerchandiseListFilter, MerchandisePagination } from '../../core/models/merchandise.model';
 import { MerchandiseService } from '../../core/services/merchandise.service';
+import { SeoService } from '../../core/services/seo.service';
 import { PublicFooterComponent } from '../shared/public-footer.component';
 import { PublicProductCardComponent } from '../shared/public-product-card.component';
 
@@ -16,6 +17,7 @@ import { PublicProductCardComponent } from '../shared/public-product-card.compon
 })
 export class NewArrivalsPageComponent implements OnInit {
   private merchandiseService = inject(MerchandiseService);
+  private seo = inject(SeoService);
   private cdr = inject(ChangeDetectorRef);
 
   protected products = signal<Merchandise[]>([]);
@@ -26,7 +28,15 @@ export class NewArrivalsPageComponent implements OnInit {
   protected sort = signal('createdAt_desc');
   protected inStockOnly = signal(false);
 
-  ngOnInit(): void { void this.load(); }
+  ngOnInit(): void {
+    this.seo.setPage({
+      title: 'New arrivals | Ulia',
+      description: 'Fresh arrivals in the Ulia catalog.',
+      canonicalUrl: '/new-arrivals',
+      ogImage: '/assets/logo.png',
+    });
+    void this.load();
+  }
 
   protected async load(page = 1): Promise<void> {
     this.loading.set(true);

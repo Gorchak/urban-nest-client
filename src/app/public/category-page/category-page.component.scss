@@ -6,6 +6,11 @@ h1,h2 { margin:0; font-family:Georgia,serif; font-weight:400; letter-spacing:-.0
 h1 { max-width:900px; font-size:clamp(4rem,10vw,9rem); line-height:.86; } .hero p { max-width:550px; line-height:1.5; }
 .catalog { padding-top:7rem; }.catalog header { padding-bottom:1.5rem; display:flex; align-items:end; justify-content:space-between; gap:2rem; border-bottom:1px solid #171714; }.catalog h2,.description h2{font-size:clamp(3rem,6vw,6rem)}
 .filters { display:flex; flex-wrap:wrap; align-items:center; gap:.75rem; }.filters input,.filters select{padding:.75rem;border:1px solid rgba(23,23,20,.35);background:transparent}.filters label{font-size:11px}
+.subcategory-filter{min-height:44px;padding:0 .85rem;display:flex;align-items:center;gap:.65rem;border:1px solid rgba(23,23,20,.24);background:rgba(255,255,255,.28);transition:border-color .2s,background .2s,box-shadow .2s}
+.subcategory-filter:hover,.subcategory-filter:focus-within{border-color:#171714;background:rgba(255,255,255,.55);box-shadow:0 10px 28px rgba(23,23,20,.08)}
+.subcategory-filter span{color:rgba(23,23,20,.58);font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+.subcategory-filter select{min-width:180px;padding:.75rem 2rem .75rem 0;border:0;background:transparent;color:#171714;font-size:13px;font-weight:700;letter-spacing:.02em;outline:0;appearance:none;background-image:linear-gradient(45deg,transparent 50%,#171714 50%),linear-gradient(135deg,#171714 50%,transparent 50%);background-position:calc(100% - 11px) 50%,calc(100% - 6px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.catalog-results{position:relative}.catalog-results--loading .grid{opacity:.48;pointer-events:none;transition:opacity .2s}.catalog-loader{position:absolute;top:1rem;left:50%;z-index:2;padding:.65rem 1rem;border:1px solid rgba(23,23,20,.16);background:#171714;color:#fff;font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;transform:translateX(-50%);box-shadow:0 12px 30px rgba(23,23,20,.18)}
 .grid { display:grid; grid-template-columns:repeat(4,1fr); border-left:1px solid rgba(23,23,20,.18); }.grid app-public-product-card{border-right:1px solid rgba(23,23,20,.18);border-bottom:1px solid rgba(23,23,20,.18)}
 .pagination { padding-top:2rem; display:flex; justify-content:center; gap:.5rem; }.pagination button{width:38px;height:38px;border:1px solid #171714;background:transparent}.pagination button.active{background:#171714;color:#fff}
 .description { margin-top:8rem; padding-top:2rem; border-top:1px solid #171714; }.description p{max-width:850px;line-height:1.7;white-space:pre-wrap}.state{min-height:50vh;display:grid;place-content:center;text-align:center}
@@ -47,6 +52,9 @@ h1 { max-width:900px; font-size:clamp(4rem,10vw,9rem); line-height:.86; } .hero 
   .filters input,.filters select{width:100%;min-height:48px;padding:.85rem;font-size:16px;border-radius:0}
   .filters label{min-height:44px;display:flex;align-items:center;gap:.6rem;font-size:12px}
   .filters label input{width:20px;min-height:20px;padding:0}
+  .subcategory-filter{width:100%;min-height:58px;padding:.45rem .9rem;align-items:flex-start;flex-direction:column;justify-content:center;gap:.2rem}
+  .subcategory-filter select{width:100%;min-height:auto;padding:.25rem 2rem .25rem 0;font-size:16px}
+  .catalog-loader{top:.75rem;width:max-content;max-width:calc(100% - 32px);text-align:center}
   .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .pagination{flex-wrap:wrap}
   .pagination button{width:42px;height:42px}

@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Merchandise, getDiscountedPrice, hasDiscount as merchandiseHasDiscount } from '../../core/models/merchandise.model';
+import { formatCurrency } from '../../core/utils/price-format';
 
 @Component({
   selector: 'app-public-product-card',
@@ -88,6 +89,6 @@ export class PublicProductCardComponent {
   hasDiscount(): boolean { return merchandiseHasDiscount(this.product); }
   finalPrice(): number { return getDiscountedPrice(this.product); }
   formatPrice(value: number): string {
-    return new Intl.NumberFormat('uk-UA', { style: 'currency', currency: this.product.currency, maximumFractionDigits: 2 }).format(value);
+    return formatCurrency(value, this.product.currency);
   }
 }

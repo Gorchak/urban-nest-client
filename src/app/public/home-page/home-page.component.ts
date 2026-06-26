@@ -6,6 +6,7 @@ import { Category } from '../../core/models/category.model';
 import { Merchandise } from '../../core/models/merchandise.model';
 import { CategoriesService } from '../../core/services/categories.service';
 import { MerchandiseService } from '../../core/services/merchandise.service';
+import { SeoService } from '../../core/services/seo.service';
 import { PublicProductCardComponent } from '../shared/public-product-card.component';
 import { PublicFooterComponent } from '../shared/public-footer.component';
 import { RecentlyViewedService } from '../services/recently-viewed.service';
@@ -36,6 +37,7 @@ const HOME_CATEGORY_ORDER = [
 export class HomePageComponent implements OnInit {
   private categoriesService = inject(CategoriesService);
   private merchandiseService = inject(MerchandiseService);
+  private seo = inject(SeoService);
   private recentlyViewedService = inject(RecentlyViewedService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -91,6 +93,12 @@ export class HomePageComponent implements OnInit {
   protected recentlyViewed = computed(() => this.recentlyViewedService.resolve(this.merchandise()).slice(0, 5));
 
   async ngOnInit(): Promise<void> {
+    this.seo.setPage({
+      title: 'Ulia',
+      description: 'Curated catalog of clothing, ceramics, shoes, bags, home decor and accessories.',
+      canonicalUrl: '/',
+      ogImage: '/assets/logo.png',
+    });
     try {
       const [categories, merchandiseResult, newArrivalsResult] = await Promise.all([
         this.categoriesService.getCategories(1, 200),

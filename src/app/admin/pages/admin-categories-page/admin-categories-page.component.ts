@@ -10,6 +10,7 @@ import { CategoriesService } from '../../../core/services/categories.service';
 import { Category } from '../../../core/models/category.model';
 import { AddEditCategoryComponent } from '../add-edit-category/add-edit-category.component';
 import { CategoryDetailsComponent } from '../category-details/category-details.component';
+import { AdminActionMenuComponent } from '../../components/admin-action-menu/admin-action-menu.component';
 
 @Component({
   selector: 'app-admin-categories-page',
@@ -23,6 +24,7 @@ import { CategoryDetailsComponent } from '../category-details/category-details.c
     TooltipModule,
     AddEditCategoryComponent,
     CategoryDetailsComponent,
+    AdminActionMenuComponent,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './admin-categories-page.component.html',

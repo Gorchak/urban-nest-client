@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { CartItem } from '../../core/models/cart.model';
 import { CartService } from '../../core/services/cart.service';
 import { Merchandise, hasDiscount } from '../../core/models/merchandise.model';
+import { formatCurrency } from '../../core/utils/price-format';
 
 @Component({
   selector: 'app-cart',
@@ -33,6 +34,6 @@ export class CartComponent {
   protected async remove(item: CartItem): Promise<void> { await this.cartService.removeItem(this.key(item)); }
   protected hasDiscount(product: Merchandise | null | undefined): boolean { return product ? hasDiscount(product) : false; }
   protected formatPrice(value: number, currency = 'UAH'): string {
-    return new Intl.NumberFormat('uk-UA', { style: 'currency', currency, maximumFractionDigits: 2 }).format(value);
+    return formatCurrency(value, currency);
   }
 }

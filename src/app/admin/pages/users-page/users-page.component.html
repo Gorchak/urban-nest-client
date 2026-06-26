@@ -82,9 +82,10 @@
         <td>{{ providerLabel(user) }}</td>
         <td>{{ user.lastLogin ? (user.lastLogin | date: 'dd.MM.yyyy HH:mm') : 'Немає' }}</td>
         <td>
-          <button type="button" class="icon-action" title="Редагувати профіль" (click)="openProfile(user)">
-            <i class="pi pi-pencil"></i>
-          </button>
+          <app-admin-action-menu
+            [showEdit]="true"
+            (edit)="openProfile(user)"
+          />
         </td>
       </tr>
     </ng-template>

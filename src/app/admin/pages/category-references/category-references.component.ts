@@ -10,6 +10,7 @@ import { ReferencesService } from '../../../core/services/references.service';
 import { ReferenceDefinition } from '../../../core/models/reference.model';
 import { REFERENCE_TYPE_LABELS } from '../add-edit-reference/reference-form.constants';
 import { AddEditReferenceComponent } from '../add-edit-reference/add-edit-reference.component';
+import { AdminActionMenuComponent } from '../../components/admin-action-menu/admin-action-menu.component';
 
 @Component({
   selector: 'app-category-references',
@@ -22,6 +23,7 @@ import { AddEditReferenceComponent } from '../add-edit-reference/add-edit-refere
     ConfirmDialogModule,
     TagModule,
     AddEditReferenceComponent,
+    AdminActionMenuComponent,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './category-references.component.html',

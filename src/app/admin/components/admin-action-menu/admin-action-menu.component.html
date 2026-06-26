@@ -1,0 +1,52 @@
+<div class="admin-action-menu" #trigger>
+  <p-button
+    type="button"
+    [label]="buttonLabel"
+    icon="pi pi-ellipsis-v"
+    iconPos="right"
+    severity="info"
+    size="small"
+    [outlined]="true"
+    styleClass="admin-action-menu-button"
+    [attr.aria-expanded]="isOpen"
+    (onClick)="toggleMenu($event)"
+  />
+
+  @if (isOpen) {
+    <div class="admin-action-menu__panel" [ngStyle]="panelStyle" role="menu">
+      @if (showView) {
+        <button type="button" class="admin-action-menu__item admin-action-menu__item--info" role="menuitem" (click)="runAction($event, view)">
+          <i class="pi pi-eye"></i>
+          <span>Перегляд</span>
+        </button>
+      }
+
+      @if (showSale) {
+        <button type="button" class="admin-action-menu__item admin-action-menu__item--success" role="menuitem" (click)="runAction($event, sale)">
+          <i class="pi pi-shopping-cart"></i>
+          <span>Продаж</span>
+        </button>
+      }
+
+      @if (showEdit) {
+        <button type="button" class="admin-action-menu__item admin-action-menu__item--info" role="menuitem" (click)="runAction($event, edit)">
+          <i class="pi pi-pencil"></i>
+          <span>Редагування</span>
+        </button>
+      }
+
+      @if (showDelete) {
+        <button
+          type="button"
+          class="admin-action-menu__item admin-action-menu__item--danger"
+          role="menuitem"
+          [disabled]="deleteDisabled"
+          (click)="runAction($event, delete, deleteDisabled)"
+        >
+          <i class="pi pi-trash"></i>
+          <span>Видалення</span>
+        </button>
+      }
+    </div>
+  }
+</div>

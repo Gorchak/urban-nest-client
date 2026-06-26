@@ -7,7 +7,6 @@
 
 .page-header,
 .sales-toolbar,
-.row-actions,
 .dialog-footer,
 .section-head,
 .total-line {
@@ -81,10 +80,6 @@
 
 .amount-cell {
   font-weight: 700;
-}
-
-.row-actions {
-  gap: 0.25rem;
 }
 
 .inline-edit-cell {
@@ -315,7 +310,7 @@ label {
   ::ng-deep .sales-table th,
   ::ng-deep .sales-table td { padding:.7rem .65rem; }
   ::ng-deep .sales-table th:last-child,
-  ::ng-deep .sales-table td:last-child { position:sticky; right:0; z-index:1; background:#fff; box-shadow:-8px 0 12px rgba(17,24,39,.06); }
+  ::ng-deep .sales-table td:last-child { position:sticky; right:0; z-index:1; min-width:96px; text-align:center; background:#fff; box-shadow:-8px 0 12px rgba(17,24,39,.06); }
   ::ng-deep .sales-table th:last-child { z-index:2; background:var(--surface-50,#f9fafb); }
   ::ng-deep .sales-table .p-paginator { flex-wrap:wrap; gap:.2rem; padding:.75rem .25rem; }
   .icon-action { width:42px; height:42px; }

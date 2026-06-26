@@ -81,7 +81,7 @@
   .admin-categories-page ::ng-deep th,
   .admin-categories-page ::ng-deep td { padding:.7rem .65rem; }
   .admin-categories-page ::ng-deep th:last-child,
-  .admin-categories-page ::ng-deep td:last-child { position:sticky; right:0; z-index:1; min-width:148px; background:#fff; box-shadow:-8px 0 12px rgba(17,24,39,.06); }
+  .admin-categories-page ::ng-deep td:last-child { position:sticky; right:0; z-index:1; min-width:96px; text-align:center; background:#fff; box-shadow:-8px 0 12px rgba(17,24,39,.06); }
   .admin-categories-page ::ng-deep th:last-child { z-index:2; background:var(--surface-50,#f9fafb); }
   .admin-categories-page ::ng-deep .p-paginator { flex-wrap:wrap; gap:.25rem; padding:.75rem .25rem; }
   .admin-categories-page ::ng-deep .p-paginator-current { width:100%; text-align:center; }

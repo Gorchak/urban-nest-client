@@ -32,6 +32,7 @@ import { MerchandiseService } from '../../../core/services/merchandise.service';
 import { Category } from '../../../core/models/category.model';
 import { Merchandise, MerchandisePagination } from '../../../core/models/merchandise.model';
 import { MerchandiseDetailsComponent } from '../merchandise-details/merchandise-details.component';
+import { formatCurrency } from '../../../core/utils/price-format';
 
 // ── Display maps ──────────────────────────────────────────────────────────────
 
@@ -301,11 +302,7 @@ export class CategoryDetailsComponent implements OnChanges {
   }
 
   protected formatPrice(price: number, currency = 'UAH'): string {
-    return new Intl.NumberFormat('uk-UA', {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 2,
-    }).format(price);
+    return formatCurrency(price, currency);
   }
 
   protected getStockSeverity(qty: number): 'success' | 'warning' | 'danger' {
