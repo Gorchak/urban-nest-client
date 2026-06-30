@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /checkout
+Disallow: /purchase-history
+
+Sitemap: https://urban-nest-dev.netlify.app/sitemap.xml

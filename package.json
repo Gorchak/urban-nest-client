@@ -4,8 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "npm run build:ssg-routes && ng build",
+    "build": "npm run build:ssg-routes && npm run build:seo-files && ng build",
     "build:ssg-routes": "node tools/generate-prerender-routes.mjs",
+    "build:seo-files": "node tools/generate-static-seo-files.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
