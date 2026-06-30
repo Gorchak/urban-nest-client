@@ -12,8 +12,8 @@ const authProviders = typeof window === 'undefined'
   ? []
   : [
       provideAuth0({
-        domain: "dev-dzbrmq5bhosgit5b.us.auth0.com",
-        clientId: "e5g0EST75dgAgcy6LXHoXHUkT0hheqYV",
+        domain: "dev-rw3536lsgv6brmz2.us.auth0.com",
+        clientId: "Un3wf6HKQhDHegTcWN1AyTxRnN5YgsW9",
         cacheLocation: 'localstorage',
         authorizationParams: {
           redirect_uri: window.location.origin,

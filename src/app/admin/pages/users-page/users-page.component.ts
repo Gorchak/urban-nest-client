@@ -18,6 +18,8 @@ import { ToastModule } from 'primeng/toast';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { MessageService } from 'primeng/api';
+import { AuthService } from '@auth0/auth0-angular';
+import { catchError, filter, firstValueFrom, of, take, timeout } from 'rxjs';
 
 import { Auth0User } from '../../../core/models/user.model';
 import { UsersService } from '../../../core/services/users.service';
@@ -49,21 +51,27 @@ import { AdminActionMenuComponent } from '../../components/admin-action-menu/adm
 export class UsersPageComponent implements OnInit {
   private usersService = inject(UsersService);
   private messageService = inject(MessageService);
+  private auth = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
   private zone = inject(NgZone);
 
   protected users = signal<Auth0User[]>([]);
   protected pagination = signal({ total: 0, page: 1, limit: 20, pages: 0 });
   protected loading = signal(false);
+  protected authRequired = signal(false);
   protected search = signal('');
   protected selectedUser = signal<Auth0User | null>(null);
   protected showProfileDialog = signal(false);
 
   async ngOnInit(): Promise<void> {
+    await this.waitForAuth();
+    if (this.authRequired()) return;
     await this.loadUsers();
   }
 
   protected async loadUsers(): Promise<void> {
+    if (this.authRequired()) return;
+
     this.loading.set(true);
     try {
       const result = await this.usersService.getUsers({
@@ -77,6 +85,11 @@ export class UsersPageComponent implements OnInit {
         this.cdr.detectChanges();
       });
     } catch (err: any) {
+      if (err?.status === 401) {
+        this.authRequired.set(true);
+        return;
+      }
+
       this.messageService.add({
         severity: 'error',
         summary: 'Auth0',
@@ -90,12 +103,20 @@ export class UsersPageComponent implements OnInit {
     }
   }
 
+  protected login(): void {
+    this.auth.loginWithRedirect({
+      appState: { target: '/admin/users' },
+    });
+  }
+
   protected async onPageChange(event: { first: number; rows: number }): Promise<void> {
+    if (this.authRequired()) return;
     this.pagination.update((p) => ({ ...p, page: Math.floor(event.first / event.rows) + 1, limit: event.rows }));
     await this.loadUsers();
   }
 
   protected async onSearchChange(value: string): Promise<void> {
+    if (this.authRequired()) return;
     this.search.set(value);
     this.pagination.update((p) => ({ ...p, page: 1 }));
     await this.loadUsers();
@@ -125,5 +146,22 @@ export class UsersPageComponent implements OnInit {
 
   protected providerLabel(user: Auth0User): string {
     return user.identities?.[0]?.provider || 'auth0';
+  }
+
+  private async waitForAuth(): Promise<void> {
+    await firstValueFrom(this.auth.isLoading$.pipe(
+      filter((isLoading) => !isLoading),
+      take(1),
+      timeout({ first: 5000, with: () => of(false) }),
+      catchError(() => of(false)),
+    ));
+
+    const isAuthenticated = await firstValueFrom(this.auth.isAuthenticated$.pipe(
+      take(1),
+      timeout({ first: 5000, with: () => of(false) }),
+      catchError(() => of(false)),
+    ));
+
+    this.authRequired.set(!isAuthenticated);
   }
 }

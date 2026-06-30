@@ -1,5 +1,16 @@
 <p-toast position="top-right" />
 
+@if (authRequired()) {
+  <div class="users-page">
+    <div class="page-header">
+      <div>
+        <h1>Потрібно залогінитись</h1>
+        <p>Увійдіть через Auth0, щоб переглядати користувачів.</p>
+      </div>
+      <p-button label="Увійти" icon="pi pi-sign-in" (onClick)="login()" />
+    </div>
+  </div>
+} @else {
 <div class="users-page">
   <div class="page-header">
     <div>
@@ -104,3 +115,4 @@
   [user]="selectedUser()"
   (saved)="onUserSaved($event)"
 />
+}
