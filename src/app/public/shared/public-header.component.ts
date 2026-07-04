@@ -275,7 +275,14 @@ export class PublicHeaderComponent implements OnInit {
     try {
       const access = await firstValueFrom(this.adminAccess.check());
       this.currentUser.set(access.user);
+    } catch {
+      this.currentUser.set(null);
+    }
+
+    try {
       await this.cartService.load();
+    } catch {
+      // Public navigation should still render if auth/cart sync is temporarily unavailable.
     } finally {
       this.loadingUser.set(false);
     }
