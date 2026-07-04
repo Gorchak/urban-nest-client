@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 
-const DEFAULT_SITE_URL = 'https://urban-nest-dev.netlify.app';
+const DEFAULT_SITE_URL = 'http://uliastore.com.ua';
 const siteUrl = String(process.env.SITE_URL || process.env.FRONTEND_URL || DEFAULT_SITE_URL).replace(/\/+$/, '');
 
 const escapeXml = (value) => String(value)
