@@ -31,11 +31,9 @@ const routeChangefreq = (route) => {
 
 const routesText = await readFile('routes.txt', 'utf8');
 const routes = [...new Set(routesText.split(/\r?\n/).map(normalizeRoute).filter(Boolean))].sort();
-const lastmod = new Date().toISOString();
 
 const sitemapEntries = routes.map((route) => `  <url>
     <loc>${escapeXml(`${siteUrl}${route}`)}</loc>
-    <lastmod>${lastmod}</lastmod>
     <changefreq>${routeChangefreq(route)}</changefreq>
     <priority>${routePriority(route)}</priority>
   </url>`).join('\n');

@@ -21,6 +21,10 @@ export function app(): express.Express {
     maxAge: '1y',
   }));
 
+  server.get(['/admin', '/admin/*'], (_req, res) => {
+    res.sendFile(join(browserDistFolder, 'index.html'));
+  });
+
   server.get('*', (req, res, next) => {
     const { protocol, originalUrl, baseUrl, headers } = req;
 

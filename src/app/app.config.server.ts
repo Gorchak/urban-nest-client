@@ -13,6 +13,7 @@ const serverConfig: ApplicationConfig = {
         isLoading$: of(false),
         isAuthenticated$: of(false),
         idTokenClaims$: of(null),
+        user$: of(null),
         loginWithRedirect: () => undefined,
         logout: () => undefined,
       },
