@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /checkout
 Disallow: /purchase-history
 
-Sitemap: http://uliastore.com.ua/sitemap.xml
+Sitemap: https://urban-nest-dev.netlify.app/sitemap.xml

@@ -77,7 +77,7 @@ export class AdminAccessService {
             this.currentUser.set(null);
             this.isAdmin.set(false);
             return of({
-              isAuthenticated: false,
+              isAuthenticated: err?.status !== 401 && err?.name !== 'TimeoutError',
               isAdmin: false,
               user: null,
               error: err?.error?.message || 'Не вдалося перевірити права доступу',

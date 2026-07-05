@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
   apiUrl: 'https://urban-nest-server.onrender.com/api',
-  siteUrl: 'http://uliastore.com.ua',
+  siteUrl: 'https://urban-nest-dev.netlify.app',
   googlePay: {
     environment: 'PRODUCTION' as const,
     merchantId: 'BCR2DN7TTCTIZVA6',

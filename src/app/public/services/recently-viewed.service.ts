@@ -7,11 +7,8 @@ const MAX_ITEMS = 12;
 @Injectable({ providedIn: 'root' })
 export class RecentlyViewedService {
   add(product: Merchandise): void {
-    const storage = this.storage();
-    if (!storage) return;
-
     const ids = this.getIds().filter((id) => id !== product._id);
-    storage.setItem(STORAGE_KEY, JSON.stringify([product._id, ...ids].slice(0, MAX_ITEMS)));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([product._id, ...ids].slice(0, MAX_ITEMS)));
   }
 
   resolve(products: Merchandise[], excludeId?: string): Merchandise[] {
@@ -23,18 +20,11 @@ export class RecentlyViewedService {
   }
 
   private getIds(): string[] {
-    const storage = this.storage();
-    if (!storage) return [];
-
     try {
-      const value = JSON.parse(storage.getItem(STORAGE_KEY) ?? '[]');
+      const value = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
       return Array.isArray(value) ? value.filter((id): id is string => typeof id === 'string') : [];
     } catch {
       return [];
     }
-  }
-
-  private storage(): Storage | null {
-    return typeof window === 'undefined' ? null : window.localStorage;
   }
 }

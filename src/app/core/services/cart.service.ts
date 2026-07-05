@@ -13,8 +13,8 @@ export class CartService {
   private http = inject(HttpClient);
   private auth = inject(AuthService);
   private readonly apiUrl = `${environment.apiUrl}/carts`;
-  private readonly localCartKey = 'ulia-guest-cart';
   private readonly guestId = this.getGuestId();
+  private readonly localCartKey = 'ulia-guest-cart';
 
   cart = signal<Cart | null>(null);
   loading = signal(false);
@@ -198,11 +198,8 @@ export class CartService {
   }
 
   private readLocalItems(): CartItem[] {
-    const storage = this.storage();
-    if (!storage) return [];
-
     try {
-      const parsed = JSON.parse(storage.getItem(this.localCartKey) || '[]');
+      const parsed = JSON.parse(localStorage.getItem(this.localCartKey) || '[]');
       return Array.isArray(parsed)
         ? parsed.filter((item) => item?.merchandiseId && Number(item.quantity) > 0)
         : [];
@@ -212,11 +209,11 @@ export class CartService {
   }
 
   private writeLocalItems(items: CartItem[]): void {
-    this.storage()?.setItem(this.localCartKey, JSON.stringify(items));
+    localStorage.setItem(this.localCartKey, JSON.stringify(items));
   }
 
   private clearLocalCart(): void {
-    this.storage()?.removeItem(this.localCartKey);
+    localStorage.removeItem(this.localCartKey);
   }
 
   private replaceLocalItems(items: CartItem[]): Cart {
@@ -287,17 +284,10 @@ export class CartService {
   }
 
   private getGuestId(): string {
-    const storage = this.storage();
-    if (!storage) return 'server-guest';
-
-    const stored = storage.getItem('ulia-guest-id');
+    const stored = localStorage.getItem('ulia-guest-id');
     if (stored) return stored;
     const created = globalThis.crypto?.randomUUID?.() || `guest-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    storage.setItem('ulia-guest-id', created);
+    localStorage.setItem('ulia-guest-id', created);
     return created;
-  }
-
-  private storage(): Storage | null {
-    return typeof window === 'undefined' ? null : window.localStorage;
   }
 }
