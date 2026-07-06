@@ -1,0 +1,138 @@
+<p-toast position="top-right" />
+
+<section class="finance-dashboard">
+  <div class="finance-toolbar">
+    <div class="date-filter">
+      <label for="finance-date-range">Період</label>
+      <p-calendar
+        inputId="finance-date-range"
+        selectionMode="range"
+        dateFormat="dd.mm.yy"
+        appendTo="body"
+        [readonlyInput]="true"
+        [showIcon]="true"
+        [ngModel]="dateRange()"
+        (ngModelChange)="onDateRangeChange($event)"
+      />
+    </div>
+
+    <div class="preset-group" aria-label="Швидкий вибір періоду">
+      <p-checkbox
+        inputId="all-time"
+        [binary]="true"
+        [ngModel]="selectedPreset() === 'all'"
+        (onChange)="applyPreset('all')"
+      />
+      <label for="all-time">За весь час</label>
+
+      <p-checkbox
+        inputId="current-month"
+        [binary]="true"
+        [ngModel]="selectedPreset() === 'current'"
+        (onChange)="applyPreset('current')"
+      />
+      <label for="current-month">Теперішній місяць</label>
+
+      <p-checkbox
+        inputId="previous-month"
+        [binary]="true"
+        [ngModel]="selectedPreset() === 'previous'"
+        (onChange)="applyPreset('previous')"
+      />
+      <label for="previous-month">Минулий місяць</label>
+    </div>
+
+    <button
+      pButton
+      type="button"
+      icon="pi pi-refresh"
+      label="Оновити"
+      [loading]="loading()"
+      (click)="refresh()"
+    ></button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-panel">
+      <p-progressSpinner styleClass="finance-spinner" />
+      <span>Завантаження фінансових даних {{ progressLabel() }}</span>
+    </div>
+  }
+
+  <div class="summary-grid">
+    <p-card styleClass="summary-card expenses-card">
+      <div class="summary-content">
+        <span class="summary-icon pi pi-arrow-down-left"></span>
+        <div>
+          <span class="summary-label">Витрати</span>
+          <strong>{{ formatMoney(expensesTotal()) }}</strong>
+          <small>{{ expenseItemsCount() }} товарів + {{ auxiliaryExpenseItemsCount() }} доп. витрат</small>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="summary-card income-card">
+      <div class="summary-content">
+        <span class="summary-icon pi pi-arrow-up-right"></span>
+        <div>
+          <span class="summary-label">Доходи</span>
+          <strong>{{ formatMoney(incomeTotal()) }}</strong>
+          <small>{{ incomeItemsCount() }} продажів у періоді</small>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="summary-card profit-card" [class.profit-card--negative]="profit() < 0">
+      <div class="summary-content">
+        <span class="summary-icon pi pi-chart-line"></span>
+        <div>
+          <span class="summary-label">Загальний прибуток</span>
+          <strong>{{ formatMoney(profit()) }}</strong>
+          <small>Доходи мінус витрати</small>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <div class="finance-table-card">
+    <table class="finance-table">
+      <thead>
+        <tr>
+          <th>Тип</th>
+          <th>Витрати</th>
+          <th>Дохід</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of tableRows(); track row.type) {
+          <tr>
+            <td><strong>{{ row.type }}</strong></td>
+            <td class="amount-cell expense-amount">{{ formatMoney(row.expenses) }}</td>
+            <td class="amount-cell" [class.income-empty]="row.income === null">
+              @if (row.income === null) {
+                <span>—</span>
+              } @else {
+                {{ formatMoney(row.income) }}
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="3" class="empty-row">Даних за вибраний період немає</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="totals-strip">
+    <div>
+      <span>Загальні доходи</span>
+      <strong>{{ formatMoney(incomeTotal()) }}</strong>
+    </div>
+    <div>
+      <span>Загальні витрати</span>
+      <strong>{{ formatMoney(expensesTotal()) }}</strong>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,226 @@
+<p-toast position="top-right" />
+
+<section class="expense-accounting">
+  <div class="expense-toolbar">
+    <div>
+      <h2>Допоміжні витрати</h2>
+      <p>Разові та регулярні витрати магазину</p>
+    </div>
+    <p-button label="Додати витрату" icon="pi pi-plus" (onClick)="openNew()" />
+  </div>
+
+  <div class="filter-row">
+    <div class="filter-mode">
+      <p-checkbox
+        inputId="expenses-all-time"
+        [binary]="true"
+        [ngModel]="allTime()"
+        (ngModelChange)="onAllTimeChange($event)"
+      />
+      <label for="expenses-all-time">За весь час</label>
+
+      <p-checkbox
+        inputId="month-filter"
+        [binary]="true"
+        [ngModel]="filterMode() === 'month'"
+        (ngModelChange)="onFilterModeChange($event)"
+      />
+      <label for="month-filter">Фільтрувати по місяцях</label>
+    </div>
+
+    <div class="date-filter">
+      <label for="expense-filter-range">Період</label>
+      <p-calendar
+        inputId="expense-filter-range"
+        selectionMode="range"
+        [view]="filterMode() === 'month' ? 'month' : 'date'"
+        [dateFormat]="filterMode() === 'month' ? 'mm.yy' : 'dd.mm.yy'"
+        appendTo="body"
+        [readonlyInput]="true"
+        [showIcon]="true"
+        [ngModel]="filterRange()"
+        (ngModelChange)="onFilterRangeChange($event)"
+      />
+    </div>
+
+    <p-button
+      label="Оновити"
+      icon="pi pi-refresh"
+      severity="secondary"
+      [loading]="loading()"
+      (onClick)="loadExpenses()"
+    />
+  </div>
+
+  <div class="expense-layout">
+    <p-table
+      [value]="expenses()"
+      [loading]="loading()"
+      [lazy]="true"
+      [totalRecords]="pagination().total"
+      [rows]="pagination().limit"
+      [first]="(pagination().page - 1) * pagination().limit"
+      (onPage)="onPageChange($event)"
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      responsiveLayout="scroll"
+      styleClass="expenses-table"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Тип</th>
+          <th>Дата</th>
+          <th>Сума</th>
+          <th>Регулярна</th>
+          <th>Дії</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-expense>
+        <tr>
+          <td>
+            <div class="expense-type">
+              <strong>{{ expense.type }}</strong>
+              @if (expense.recurringSourceId) {
+                <small>Автоматично додано</small>
+              }
+            </div>
+          </td>
+          <td>{{ formatExpenseDate(expense) }}</td>
+          <td class="amount-cell">{{ formatMoney(expense.amount) }}</td>
+          <td>
+            @if (expense.isRecurring) {
+              <p-tag value="Так" severity="success" />
+            } @else {
+              <p-tag value="Ні" severity="secondary" />
+            }
+          </td>
+          <td>
+            <div class="actions">
+              <button type="button" class="icon-action" title="Редагувати" (click)="openEdit(expense)">
+                <i class="pi pi-pen-to-square"></i>
+              </button>
+              <button
+                type="button"
+                class="icon-action danger"
+                title="Видалити"
+                [disabled]="deletingId() === expense._id"
+                (click)="deleteExpense(expense)"
+              >
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5">
+            <div class="empty-table">За вибраний період витрат немає</div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <p-card styleClass="total-card">
+      <div class="total-content">
+        <span class="pi pi-calculator"></span>
+        <div>
+          <small>Загальна сума за період</small>
+          <strong>{{ formatMoney(pagination().totalAmount) }}</strong>
+          <p>{{ pagination().total }} записів</p>
+        </div>
+      </div>
+    </p-card>
+  </div>
+</section>
+
+<p-dialog
+  [visible]="showDialog()"
+  (visibleChange)="showDialog.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [header]="dialogTitle()"
+  [style]="{ width: '520px', maxWidth: '96vw' }"
+  appendTo="body"
+>
+  <div class="expense-form">
+    <div class="field">
+      <label for="expense-type">Тип витрат</label>
+      <input
+        id="expense-type"
+        pInputText
+        [ngModel]="draft().type"
+        (ngModelChange)="patchDraft({ type: $event })"
+        placeholder="Оренда, реклама, пакування..."
+      />
+    </div>
+
+    <div class="field">
+      <label for="expense-amount">Сума</label>
+      <p-inputNumber
+        inputId="expense-amount"
+        mode="currency"
+        currency="UAH"
+        locale="uk-UA"
+        [min]="0"
+        [ngModel]="draft().amount"
+        (ngModelChange)="patchDraft({ amount: $event })"
+      />
+    </div>
+
+    <div class="field check-field">
+      <p-checkbox
+        inputId="month-only"
+        [binary]="true"
+        [ngModel]="draft().useMonthOnly"
+        (ngModelChange)="patchDraft({ useMonthOnly: $event })"
+      />
+      <label for="month-only">Вказати тільки місяць і рік</label>
+    </div>
+
+    <div class="field">
+      @if (draft().useMonthOnly) {
+        <label for="expense-month">Місяць</label>
+        <p-calendar
+          inputId="expense-month"
+          view="month"
+          dateFormat="mm.yy"
+          appendTo="body"
+          [readonlyInput]="true"
+          [showIcon]="true"
+          [ngModel]="draft().monthDate"
+          (ngModelChange)="patchDraft({ monthDate: $event })"
+        />
+      } @else {
+        <label for="expense-date">Дата</label>
+        <p-calendar
+          inputId="expense-date"
+          dateFormat="dd.mm.yy"
+          appendTo="body"
+          [readonlyInput]="true"
+          [showIcon]="true"
+          [ngModel]="draft().exactDate"
+          (ngModelChange)="patchDraft({ exactDate: $event })"
+        />
+      }
+    </div>
+
+    <div class="field check-field">
+      <p-checkbox
+        inputId="is-recurring"
+        [binary]="true"
+        [ngModel]="draft().isRecurring"
+        (ngModelChange)="patchDraft({ isRecurring: $event })"
+      />
+      <label for="is-recurring">Регулярна витрата</label>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Скасувати" severity="secondary" (onClick)="showDialog.set(false)" />
+    <p-button label="Зберегти" icon="pi pi-check" [loading]="saving()" (onClick)="saveExpense()" />
+  </ng-template>
+</p-dialog>

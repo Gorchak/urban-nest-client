@@ -1,0 +1,200 @@
+:host {
+  display: block;
+}
+
+.expense-accounting {
+  display: grid;
+  gap: 1rem;
+}
+
+.expense-toolbar,
+.filter-row,
+.expense-layout {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.expense-toolbar {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.expense-toolbar h2 {
+  color: #0f172a;
+  font-size: 1.35rem;
+  margin: 0;
+}
+
+.expense-toolbar p {
+  color: #64748b;
+  margin: .2rem 0 0;
+}
+
+.filter-row {
+  align-items: end;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(210px, auto) minmax(240px, 320px) auto;
+  padding: 1rem;
+}
+
+.filter-mode,
+.check-field {
+  align-items: center;
+  display: flex;
+  gap: .55rem;
+}
+
+.date-filter,
+.field {
+  display: grid;
+  gap: .45rem;
+}
+
+label {
+  color: #475569;
+  font-size: .9rem;
+  font-weight: 600;
+}
+
+.expense-layout {
+  align-items: start;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  padding: 1rem;
+}
+
+.expense-type {
+  display: grid;
+  gap: .15rem;
+}
+
+.expense-type small {
+  color: #64748b;
+}
+
+.amount-cell {
+  color: #0f172a;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  gap: .4rem;
+}
+
+.icon-action {
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  color: #334155;
+  cursor: pointer;
+  display: inline-flex;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+}
+
+.icon-action:hover {
+  background: #e0f2fe;
+  border-color: #38bdf8;
+}
+
+.icon-action.danger:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+  color: #b91c1c;
+}
+
+.icon-action:disabled {
+  cursor: progress;
+  opacity: .55;
+}
+
+.empty-table {
+  color: #64748b;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+::ng-deep .total-card {
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+::ng-deep .total-card .p-card-body {
+  padding: 1rem;
+}
+
+::ng-deep .total-card .p-card-content {
+  padding: 0;
+}
+
+.total-content {
+  align-items: center;
+  display: flex;
+  gap: .85rem;
+}
+
+.total-content > span {
+  align-items: center;
+  background: #ecfeff;
+  border-radius: 8px;
+  color: #0891b2;
+  display: inline-flex;
+  flex: 0 0 46px;
+  font-size: 1.35rem;
+  height: 46px;
+  justify-content: center;
+  width: 46px;
+}
+
+.total-content small,
+.total-content p {
+  color: #64748b;
+}
+
+.total-content strong {
+  color: #0f172a;
+  display: block;
+  font-size: 1.55rem;
+  line-height: 1.25;
+  margin: .1rem 0;
+}
+
+.total-content p {
+  margin: 0;
+}
+
+.expense-form {
+  display: grid;
+  gap: 1rem;
+}
+
+::ng-deep .expense-form .p-calendar,
+::ng-deep .expense-form .p-inputnumber,
+::ng-deep .expense-form .p-inputtext,
+::ng-deep .date-filter .p-calendar {
+  width: 100%;
+}
+
+@media (max-width: 980px) {
+  .filter-row,
+  .expense-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .expense-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

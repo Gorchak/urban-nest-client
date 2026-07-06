@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AdminAccessPageComponent } from './admin/admin-access-page/admin-access-page.component';
 import { AdminCategoriesPageWithTabsComponent } from './admin/pages/admin-categories-page-with-tabs/admin-categories-page-with-tabs.component';
+import { FinancePageComponent } from './admin/pages/finance-page/finance-page.component';
 import { MerchandiseListComponent } from './admin/pages/merchandise-list/merchandise-list.component';
 import { SalesPageComponent } from './admin/pages/sales-page/sales-page.component';
 import { UsersPageComponent } from './admin/pages/users-page/users-page.component';
@@ -34,4 +35,5 @@ export const routes: Routes = [
   { path: 'admin/products', component: MerchandiseListComponent },
   { path: 'admin/sales', component: SalesPageComponent },
   { path: 'admin/users', component: UsersPageComponent },
+  { path: 'admin/finance', component: FinancePageComponent },
 ];
