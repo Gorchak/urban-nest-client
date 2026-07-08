@@ -293,6 +293,15 @@ export class PublicHeaderComponent implements OnInit {
   }
 
   protected login(): void {
+    if (!this.isSecureAuthOrigin()) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Вхід недоступний',
+        detail: 'Auth0 потребує захищений HTTPS-домен. Перевірте SSL-сертифікат для uliastore.com.ua.',
+      });
+      return;
+    }
+
     const login = this.auth.loginWithRedirect;
     if (typeof login !== 'function') return;
 
@@ -300,6 +309,12 @@ export class PublicHeaderComponent implements OnInit {
       appState: { target: window.location.pathname + window.location.search },
       authorizationParams: { redirect_uri: window.location.origin },
     });
+  }
+  private isSecureAuthOrigin(): boolean {
+    return window.location.protocol === 'https:'
+      || window.location.hostname === 'localhost'
+      || window.location.hostname === '127.0.0.1'
+      || window.location.hostname === '[::1]';
   }
   protected childrenFor(parent: Category): Category[] {
     return this.categories()

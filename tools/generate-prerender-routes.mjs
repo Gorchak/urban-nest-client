@@ -6,6 +6,15 @@ const routes = new Set(['/', '/new-arrivals']);
 const routeSegment = (value) => encodeURIComponent(String(value || ''));
 const categoryRouteSegment = (value) => encodeURIComponent(String(value || '').trim());
 
+function addCategoryRoute(slug) {
+  const segment = categoryRouteSegment(slug);
+  const lowerSegment = segment.toLowerCase();
+  routes.add(`/category/${segment}`);
+  routes.add(`/category/${segment}/`);
+  routes.add(`/category/${lowerSegment}`);
+  routes.add(`/category/${lowerSegment}/`);
+}
+
 async function fetchJson(path) {
   const response = await fetch(`${apiUrl}${path}`);
   if (!response.ok) {
@@ -36,7 +45,7 @@ try {
 
   categories
     .filter((category) => category?.slug && category.isActive && category.isVisible)
-    .forEach((category) => routes.add(`/category/${categoryRouteSegment(category.slug)}`));
+    .forEach((category) => addCategoryRoute(category.slug));
 
   products
     .filter((product) => product?.slug && product.isActive && product.isVisible)

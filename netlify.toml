@@ -3,6 +3,21 @@
   publish = "dist/urban-nest/browser"
 
 [[redirects]]
+  from = "/category/dekor_dlja_domu/"
+  to = "/category/Dekor_dlja_domu"
+  status = 301
+
+[[redirects]]
+  from = "/category/dekor_dlja_domu"
+  to = "/category/Dekor_dlja_domu"
+  status = 301
+
+[[redirects]]
+  from = "/category/Dekor_dlja_domu/"
+  to = "/category/Dekor_dlja_domu"
+  status = 301
+
+[[redirects]]
   from = "/admin"
   to = "/index.html"
   status = 200
