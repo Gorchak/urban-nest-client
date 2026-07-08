@@ -7,6 +7,7 @@ import { Merchandise } from '../../core/models/merchandise.model';
 import { CategoriesService } from '../../core/services/categories.service';
 import { MerchandiseService } from '../../core/services/merchandise.service';
 import { SeoService } from '../../core/services/seo.service';
+import { toRouteSlug } from '../../core/utils/route-slug';
 import { PublicProductCardComponent } from '../shared/public-product-card.component';
 import { PublicFooterComponent } from '../shared/public-footer.component';
 import { RecentlyViewedService } from '../services/recently-viewed.service';
@@ -132,6 +133,7 @@ export class HomePageComponent implements OnInit {
   protected onSearchChange(value: string): void { this.searchQuery.set(value); }
   protected clearSearch(): void { this.searchQuery.set(''); }
   protected sectionId(category: Category): string { return `category-${category.slug || category._id}`; }
+  protected routeSlug(category: Category): string { return toRouteSlug(category.slug); }
   protected categoryImage(category: Category): string {
     return category.bannerImage || category.coverImage || category.image || category.images?.[0] || '';
   }

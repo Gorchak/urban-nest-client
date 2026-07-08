@@ -40,7 +40,7 @@
         <div class="category-sections">
           @for (section of sections(); track section.category._id; let sectionIndex = $index) {
             <section class="category-story" [class.category-story--reverse]="sectionIndex % 2" [id]="sectionId(section.category)">
-              <a class="category-story__image" [routerLink]="['/category', section.category.slug]">
+              <a class="category-story__image" [routerLink]="['/category', routeSlug(section.category)]">
                 @if (categoryImage(section.category)) {
                   <img [src]="optimizedUrl(categoryImage(section.category), 1400)" [alt]="section.title" loading="lazy" />
                 } @else {
@@ -51,7 +51,7 @@
                 <span class="eyebrow">#{{ section.title.toLocaleLowerCase('uk-UA') }}</span>
                 <h2>{{ section.category.shortDescription || section.title }}</h2>
                 <p>{{ section.category.description || 'Речі, які легко поєднувати та приємно обирати знову.' }}</p>
-                <a class="story-link" [routerLink]="['/category', section.category.slug]">
+                <a class="story-link" [routerLink]="['/category', routeSlug(section.category)]">
                   Дивитися категорію <i class="ri-arrow-right-line"></i>
                 </a>
               </div>
@@ -60,7 +60,7 @@
             <section class="product-row">
               <header class="section-header">
                 <div><span class="eyebrow">Добірка 0{{ sectionIndex + 1 }}</span><h2>{{ section.title }}</h2></div>
-                <a [routerLink]="['/category', section.category.slug]">Усі товари <i class="ri-arrow-right-line"></i></a>
+                <a [routerLink]="['/category', routeSlug(section.category)]">Усі товари <i class="ri-arrow-right-line"></i></a>
               </header>
               <div class="products">
                 @for (product of section.products; track product._id) { <app-public-product-card [product]="product" /> }

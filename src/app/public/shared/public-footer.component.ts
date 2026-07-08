@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { RouterLink } from '@angular/router';
 import { Category } from '../../core/models/category.model';
 import { CategoriesService } from '../../core/services/categories.service';
+import { toRouteSlug } from '../../core/utils/route-slug';
 
 @Component({
   selector: 'app-public-footer',
@@ -25,7 +26,7 @@ import { CategoriesService } from '../../core/services/categories.service';
         <nav>
           <span>Каталог</span>
           @for (category of categories(); track category._id) {
-            <a [routerLink]="['/category', category.slug]">{{ category.name }}</a>
+            <a [routerLink]="['/category', routeSlug(category)]">{{ category.name }}</a>
           }
         </nav>
 
@@ -95,6 +96,9 @@ export class PublicFooterComponent implements OnInit {
   private categoriesService = inject(CategoriesService);
   protected categories = signal<Category[]>([]);
   protected year = new Date().getFullYear();
+  protected routeSlug(category: Category): string {
+    return toRouteSlug(category.slug);
+  }
 
   async ngOnInit(): Promise<void> {
     try {

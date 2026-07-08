@@ -12,6 +12,7 @@ import { CategoriesService } from '../../core/services/categories.service';
 import { UserProfileDialogComponent } from '../../admin/pages/users-page/user-profile-dialog.component';
 import { CartService } from '../../core/services/cart.service';
 import { CartComponent } from '../cart/cart.component';
+import { toRouteSlug } from '../../core/utils/route-slug';
 
 @Component({
   selector: 'app-public-header',
@@ -36,7 +37,7 @@ import { CartComponent } from '../cart/cart.component';
         <a routerLink="/new-arrivals" routerLinkActive="active" (mouseenter)="closeCategoryMenu()" (focus)="closeCategoryMenu()">Новинки</a>
         @for (category of rootCategories(); track category._id) {
           <a
-            [routerLink]="['/category', category.slug]"
+            [routerLink]="['/category', routeSlug(category)]"
             routerLinkActive="active"
             [class.menu-open]="activeCategory()?._id === category._id"
             (mouseenter)="openCategoryMenu(category, $event)"
@@ -111,7 +112,7 @@ import { CartComponent } from '../cart/cart.component';
           @for (category of rootCategories(); track category._id) {
             <div class="mobile-category">
               <div class="mobile-category__row">
-                <a [routerLink]="['/category', category.slug]" routerLinkActive="active" (click)="closeMobileMenu()">{{ category.name }}</a>
+                <a [routerLink]="['/category', routeSlug(category)]" routerLinkActive="active" (click)="closeMobileMenu()">{{ category.name }}</a>
                 @if (childrenFor(category).length) {
                   <button type="button" [attr.aria-expanded]="mobileExpandedCategory() === category._id" [attr.aria-label]="'Підкатегорії ' + category.name" (click)="toggleMobileCategory(category)">
                     <i [class]="mobileExpandedCategory() === category._id ? 'ri-subtract-line' : 'ri-add-line'"></i>
@@ -121,7 +122,7 @@ import { CartComponent } from '../cart/cart.component';
               @if (mobileExpandedCategory() === category._id) {
                 <div class="mobile-subnav">
                   @for (child of childrenFor(category); track child._id) {
-                    <a [routerLink]="['/category', child.slug]" (click)="closeMobileMenu()">{{ child.name }}</a>
+                    <a [routerLink]="['/category', routeSlug(child)]" (click)="closeMobileMenu()">{{ child.name }}</a>
                   }
                 </div>
               }
@@ -141,7 +142,7 @@ import { CartComponent } from '../cart/cart.component';
             @for (column of childColumns(); track $index) {
               <div class="category-menu__column">
                 @for (child of column; track child._id) {
-                  <a [routerLink]="['/category', child.slug]" (click)="closeCategoryMenu()">
+                  <a [routerLink]="['/category', routeSlug(child)]" (click)="closeCategoryMenu()">
                     <span>{{ child.name }}</span>
                     <i class="ri-arrow-right-line"></i>
                   </a>
@@ -381,6 +382,9 @@ export class PublicHeaderComponent implements OnInit {
   }
   protected avatar(user: Auth0User): string {
     return String(user.userMetadata?.avatarUrl || user.picture || '');
+  }
+  protected routeSlug(category: Category): string {
+    return toRouteSlug(category.slug);
   }
 
   private async loadCategories(): Promise<void> {

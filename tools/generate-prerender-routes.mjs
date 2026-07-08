@@ -4,6 +4,7 @@ const apiUrl = process.env.PRERENDER_API_URL || 'https://api.uliastore.com.ua/ap
 const routes = new Set(['/', '/new-arrivals']);
 
 const routeSegment = (value) => encodeURIComponent(String(value || ''));
+const categoryRouteSegment = (value) => encodeURIComponent(String(value || '').trim());
 
 async function fetchJson(path) {
   const response = await fetch(`${apiUrl}${path}`);
@@ -35,7 +36,7 @@ try {
 
   categories
     .filter((category) => category?.slug && category.isActive && category.isVisible)
-    .forEach((category) => routes.add(`/category/${routeSegment(category.slug)}`));
+    .forEach((category) => routes.add(`/category/${categoryRouteSegment(category.slug)}`));
 
   products
     .filter((product) => product?.slug && product.isActive && product.isVisible)

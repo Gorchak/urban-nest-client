@@ -13,6 +13,7 @@ import { PublicFooterComponent } from '../shared/public-footer.component';
 import { RecentlyViewedService } from '../services/recently-viewed.service';
 import { CartService } from '../../core/services/cart.service';
 import { formatCurrency } from '../../core/utils/price-format';
+import { toRouteSlug } from '../../core/utils/route-slug';
 
 @Component({
   selector: 'app-product-page',
@@ -146,6 +147,9 @@ export class ProductPageComponent implements OnInit, OnDestroy {
   }
   protected optimizedUrl(url: string, width = 1000): string {
     return url.includes('res.cloudinary.com') ? url.replace('/upload/', `/upload/f_auto,q_auto,w_${width}/`) : url;
+  }
+  protected routeSlug(category: Category): string {
+    return toRouteSlug(category.slug);
   }
   protected specificationLabel(spec: MerchandiseSpecification, definition?: CategorySpecification): string {
     return definition?.name || spec.slug;

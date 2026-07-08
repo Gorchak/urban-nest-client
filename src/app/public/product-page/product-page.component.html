@@ -7,7 +7,7 @@
    @if (product(); as item) {
     <nav class="breadcrumbs">
       <a routerLink="/">Головна</a><i class="ri-arrow-right-s-line"></i>
-      @if (category(); as currentCategory) { <a [routerLink]="['/category', currentCategory.slug]">{{ currentCategory.name }}</a><i class="ri-arrow-right-s-line"></i> }
+      @if (category(); as currentCategory) { <a [routerLink]="['/category', routeSlug(currentCategory)]">{{ currentCategory.name }}</a><i class="ri-arrow-right-s-line"></i> }
       <span>{{ item.name }}</span>
     </nav>
 

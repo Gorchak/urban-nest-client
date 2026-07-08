@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Category } from '../../core/models/category.model';
 import { Merchandise, MerchandiseListFilter, MerchandisePagination } from '../../core/models/merchandise.model';
 import { CategoriesService } from '../../core/services/categories.service';
 import { MerchandiseService } from '../../core/services/merchandise.service';
 import { SeoService } from '../../core/services/seo.service';
+import { encodeRouteSlug, normalizeRouteSlug, toRouteSlug } from '../../core/utils/route-slug';
 import { PublicProductCardComponent } from '../shared/public-product-card.component';
 import { PublicFooterComponent } from '../shared/public-footer.component';
 
@@ -21,6 +22,7 @@ import { PublicFooterComponent } from '../shared/public-footer.component';
 })
 export class CategoryPageComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private categoriesService = inject(CategoriesService);
   private merchandiseService = inject(MerchandiseService);
   private seo = inject(SeoService);
@@ -49,9 +51,14 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
     this.error.set(null);
     try {
       const categories = await this.categoriesService.getCategories(1, 200);
-      const slug = this.route.snapshot.paramMap.get('slug');
-      const category = categories.find((item) => item.slug === slug && item.isActive && item.isVisible);
+      const rawSlug = this.route.snapshot.paramMap.get('slug');
+      const normalizedSlug = normalizeRouteSlug(rawSlug);
+      const category = categories.find((item) => normalizeRouteSlug(item.slug) === normalizedSlug && item.isActive && item.isVisible);
       if (!category) throw new Error('Категорію не знайдено');
+      const canonicalSlug = toRouteSlug(category.slug);
+      if (typeof window !== 'undefined' && rawSlug !== canonicalSlug) {
+        void this.router.navigate(['/category', canonicalSlug], { replaceUrl: true });
+      }
       if (this.category()?._id !== category._id) this.selectedSubcategoryId.set('');
       this.subcategories.set(
         categories
@@ -63,7 +70,7 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
         title: category.seoTitle || `${category.name} | Ulia`,
         description: category.seoDescription || category.shortDescription || category.description,
         keywords: category.seoKeywords,
-        canonicalUrl: category.canonicalUrl || `/category/${category.slug}`,
+        canonicalUrl: category.canonicalUrl || `/category/${encodeRouteSlug(category.slug)}`,
         ogImage: category.ogImage || this.categoryImage(category),
       });
       await this.loadProducts(page, false);
