@@ -207,12 +207,11 @@ import { CartComponent } from '../cart/cart.component';
       .brand img:first-child { width:38px; height:38px; }
       .brand img:last-child { width:70px; }
       .main-nav { display:none; }
-      .actions { grid-column:1 / -1; grid-row:1; display:grid; grid-template-columns:auto 1fr auto auto; gap:.15rem; pointer-events:none; }
-      .actions > * { pointer-events:auto; }
-      .menu-button { display:grid; order:1; justify-self:start; }
-      .cart-button { width:42px; height:42px; order:3; }
+      .actions { grid-column:1 / -1; grid-row:1; display:grid; grid-template-columns:auto 1fr auto auto; align-items:center; gap:.15rem; z-index:3; }
+      .menu-button { display:grid; order:1; justify-self:start; position:relative; z-index:4; }
+      .cart-button { width:42px; height:42px; order:3; position:relative; z-index:4; }
       .admin-link,.user-loading { display:none; }
-      .login-button,.user-button { width:42px; height:42px; padding:0; display:grid; place-items:center; order:4; border-radius:50%; }
+      .login-button,.user-button { width:42px; height:42px; padding:0; display:grid; place-items:center; order:4; border-radius:50%; position:relative; z-index:4; }
       .login-button { font-size:0; }
       .login-button i { font-size:21px; }
       .user-button { gap:0; }
@@ -277,13 +276,28 @@ export class PublicHeaderComponent implements OnInit {
     try {
       const access = await firstValueFrom(this.adminAccess.check());
       this.currentUser.set(access.user);
-      await this.cartService.load();
+    } catch {
+      this.currentUser.set(null);
     } finally {
       this.loadingUser.set(false);
     }
+
+    try {
+      await this.cartService.load();
+    } catch {
+      this.cartService.cart.set(null);
+    }
   }
 
-  protected login(): void { this.auth.loginWithRedirect(); }
+  protected login(): void {
+    const login = this.auth.loginWithRedirect;
+    if (typeof login !== 'function') return;
+
+    void this.auth.loginWithRedirect({
+      appState: { target: window.location.pathname + window.location.search },
+      authorizationParams: { redirect_uri: window.location.origin },
+    });
+  }
   protected childrenFor(parent: Category): Category[] {
     return this.categories()
       .filter((category) => category.parentId === parent._id && category.isActive && category.isVisible)
