@@ -41,27 +41,27 @@ import { formatCurrency } from '../../core/utils/price-format';
   `,
   styles: [`
     :host { display: block; min-width: 0; }
-    .card { height: 100%; display: block; overflow: hidden; color: #171714; background: rgba(255,255,255,.18); text-decoration: none; }
-    .media { position: relative; aspect-ratio: 3 / 4; overflow: hidden; background: #e7e1d7; }
+    .card { height: 100%; display: block; overflow: hidden; color: var(--un-ink, #181713); background: rgba(255,255,255,.14); text-decoration: none; }
+    .media { position: relative; aspect-ratio: 3 / 4; overflow: hidden; background: var(--un-soft, #f5f5f2); }
     img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .35s, transform .6s; }
     img.hover { opacity: 0; }
     .card:hover img.primary { transform: scale(1.025); }
     .card:hover img.hover { opacity: 1; transform: scale(1.025); }
-    .placeholder { height: 100%; display: grid; place-items: center; color: rgba(23,23,20,.3); font-size: 40px; }
-    .stock, .gallery, .discount-badge { position: absolute; top: 10px; padding: 5px 7px; background: rgba(245,242,235,.9); font-size: 8px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .placeholder { height: 100%; display: grid; place-items: center; color: rgba(24,23,19,.3); font-size: 40px; }
+    .stock, .gallery, .discount-badge { position: absolute; top: 10px; padding: 5px 7px; background: rgba(255,255,255,.92); font-size: 8px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
     .stock { left: 10px; } .gallery { right: 10px; }
-    .discount-badge { left: 10px; top: 42px; padding: 9px 12px; background: #c85436; color: #fff; box-shadow: 0 6px 18px rgba(120,35,18,.22); font-size: 15px; letter-spacing: .02em; }
-    .body { padding: 14px 12px 16px; }
-    .sku { color: rgba(23,23,20,.55); font-size: 9px; letter-spacing: .1em; }
-    h3 { min-height: 2.7em; margin: .55rem 0 1.3rem; font-size: 13px; font-weight: 500; line-height: 1.35; }
+    .discount-badge { left: 10px; top: 42px; padding: 9px 12px; background: var(--un-accent, #9f3526); color: #fff; box-shadow: 0 6px 18px rgba(120,35,18,.22); font-size: 15px; letter-spacing: .02em; }
+    .body { padding: 15px 12px 17px; }
+    .sku { color: var(--un-muted, rgba(24,23,19,.62)); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
+    h3 { min-height: 2.7em; margin: .55rem 0 1.25rem; font-family: var(--un-serif, Georgia, serif); font-size: 17px; font-weight: 400; line-height: 1.18; }
     .foot { display: flex; justify-content: space-between; gap: .5rem; font-size: 11px; }
     .prices { display: grid; gap: .25rem; }
-    .prices del { color: rgba(23,23,20,.55); font-size: 10px; font-weight: 400; }
-    .prices strong { color: #c85436; }
+    .prices del { color: var(--un-muted, rgba(24,23,19,.62)); font-size: 10px; font-weight: 400; }
+    .prices strong { color: var(--un-accent, #9f3526); }
     .foot span { opacity: 0; transition: opacity .2s; } .card:hover .foot span { opacity: 1; }
     .card--emphasis h3 { margin-bottom: 1rem; font-size: clamp(16px, 1.35vw, 21px); font-weight: 600; line-height: 1.25; }
     .card--emphasis .foot { align-items: center; font-size: 13px; }
-    .card--emphasis .foot strong { color: #c85436; font-size: clamp(16px, 1.25vw, 20px); }
+    .card--emphasis .foot strong { color: var(--un-accent, #9f3526); font-size: clamp(16px, 1.25vw, 20px); }
     @media(max-width:560px) {
       .stock,.gallery { top:7px;padding:4px 5px;font-size:7px;letter-spacing:.04em; }
       .stock { left:7px; }

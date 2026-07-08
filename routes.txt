@@ -33,6 +33,9 @@
 /product/bianca-1
 /product/blagist
 /product/blanca
+/product/bluza%20black
+/product/bluza-blue
+/product/bluza-milk
 /product/bruna
 /product/calipso
 /product/calipso-1
@@ -133,6 +136,10 @@
 /product/toplif
 /product/triangle
 /product/triangle1
+/product/veil-black
+/product/veil-blue
+/product/veil-milk
+/product/veil-pudra
 /product/viven
 /product/what-the-fck-is-really-going-on
 /product/wings

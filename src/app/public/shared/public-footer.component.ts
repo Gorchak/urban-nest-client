@@ -12,7 +12,6 @@ import { CategoriesService } from '../../core/services/categories.service';
       <div class="footer-top">
         <div class="identity">
           <a class="brand" routerLink="/">
-            <img src="/assets/logo.png" alt="" />
             <img src="/assets/ulia_title.svg.svg" alt="Ulia" />
           </a>
           <p>Обрані речі для красивих щоденних історій.</p>
@@ -56,7 +55,7 @@ import { CategoriesService } from '../../core/services/categories.service';
     </footer>
   `,
   styles: [`
-    :host { display:block; color:#f5f2eb; background:#171714; font-family:Arial,Helvetica,sans-serif; }
+    :host { display:block; color:var(--un-paper, #fff); background:var(--un-ink, #181713); font-family:var(--un-sans, Arial,Helvetica,sans-serif); }
     * { box-sizing:border-box; }
     footer { padding:clamp(3rem,7vw,7rem) 3vw 1.5rem; }
     .footer-top { display:grid; grid-template-columns:1.2fr .7fr .8fr 1.5fr; gap:clamp(2rem,5vw,6rem); }
@@ -70,7 +69,7 @@ import { CategoriesService } from '../../core/services/categories.service';
     nav span,.newsletter>span { margin-bottom:.7rem; font-size:10px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
     nav a { color:rgba(255,255,255,.7); font-size:13px; text-decoration:none; }
     nav a:hover { color:#fff; }
-    .newsletter h2 { max-width:520px; margin:0 0 2rem; font-family:Georgia,serif; font-size:clamp(2rem,3.5vw,4.2rem); font-weight:400; letter-spacing:-.055em; line-height:.95; }
+    .newsletter h2 { max-width:520px; margin:0 0 2rem; font-family:var(--un-serif, Georgia,serif); font-size:clamp(2rem,3.5vw,4.2rem); font-weight:400; letter-spacing:-.035em; line-height:.98; }
     .newsletter label { padding:.8rem 0; display:flex; border-bottom:1px solid rgba(255,255,255,.55); }
     .newsletter input { min-width:0; flex:1; border:0; outline:0; background:transparent; color:#fff; font:inherit; }
     .newsletter button { border:0; background:transparent; color:#fff; font-size:22px; cursor:pointer; }

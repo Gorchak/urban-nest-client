@@ -1,4 +1,16 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --un-ink: #181713;
+  --un-muted: rgba(24, 23, 19, 0.62);
+  --un-paper: #ffffff;
+  --un-paper-deep: #f2eadc;
+  --un-soft: #f5f5f2;
+  --un-line: rgba(24, 23, 19, 0.18);
+  --un-accent: #9f3526;
+  --un-green: #3f6f4a;
+  --un-serif: Georgia, "Times New Roman", serif;
+  --un-sans: Arial, Helvetica, sans-serif;
+}
+
 html,
 body {
   margin: 0;
@@ -13,6 +25,9 @@ html {
 
 body {
   overflow-x: hidden;
+  background: var(--un-paper);
+  color: var(--un-ink);
+  font-family: var(--un-sans);
 }
 
 button,
@@ -24,4 +39,9 @@ select {
 
 img {
   max-width: 100%;
+}
+
+::selection {
+  background: var(--un-ink);
+  color: var(--un-paper);
 }

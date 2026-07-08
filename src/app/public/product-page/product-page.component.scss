@@ -1,9 +1,9 @@
 :host {
   display: block;
   min-height: 100vh;
-  color: #171714;
-  background: #f5f2eb;
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--un-ink, #181713);
+  background: var(--un-paper, #fff);
+  font-family: var(--un-sans, Arial, Helvetica, sans-serif);
 }
 * {
   box-sizing: border-box;
@@ -57,7 +57,7 @@ main {
   background: #e4ded4;
 }
 .thumbs button.active {
-  border-color: #171714;
+  border-color: var(--un-ink, #181713);
 }
 .thumbs img {
   width: 100%;
@@ -103,11 +103,11 @@ main {
 }
 .summary h1 {
   margin: 1rem 0;
-  font-family: Georgia, serif;
+  font-family: var(--un-serif, Georgia, serif);
   font-size: clamp(3rem, 5vw, 5.5rem);
   font-weight: 400;
-  letter-spacing: -0.065em;
-  line-height: 0.92;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
 }
 .lead {
   max-width: 520px;
@@ -126,15 +126,15 @@ main {
 }
 .sale-badge {
   padding: .45rem .65rem;
-  background: #c85436;
+  background: var(--un-accent, #9f3526);
   color: #fff;
   font-size: .8rem;
   font-weight: 700;
 }
 .price {
   display: block;
-  color: #c85436;
-  font-family: Georgia, serif;
+  color: var(--un-accent, #9f3526);
+  font-family: var(--un-serif, Georgia, serif);
   font-size: clamp(2.5rem, 4vw, 4.5rem);
   font-weight: 400;
   letter-spacing: -0.04em;
@@ -148,7 +148,7 @@ main {
   text-transform: uppercase;
 }
 .availability.available {
-  color: #37714a;
+  color: var(--un-green, #3f6f4a);
 }
 .variants {
   margin-top: 2.5rem;
@@ -177,8 +177,8 @@ main {
   background: transparent;
 }
 .variants button.active {
-  background: #171714;
-  color: #fff;
+  background: var(--un-ink, #181713);
+  color: var(--un-paper, #fff);
 }
 .variants button small {
   display: block;
@@ -202,9 +202,9 @@ main {
   width: 100%;
   margin-top: 2rem;
   padding: 1.1rem;
-  border: 1px solid #171714;
-  background: #171714;
-  color: #fff;
+  border: 1px solid var(--un-ink, #181713);
+  background: var(--un-ink, #181713);
+  color: var(--un-paper, #fff);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -224,10 +224,10 @@ main {
 .details h2,
 .collection h2 {
   margin: 0.5rem 0 1.5rem;
-  font-family: Georgia, serif;
+  font-family: var(--un-serif, Georgia, serif);
   font-size: clamp(3rem, 6vw, 6rem);
   font-weight: 400;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.04em;
 }
 .details p {
   max-width: 750px;

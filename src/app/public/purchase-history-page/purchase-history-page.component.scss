@@ -1,9 +1,9 @@
 :host {
   display: block;
   min-height: 100vh;
-  background: #f5f2eb;
-  color: #171714;
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--un-paper, #fff);
+  color: var(--un-ink, #181713);
+  font-family: var(--un-sans, Arial, Helvetica, sans-serif);
 }
 
 * { box-sizing: border-box; }
@@ -117,7 +117,7 @@ h1 {
 
 .category-select__menu button:hover,
 .category-select__menu button.active {
-  background: #f5f2eb;
+  background: var(--un-soft, #f5f5f2);
 }
 
 .category-select__menu button.active {
