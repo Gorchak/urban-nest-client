@@ -5,9 +5,9 @@ export function toRouteSlug(value: string | null | undefined): string {
 export function normalizeRouteSlug(value: string | null | undefined): string {
   const text = String(value ?? '');
   try {
-    return decodeURIComponent(text).trim();
+    return decodeURIComponent(text).replace(/[_\s]+/g, ' ').trim();
   } catch {
-    return text.trim();
+    return text.replace(/[_\s]+/g, ' ').trim();
   }
 }
 

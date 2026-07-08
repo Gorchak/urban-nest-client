@@ -3,6 +3,24 @@
   publish = "dist/urban-nest/browser"
 
 [[redirects]]
+  from = "http://uliastore.com.ua/*"
+  to = "https://uliastore.com.ua/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://www.uliastore.com.ua/*"
+  to = "https://uliastore.com.ua/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.uliastore.com.ua/*"
+  to = "https://uliastore.com.ua/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/admin"
   to = "/index.html"
   status = 200

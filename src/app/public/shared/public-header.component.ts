@@ -40,9 +40,11 @@ import { toRouteSlug } from '../../core/utils/route-slug';
             [routerLink]="['/category', routeSlug(category)]"
             routerLinkActive="active"
             [class.menu-open]="activeCategory()?._id === category._id"
+            (pointerenter)="openCategoryMenu(category, $event)"
+            (mouseover)="openCategoryMenu(category, $event)"
             (mouseenter)="openCategoryMenu(category, $event)"
             (focus)="openCategoryMenu(category, $event)"
-            (click)="closeCategoryMenu()"
+            (click)="onCategoryLinkClick(category, $event)"
           >
             {{ category.name }}
             @if (childrenFor(category).length) { <i class="ri-arrow-down-s-line"></i> }
@@ -301,8 +303,16 @@ export class PublicHeaderComponent implements OnInit {
   }
   protected childrenFor(parent: Category): Category[] {
     return this.categories()
-      .filter((category) => category.parentId === parent._id && category.isActive && category.isVisible)
+      .filter((category) => String(category.parentId || '') === String(parent._id) && category.isActive && category.isVisible)
       .sort((a, b) => a.sortOrder - b.sortOrder);
+  }
+  protected onCategoryLinkClick(category: Category, event: MouseEvent): void {
+    if (this.childrenFor(category).length && this.activeCategory()?._id !== category._id) {
+      event.preventDefault();
+      this.openCategoryMenu(category, event);
+      return;
+    }
+    this.closeCategoryMenu();
   }
   protected openCategoryMenu(category: Category, event?: Event): void {
     this.activeCategory.set(this.childrenFor(category).length ? category : null);
