@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://urban-nest-server.onrender.com/api',
+  apiUrl: 'https://api.uliastore.com.ua/api',
   siteUrl: 'http://uliastore.com.ua',
   googlePay: {
     environment: 'PRODUCTION' as const,

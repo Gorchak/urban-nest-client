@@ -1,6 +1,6 @@
 import { writeFile } from 'node:fs/promises';
 
-const apiUrl = process.env.PRERENDER_API_URL || 'https://urban-nest-server.onrender.com/api';
+const apiUrl = process.env.PRERENDER_API_URL || 'https://api.uliastore.com.ua/api';
 const routes = new Set(['/', '/new-arrivals']);
 
 const routeSegment = (value) => encodeURIComponent(String(value || ''));
