@@ -28,11 +28,20 @@ export class AdminAccessService {
   readonly isAdmin = signal(false);
 
   check(): Observable<AdminAccessState> {
-    return this.auth.isLoading$.pipe(
+    const isLoading$ = this.auth.isLoading$;
+    const isAuthenticated$ = this.auth.isAuthenticated$;
+
+    if (!isLoading$?.pipe || !isAuthenticated$?.pipe) {
+      this.currentUser.set(null);
+      this.isAdmin.set(false);
+      return of({ isAuthenticated: false, isAdmin: false, user: null });
+    }
+
+    return isLoading$.pipe(
       filter((isLoading) => !isLoading),
       take(1),
       timeout({ first: 4000, with: () => of(false) }),
-      switchMap(() => this.auth.isAuthenticated$.pipe(
+      switchMap(() => isAuthenticated$.pipe(
         take(1),
         timeout({ first: 3000, with: () => of(false) }),
       )),
@@ -89,7 +98,10 @@ export class AdminAccessService {
   }
 
   private getIdToken(): Observable<string | null> {
-    return this.auth.idTokenClaims$.pipe(
+    const idTokenClaims$ = this.auth.idTokenClaims$;
+    if (!idTokenClaims$?.pipe) return of(null);
+
+    return idTokenClaims$.pipe(
       take(1),
       timeout({ first: 5000, with: () => of(null) }),
       map((claims) => (claims as any)?.__raw || null),

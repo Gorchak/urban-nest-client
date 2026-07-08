@@ -140,14 +140,18 @@ export class CartService {
   getGuestIdValue(): string { return this.guestId; }
 
   private async isAuthenticated(): Promise<boolean> {
-    await firstValueFrom(this.auth.isLoading$.pipe(
+    const isLoading$ = this.auth.isLoading$;
+    const isAuthenticated$ = this.auth.isAuthenticated$;
+    if (!isLoading$?.pipe || !isAuthenticated$?.pipe) return false;
+
+    await firstValueFrom(isLoading$.pipe(
       filter((loading) => !loading),
       take(1),
       timeout({ first: 5000, with: () => of(false) }),
       catchError(() => of(false)),
     ));
 
-    return firstValueFrom(this.auth.isAuthenticated$.pipe(
+    return firstValueFrom(isAuthenticated$.pipe(
       take(1),
       timeout({ first: 5000, with: () => of(false) }),
       catchError(() => of(false)),

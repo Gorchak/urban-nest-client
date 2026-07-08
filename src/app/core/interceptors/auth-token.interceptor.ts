@@ -9,15 +9,19 @@ export const authTokenInterceptor: HttpInterceptorFn = (req, next) => {
   if (typeof window === 'undefined') return next(req);
 
   const auth = inject(AuthService);
+  const isAuthenticated$ = auth.isAuthenticated$;
+  const idTokenClaims$ = auth.idTokenClaims$;
 
-  return auth.isAuthenticated$.pipe(
+  if (!isAuthenticated$?.pipe || !idTokenClaims$?.pipe) return next(req);
+
+  return isAuthenticated$.pipe(
     take(1),
     timeout({ first: 5000, with: () => of(false) }),
     catchError(() => of(false)),
     switchMap((isAuthenticated) => {
       if (!isAuthenticated) return next(req);
 
-      return auth.idTokenClaims$.pipe(
+      return idTokenClaims$.pipe(
         take(1),
         timeout({ first: 5000, with: () => of(undefined) }),
         map((claims) => (claims as any)?.__raw as string | undefined),
