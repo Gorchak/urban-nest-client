@@ -1,6 +1,3 @@
-http://uliastore.com.ua/* https://uliastore.com.ua/:splat 301!
-http://www.uliastore.com.ua/* https://uliastore.com.ua/:splat 301!
-https://www.uliastore.com.ua/* https://uliastore.com.ua/:splat 301!
 /category/Dekor%20dlja%20domu%20 /category/Dekor_dlja_domu 301
 /category/Dekor%20dlja%20domu /category/Dekor_dlja_domu 301
 /admin /index.html 200

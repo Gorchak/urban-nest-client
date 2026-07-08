@@ -16,13 +16,6 @@ function isSecureAuthOrigin(location: Location): boolean {
     || location.hostname === '[::1]';
 }
 
-function redirectToSecureOrigin(options?: { appState?: { target?: string } }): void {
-  const target = options?.appState?.target || `${window.location.pathname}${window.location.search}${window.location.hash}`;
-  const url = new URL(target, window.location.origin);
-  url.protocol = 'https:';
-  window.location.assign(url.toString());
-}
-
 const authProviders = typeof window === 'undefined'
   ? []
   : isSecureAuthOrigin(window.location)
@@ -45,8 +38,8 @@ const authProviders = typeof window === 'undefined'
           isAuthenticated$: of(false),
           idTokenClaims$: of(null),
           user$: of(null),
-          loginWithRedirect: redirectToSecureOrigin,
-          logout: () => redirectToSecureOrigin(),
+          loginWithRedirect: () => undefined,
+          logout: () => undefined,
         },
       },
     ];

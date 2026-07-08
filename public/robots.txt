@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /checkout
 Disallow: /purchase-history
 
-Sitemap: https://uliastore.com.ua/sitemap.xml
+Sitemap: http://uliastore.com.ua/sitemap.xml
