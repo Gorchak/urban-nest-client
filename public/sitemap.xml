@@ -6,26 +6,6 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>http://uliastore.com.ua/category/Dekor_dlja_domu</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>http://uliastore.com.ua/category/Dekor_dlja_domu/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>http://uliastore.com.ua/category/Zhaket%20ta%20zhylet</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>http://uliastore.com.ua/category/Zhaket%20ta%20zhylet/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>http://uliastore.com.ua/category/accessories</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -56,12 +36,12 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://uliastore.com.ua/category/dekor_dlja_domu</loc>
+    <loc>http://uliastore.com.ua/category/dekor-dlja-domu</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://uliastore.com.ua/category/dekor_dlja_domu/</loc>
+    <loc>http://uliastore.com.ua/category/dekor-dlja-domu/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -86,12 +66,12 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://uliastore.com.ua/category/futbolki%20i%20topy</loc>
+    <loc>http://uliastore.com.ua/category/futbolki-i-topy</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://uliastore.com.ua/category/futbolki%20i%20topy/</loc>
+    <loc>http://uliastore.com.ua/category/futbolki-i-topy/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -156,32 +136,32 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://uliastore.com.ua/category/svetry%20i%20kard</loc>
+    <loc>http://uliastore.com.ua/category/svetry-i-kard</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://uliastore.com.ua/category/svetry%20i%20kard/</loc>
+    <loc>http://uliastore.com.ua/category/svetry-i-kard/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://uliastore.com.ua/category/svitshot%20i%20hudi</loc>
+    <loc>http://uliastore.com.ua/category/svitshot-i-hudi</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://uliastore.com.ua/category/svitshot%20i%20hudi/</loc>
+    <loc>http://uliastore.com.ua/category/svitshot-i-hudi/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://uliastore.com.ua/category/zhaket%20ta%20zhylet</loc>
+    <loc>http://uliastore.com.ua/category/zhaket-ta-zhylet</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://uliastore.com.ua/category/zhaket%20ta%20zhylet/</loc>
+    <loc>http://uliastore.com.ua/category/zhaket-ta-zhylet/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

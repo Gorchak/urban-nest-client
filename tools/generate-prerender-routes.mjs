@@ -4,15 +4,17 @@ const apiUrl = process.env.PRERENDER_API_URL || 'https://api.uliastore.com.ua/ap
 const routes = new Set(['/', '/new-arrivals']);
 
 const routeSegment = (value) => encodeURIComponent(String(value || ''));
-const categoryRouteSegment = (value) => encodeURIComponent(String(value || '').trim());
+const categoryRouteSegment = (value) => encodeURIComponent(String(value || '')
+  .trim()
+  .toLocaleLowerCase('uk-UA')
+  .replace(/[_\s]+/g, '-')
+  .replace(/-+/g, '-')
+  .replace(/^-|-$/g, ''));
 
 function addCategoryRoute(slug) {
   const segment = categoryRouteSegment(slug);
-  const lowerSegment = segment.toLowerCase();
   routes.add(`/category/${segment}`);
   routes.add(`/category/${segment}/`);
-  routes.add(`/category/${lowerSegment}`);
-  routes.add(`/category/${lowerSegment}/`);
 }
 
 async function fetchJson(path) {

@@ -4,17 +4,32 @@
 
 [[redirects]]
   from = "/category/dekor_dlja_domu/"
-  to = "/category/Dekor_dlja_domu"
+  to = "/category/dekor-dlja-domu"
   status = 301
 
 [[redirects]]
   from = "/category/dekor_dlja_domu"
-  to = "/category/Dekor_dlja_domu"
+  to = "/category/dekor-dlja-domu"
   status = 301
 
 [[redirects]]
   from = "/category/Dekor_dlja_domu/"
-  to = "/category/Dekor_dlja_domu"
+  to = "/category/dekor-dlja-domu"
+  status = 301
+
+[[redirects]]
+  from = "/category/Dekor_dlja_domu"
+  to = "/category/dekor-dlja-domu"
+  status = 301
+
+[[redirects]]
+  from = "/category/futbolki%20i%20topy/"
+  to = "/category/futbolki-i-topy"
+  status = 301
+
+[[redirects]]
+  from = "/category/futbolki%20i%20topy"
+  to = "/category/futbolki-i-topy"
   status = 301
 
 [[redirects]]
