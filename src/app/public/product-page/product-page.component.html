@@ -65,6 +65,32 @@
           <i class="ri-shopping-bag-line"></i>
           {{ addingToCart() ? 'Додаємо...' : 'Додати в кошик' }}
         </button>
+        <button
+          type="button"
+          class="quick-order-button"
+          [disabled]="item.inventory.total_quantity < 1 || (item.inventory.tracked_attribute && !selectedVariant())"
+          (click)="openQuickOrder()"
+        >
+          <i class="ri-flashlight-line"></i>
+          Купити в 1 клік
+        </button>
+        @if (quickOrderNotice()) {
+          <p class="quick-order-notice">{{ quickOrderNotice() }}</p>
+        }
+        <button
+          type="button"
+          class="favorite-button"
+          [class.active]="isFavorite()"
+          [disabled]="favoriteBusy()"
+          [attr.aria-pressed]="isFavorite()"
+          (click)="toggleFavorite()"
+        >
+          <i [class]="isFavorite() ? 'ri-heart-fill' : 'ri-heart-line'"></i>
+          {{ isFavorite() ? 'У вибраному' : 'Додати у вибране' }}
+        </button>
+        @if (favoriteNotice()) {
+          <p class="favorite-notice">{{ favoriteNotice() }}</p>
+        }
 
         <div class="service-notes">
           <span><i class="ri-truck-line"></i> Доставка по Україні</span>
@@ -105,3 +131,10 @@
   }
 </main>
 <app-public-footer />
+<app-one-click-order-dialog
+  [visible]="showQuickOrder()"
+  (visibleChange)="showQuickOrder.set($event)"
+  [product]="product()"
+  [inventoryValueKey]="selectedVariant()"
+  (ordered)="onQuickOrderCreated()"
+/>

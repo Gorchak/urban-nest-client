@@ -1,0 +1,63 @@
+<main>
+  <section class="heading">
+    <span>Кабінет користувача</span>
+    <h1>Вибране</h1>
+  </section>
+
+  @if (!isAuthenticated()) {
+    <section class="auth-state">
+      <i class="ri-heart-line"></i>
+      <h2>Увійдіть, щоб зберігати улюблені товари</h2>
+      <button type="button" (click)="login()">Увійти</button>
+    </section>
+  } @else if (loading()) {
+    <section class="favorites-grid skeleton-grid" aria-label="Завантаження вибраного">
+      @for (_ of [1, 2, 3, 4]; track _) {
+        <article>
+          <span class="skeleton media"></span>
+          <span class="skeleton line short"></span>
+          <span class="skeleton line"></span>
+        </article>
+      }
+    </section>
+  } @else if (error()) {
+    <section class="empty-state">
+      <i class="ri-error-warning-line"></i>
+      <h2>{{ error() }}</h2>
+    </section>
+  } @else if (!favorites().length) {
+    <section class="empty-state">
+      <i class="ri-heart-line"></i>
+      <h2>У вибраному поки немає товарів</h2>
+      <a routerLink="/">Перейти до каталогу <i class="ri-arrow-right-line"></i></a>
+    </section>
+  } @else {
+    <section class="toolbar">
+      <span>{{ favorites().length }} товарів</span>
+    </section>
+
+    <section class="favorites-grid">
+      @for (favorite of favorites(); track favorite.merchandiseId) {
+        <article>
+          <a class="media" [routerLink]="['/product', productSlug(favorite)]">
+            @if (productImage(favorite)) {
+              <img [src]="optimizedUrl(productImage(favorite))" [alt]="productName(favorite)" />
+            } @else {
+              <i class="ri-image-line"></i>
+            }
+          </a>
+          <div class="body">
+            <span>{{ productSku(favorite) }}</span>
+            <h2><a [routerLink]="['/product', productSlug(favorite)]">{{ productName(favorite) }}</a></h2>
+            <strong>{{ productPrice(favorite) }}</strong>
+            <button type="button" [disabled]="removingId() === favorite.merchandiseId" (click)="remove(favorite)">
+              <i class="ri-delete-bin-line"></i>
+              {{ removingId() === favorite.merchandiseId ? 'Видаляємо...' : 'Видалити з вибраного' }}
+            </button>
+          </div>
+        </article>
+      }
+    </section>
+  }
+</main>
+

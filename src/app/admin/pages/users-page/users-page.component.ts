@@ -127,9 +127,19 @@ export class UsersPageComponent implements OnInit {
     this.showProfileDialog.set(true);
   }
 
+  protected openCreateUser(): void {
+    this.selectedUser.set(null);
+    this.showProfileDialog.set(true);
+  }
+
   protected async onUserSaved(user: Auth0User): Promise<void> {
     this.zone.run(() => {
-      this.users.update((items) => items.map((item) => (item.userId === user.userId ? { ...user } : item)));
+      this.users.update((items) => {
+        const exists = items.some((item) => item.userId === user.userId);
+        return exists
+          ? items.map((item) => (item.userId === user.userId ? { ...user } : item))
+          : [{ ...user }, ...items];
+      });
       this.selectedUser.set({ ...user });
       this.cdr.detectChanges();
     });
@@ -141,7 +151,10 @@ export class UsersPageComponent implements OnInit {
     return [metadata.lastName, metadata.firstName, metadata.middleName].filter(Boolean).join(' ').trim()
       || user.name
       || user.nickname
-      || user.email;
+      || user.email
+      || user.phoneNumber
+      || metadata.phone
+      || user.userId;
   }
 
   protected providerLabel(user: Auth0User): string {

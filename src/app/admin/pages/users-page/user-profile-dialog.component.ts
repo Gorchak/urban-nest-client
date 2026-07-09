@@ -135,6 +135,12 @@ export class UserProfileDialogComponent implements OnChanges {
       this.selectedNovaPoshtaCity.set(null);
       this.selectedNovaPoshtaWarehouse.set(null);
       void this.prepareNovaPoshtaData();
+    } else if ((changes['visible']?.currentValue || changes['user']) && this.visible && !this.user) {
+      this.editable.set(emptyProfile());
+      this.selectedNovaPoshtaCity.set(null);
+      this.selectedNovaPoshtaWarehouse.set(null);
+      this.novaPoshtaCities.set([]);
+      this.novaPoshtaWarehouses.set([]);
     }
   }
 
@@ -248,17 +254,26 @@ export class UserProfileDialogComponent implements OnChanges {
   }
 
   protected async save(): Promise<void> {
-    if (!this.user) return;
     const current = this.editable();
+    const email = current.email.trim();
+    const phone = current.phone.trim();
+    if (!this.user && !email && !phone) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Перевірте дані',
+        detail: 'Вкажіть email або номер телефону',
+      });
+      return;
+    }
 
     this.saving.set(true);
     try {
       const userMetadata: UserProfileMetadata = {
-        ...(this.user.userMetadata || {}),
+        ...(this.user?.userMetadata || {}),
         firstName: current.firstName.trim(),
         lastName: current.lastName.trim(),
         middleName: current.middleName.trim(),
-        phone: current.phone.trim(),
+        phone,
         residentialAddress: current.residentialAddress.trim(),
         avatarUrl: current.avatarUrl.trim(),
         delivery: current.delivery,
@@ -274,11 +289,16 @@ export class UserProfileDialogComponent implements OnChanges {
           ...this.customFieldsToMetadata(current.customFields),
         };
       }
-      const email = current.email.trim();
-      if (email && email.toLowerCase() !== this.user.email.toLowerCase()) payload.email = email;
+      if (email && (!this.user || email.toLowerCase() !== this.user.email.toLowerCase())) payload.email = email;
 
-      const saved = await this.usersService.updateUser(this.user.userId, payload);
-      if (current.password.trim()) {
+      const saved = this.user
+        ? await this.usersService.updateUser(this.user.userId, payload)
+        : await this.usersService.createUser({
+            ...payload,
+            phone,
+            password: current.password.trim() || undefined,
+          });
+      if (this.user && current.password.trim()) {
         await this.usersService.updatePassword(this.user.userId, current.password.trim());
       }
 

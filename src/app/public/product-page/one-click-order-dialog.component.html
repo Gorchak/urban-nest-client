@@ -1,0 +1,44 @@
+@if (visible) {
+  <div class="quick-order-backdrop" (click)="close()">
+    <section class="quick-order-dialog" role="dialog" aria-modal="true" aria-labelledby="quick-order-title" (click)="$event.stopPropagation()">
+      <button type="button" class="close-button" aria-label="Закрити" (click)="close()">
+        <i class="ri-close-line"></i>
+      </button>
+
+      @if (success()) {
+        <div class="success-state">
+          <i class="ri-checkbox-circle-line"></i>
+          <h2 id="quick-order-title">Дякуємо за Ваш вибір</h2>
+          <p>Менеджер звʼяжеться з Вами найближчим часом для підтвердження замовлення.</p>
+          <button type="button" class="primary-button" (click)="close()">Готово</button>
+        </div>
+      } @else {
+        <span class="eyebrow">Швидке замовлення</span>
+        <h2 id="quick-order-title">Купити в 1 клік</h2>
+        @if (product) {
+          <p class="product-name">{{ product.name }}</p>
+        }
+
+        <label>
+          Номер телефону
+          <input
+            type="tel"
+            inputmode="tel"
+            autocomplete="tel"
+            placeholder="+380"
+            [ngModel]="phone()"
+            (ngModelChange)="phone.set($event); error.set(null)"
+          />
+        </label>
+
+        @if (error()) {
+          <p class="error-message">{{ error() }}</p>
+        }
+
+        <button type="button" class="primary-button" [disabled]="loading()" (click)="submit()">
+          {{ loading() ? 'Відправляємо...' : 'Підтвердити замовлення' }}
+        </button>
+      }
+    </section>
+  </div>
+}

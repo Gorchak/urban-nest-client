@@ -12,13 +12,15 @@ import { PublicProductCardComponent } from '../shared/public-product-card.compon
 import { PublicFooterComponent } from '../shared/public-footer.component';
 import { RecentlyViewedService } from '../services/recently-viewed.service';
 import { CartService } from '../../core/services/cart.service';
+import { FavoritesService } from '../../core/services/favorites.service';
 import { formatCurrency } from '../../core/utils/price-format';
 import { toRouteSlug } from '../../core/utils/route-slug';
+import { OneClickOrderDialogComponent } from './one-click-order-dialog.component';
 
 @Component({
   selector: 'app-product-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, PublicProductCardComponent, PublicFooterComponent],
+  imports: [CommonModule, RouterLink, PublicProductCardComponent, PublicFooterComponent, OneClickOrderDialogComponent],
   templateUrl: './product-page.component.html',
   styleUrl: './product-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,6 +33,7 @@ export class ProductPageComponent implements OnInit, OnDestroy {
   private structuredData = inject(StructuredDataService);
   private recentlyViewedService = inject(RecentlyViewedService);
   private cartService = inject(CartService);
+  private favoritesService = inject(FavoritesService);
   private cdr = inject(ChangeDetectorRef);
   private routeSubscription?: Subscription;
 
@@ -42,6 +45,10 @@ export class ProductPageComponent implements OnInit, OnDestroy {
   protected activeImage = signal(0);
   protected selectedVariant = signal<string | null>(null);
   protected addingToCart = signal(false);
+  protected favoriteBusy = signal(false);
+  protected favoriteNotice = signal<string | null>(null);
+  protected showQuickOrder = signal(false);
+  protected quickOrderNotice = signal<string | null>(null);
 
   protected availableVariants = computed(() =>
     (this.product()?.inventory?.attribute_quantities ?? []).filter((row) => row.quantity > 0),
@@ -54,6 +61,10 @@ export class ProductPageComponent implements OnInit, OnDestroy {
     return product
       ? this.allProducts().filter((item) => item._id !== product._id && item.categoryId === product.categoryId && item.isActive && item.isVisible).slice(0, 5)
       : [];
+  });
+  protected isFavorite = computed(() => {
+    const product = this.product();
+    return product ? this.favoritesService.has(product._id) : false;
   });
   protected displaySpecifications = computed(() => {
     const product = this.product();
@@ -75,6 +86,7 @@ export class ProductPageComponent implements OnInit, OnDestroy {
     this.error.set(null);
     this.activeImage.set(0);
     this.selectedVariant.set(null);
+    this.quickOrderNotice.set(null);
     try {
       const slug = this.route.snapshot.paramMap.get('slug');
       if (!slug) throw new Error('Товар не знайдено');
@@ -115,6 +127,7 @@ export class ProductPageComponent implements OnInit, OnDestroy {
       const firstAvailable = product.inventory?.attribute_quantities?.find((row) => row.quantity > 0);
       this.selectedVariant.set(firstAvailable?.value_key ?? null);
       this.recentlyViewedService.add(product);
+      void this.loadFavorites();
     } catch (error: any) {
       this.error.set(error?.message ?? 'Не вдалося завантажити товар');
     } finally {
@@ -140,6 +153,40 @@ export class ProductPageComponent implements OnInit, OnDestroy {
       this.addingToCart.set(false);
     }
   }
+  protected openQuickOrder(): void {
+    this.quickOrderNotice.set(null);
+    this.showQuickOrder.set(true);
+  }
+  protected onQuickOrderCreated(): void {
+    this.quickOrderNotice.set('Дякуємо! Ми отримали Ваше замовлення і скоро звʼяжемося з Вами.');
+    this.cdr.markForCheck();
+  }
+  protected async toggleFavorite(): Promise<void> {
+    const product = this.product();
+    if (!product || this.favoriteBusy()) return;
+
+    this.favoriteBusy.set(true);
+    this.favoriteNotice.set(null);
+    try {
+      if (!(await this.favoritesService.isAuthenticated())) {
+        this.favoritesService.login(`/product/${product.slug}`);
+        return;
+      }
+
+      if (this.isFavorite()) {
+        await this.favoritesService.remove(product._id);
+        this.favoriteNotice.set('Товар видалено з вибраного');
+      } else {
+        await this.favoritesService.add(product._id);
+        this.favoriteNotice.set('Товар додано у вибране');
+      }
+    } catch (error: any) {
+      this.favoriteNotice.set(error?.error?.message || 'Не вдалося оновити вибране');
+    } finally {
+      this.favoriteBusy.set(false);
+      this.cdr.markForCheck();
+    }
+  }
   protected hasDiscount(product: Merchandise): boolean { return merchandiseHasDiscount(product); }
   protected finalPrice(product: Merchandise): number { return getDiscountedPrice(product); }
   protected formatPrice(product: Merchandise, value = getDiscountedPrice(product)): string {
@@ -158,5 +205,14 @@ export class ProductPageComponent implements OnInit, OnDestroy {
     const value = spec.value;
     const values = Array.isArray(value) ? value : [value];
     return values.map((item) => definition?.options?.find((option) => option.value === String(item))?.label ?? String(item)).join(', ');
+  }
+
+  private async loadFavorites(): Promise<void> {
+    try {
+      await this.favoritesService.load();
+      this.cdr.markForCheck();
+    } catch {
+      this.favoritesService.favorites.set([]);
+    }
   }
 }

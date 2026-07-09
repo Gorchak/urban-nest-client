@@ -5,11 +5,11 @@
   [draggable]="false"
   [resizable]="false"
   styleClass="profile-form-dialog"
-  header="Профіль користувача"
+  [header]="user ? 'Профіль користувача' : 'Додати користувача'"
   [style]="{ width: '980px', maxWidth: '98vw' }"
   appendTo="body"
 >
-  @if (user) {
+  @if (visible) {
     <div class="profile-form">
       <section>
         <h3>Основне</h3>
@@ -17,12 +17,12 @@
           <label>Email<input pInputText type="email" [ngModel]="editable().email" (ngModelChange)="patch({ email: $event })" /></label>
           <label>Прізвище<input pInputText [ngModel]="editable().lastName" (ngModelChange)="patch({ lastName: $event })" /></label>
           <label>Ім'я<input pInputText [ngModel]="editable().firstName" (ngModelChange)="patch({ firstName: $event })" /></label>
-          <label>По-батькові<input pInputText [ngModel]="editable().middleName" (ngModelChange)="patch({ middleName: $event })" /></label>
+          <label>По батькові<input pInputText [ngModel]="editable().middleName" (ngModelChange)="patch({ middleName: $event })" /></label>
           <label>Телефон<input pInputText [ngModel]="editable().phone" (ngModelChange)="patch({ phone: $event })" /></label>
           <label class="span-2">Адреса проживання<textarea pInputTextarea rows="2" [ngModel]="editable().residentialAddress" (ngModelChange)="patch({ residentialAddress: $event })"></textarea></label>
         </div>
         <app-single-image-picker
-          label="Аватарка"
+          label="Аватар"
           placeholder="https://..."
           [ngModel]="editable().avatarUrl"
           (ngModelChange)="patch({ avatarUrl: $event })"
@@ -147,14 +147,16 @@
               placeholder="Мінімум 8 символів"
             />
           </label>
-          <p-button
-            label="Надіслати відновлення"
-            icon="pi pi-envelope"
-            severity="secondary"
-            [outlined]="true"
-            [loading]="resettingPassword()"
-            (onClick)="sendPasswordReset()"
-          />
+          @if (user) {
+            <p-button
+              label="Надіслати відновлення"
+              icon="pi pi-envelope"
+              severity="secondary"
+              [outlined]="true"
+              [loading]="resettingPassword()"
+              (onClick)="sendPasswordReset()"
+            />
+          }
         </div>
       </section>
     </div>

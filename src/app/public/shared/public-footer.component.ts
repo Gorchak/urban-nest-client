@@ -34,7 +34,7 @@ import { toRouteSlug } from '../../core/utils/route-slug';
           <span>Покупцям</span>
           <a routerLink="/">Новинки</a>
           <a routerLink="/checkout">Оформлення замовлення</a>
-          <a href="mailto:gorchakua@gmail.com">Зв'язатися з нами</a>
+          <a href="mailto:Uliaconcept@gmail.com">Зв'язатися з нами</a>
           <a href="tel:+380000000000">+38 000 000 00 00</a>
         </nav>
 

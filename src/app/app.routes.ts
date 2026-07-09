@@ -29,6 +29,10 @@ export const routes: Routes = [
     path: 'purchase-history',
     loadComponent: () => import('./public/purchase-history-page/purchase-history-page.component').then((module) => module.PurchaseHistoryPageComponent),
   },
+  {
+    path: 'favorites',
+    loadComponent: () => import('./public/favorites-page/favorites-page.component').then((module) => module.FavoritesPageComponent),
+  },
   { path: 'admin/access', component: AdminAccessPageComponent },
   { path: 'admin', redirectTo: 'admin/users', pathMatch: 'full' },
   { path: 'admin/categories', component: AdminCategoriesPageWithTabsComponent },

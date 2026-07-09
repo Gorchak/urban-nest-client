@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   CreateSaleDto,
+  QuickOrderDto,
   Sale,
   SaleListFilter,
   SaleListResponse,
@@ -95,6 +96,13 @@ export class SalesService {
   async checkout(data: CreateSaleDto): Promise<Sale> {
     const response = await firstValueFrom(
       this.http.post<ApiResponse<Sale>>(`${this.apiUrl}/checkout`, data),
+    );
+    return response.data;
+  }
+
+  async quickOrder(data: QuickOrderDto): Promise<Sale> {
+    const response = await firstValueFrom(
+      this.http.post<ApiResponse<Sale>>(`${this.apiUrl}/quick-order`, data),
     );
     return response.data;
   }

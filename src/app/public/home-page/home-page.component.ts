@@ -11,6 +11,7 @@ import { toRouteSlug } from '../../core/utils/route-slug';
 import { PublicProductCardComponent } from '../shared/public-product-card.component';
 import { PublicFooterComponent } from '../shared/public-footer.component';
 import { RecentlyViewedService } from '../services/recently-viewed.service';
+import { FavoritesService } from '../../core/services/favorites.service';
 
 interface CategorySection {
   category: Category;
@@ -40,6 +41,7 @@ export class HomePageComponent implements OnInit {
   private merchandiseService = inject(MerchandiseService);
   private seo = inject(SeoService);
   private recentlyViewedService = inject(RecentlyViewedService);
+  private favoritesService = inject(FavoritesService);
   private cdr = inject(ChangeDetectorRef);
 
   protected categories = signal<Category[]>([]);
@@ -92,6 +94,12 @@ export class HomePageComponent implements OnInit {
   });
 
   protected recentlyViewed = computed(() => this.recentlyViewedService.resolve(this.merchandise()).slice(0, 5));
+  protected favoriteProducts = computed(() =>
+    this.favoritesService.favorites()
+      .map((favorite) => favorite.product)
+      .filter((product): product is Merchandise => Boolean(product && 'inventory' in product))
+      .slice(0, 5),
+  );
 
   async ngOnInit(): Promise<void> {
     this.seo.setPage({
@@ -122,6 +130,7 @@ export class HomePageComponent implements OnInit {
       this.categories.set(categories);
       const products = new Map([...merchandiseResult.data, ...newArrivalsResult.data].map((product) => [product._id, product]));
       this.merchandise.set([...products.values()]);
+      void this.loadFavorites();
     } catch {
       this.error.set('Не вдалося завантажити каталог. Спробуйте оновити сторінку.');
     } finally {
@@ -158,5 +167,14 @@ export class HomePageComponent implements OnInit {
       }
     }
     return ids;
+  }
+
+  private async loadFavorites(): Promise<void> {
+    try {
+      await this.favoritesService.load();
+      this.cdr.markForCheck();
+    } catch {
+      this.favoritesService.favorites.set([]);
+    }
   }
 }

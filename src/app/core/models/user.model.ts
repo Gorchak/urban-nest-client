@@ -36,6 +36,8 @@ export interface Auth0User {
   userId: string;
   email: string;
   emailVerified: boolean;
+  phoneNumber?: string;
+  phoneVerified?: boolean;
   name: string;
   nickname: string;
   picture: string;
@@ -63,4 +65,9 @@ export interface UpdateAuth0UserDto {
   name?: string;
   userMetadata?: UserProfileMetadata;
   appMetadata?: UserAppMetadata;
+}
+
+export interface CreateAuth0UserDto extends UpdateAuth0UserDto {
+  phone?: string;
+  password?: string;
 }

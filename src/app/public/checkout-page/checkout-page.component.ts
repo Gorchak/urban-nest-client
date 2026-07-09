@@ -20,6 +20,8 @@ interface CheckoutForm {
   paymentMethod: SalePaymentMethod; notes: string; doNotCall: boolean;
 }
 
+type CheckoutFormErrors = Partial<Record<keyof CheckoutForm, string>>;
+
 const emptyForm = (): CheckoutForm => ({
   firstName: '', lastName: '', email: '', phone: '',
   deliveryService: 'nova_poshta', areaRef: '', region: '', cityRef: '', city: '',
@@ -57,7 +59,9 @@ export class CheckoutPageComponent implements OnInit {
   protected cities = signal<NovaPoshtaCity[]>([]);
   protected warehouses = signal<NovaPoshtaWarehouse[]>([]);
   protected form = signal<CheckoutForm>(emptyForm());
+  protected formErrors = signal<CheckoutFormErrors>({});
 
+  @ViewChild('checkoutForm') private checkoutForm?: ElementRef<HTMLElement>;
   @ViewChild('googlePayButton')
   set googlePayButton(element: ElementRef<HTMLElement> | undefined) {
     this.googlePayButtonContainer = element ?? null;
@@ -76,7 +80,16 @@ export class CheckoutPageComponent implements OnInit {
     if (this.form().cityRef) await this.onCityChange(this.form().cityRef, true);
   }
 
-  protected patch(patch: Partial<CheckoutForm>): void { this.form.update((form) => ({ ...form, ...patch })); }
+  protected patch(patch: Partial<CheckoutForm>): void {
+    this.form.update((form) => ({ ...form, ...patch }));
+    this.formErrors.update((errors) => {
+      const next = { ...errors };
+      Object.keys(patch).forEach((key) => delete next[key as keyof CheckoutForm]);
+      return next;
+    });
+  }
+  protected fieldError(field: keyof CheckoutForm): string { return this.formErrors()[field] || ''; }
+  protected hasFieldError(field: keyof CheckoutForm): boolean { return Boolean(this.formErrors()[field]); }
   protected login(): void { this.auth.loginWithRedirect({ appState: { target: '/checkout' } }); }
   protected requiresStreet(): boolean { return this.form().deliveryService === 'courier'; }
   protected formatPrice(value: number): string {
@@ -113,6 +126,10 @@ export class CheckoutPageComponent implements OnInit {
     const cart = this.cartService.cart();
     const form = this.form();
     if (!cart?.items.length) return;
+    if (!this.validateForm(form)) {
+      this.scrollToFormTop();
+      return;
+    }
     this.submitting.set(true);
     this.error.set(null);
     try {
@@ -150,6 +167,30 @@ export class CheckoutPageComponent implements OnInit {
     } catch (error: any) {
       this.error.set(error?.error?.message || error?.message || 'Не вдалося оформити замовлення');
     } finally { this.submitting.set(false); }
+  }
+
+  private validateForm(form: CheckoutForm): boolean {
+    const errors: CheckoutFormErrors = {};
+    if (!form.firstName.trim()) errors.firstName = 'Вкажіть імʼя';
+    if (!form.phone.trim()) errors.phone = 'Вкажіть номер телефону';
+    if (form.deliveryService === 'nova_poshta') {
+      if (!form.areaRef) errors.areaRef = 'Оберіть область';
+      if (!form.cityRef) errors.cityRef = 'Оберіть місто';
+      if (!form.warehouseRef) errors.warehouseRef = 'Оберіть відділення';
+    }
+    if (form.deliveryService === 'courier') {
+      if (!form.city.trim()) errors.city = 'Вкажіть місто';
+      if (!form.street.trim()) errors.street = 'Вкажіть вулицю';
+      if (!form.building.trim()) errors.building = 'Вкажіть будинок / квартиру';
+    }
+
+    this.formErrors.set(errors);
+    return Object.keys(errors).length === 0;
+  }
+
+  private scrollToFormTop(): void {
+    const firstInvalid = this.checkoutForm?.nativeElement.querySelector('.field-error') as HTMLElement | null;
+    (firstInvalid || this.checkoutForm?.nativeElement)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   private async initGooglePay(): Promise<void> {

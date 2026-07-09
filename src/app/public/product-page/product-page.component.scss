@@ -211,6 +211,57 @@ main {
   text-transform: uppercase;
 }
 .add-to-cart:disabled { opacity: 0.45; cursor: not-allowed; }
+.quick-order-button {
+  width: 100%;
+  min-height: 50px;
+  margin-top: .75rem;
+  padding: .95rem 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  border: 1px solid var(--un-accent, #9f3526);
+  background: var(--un-accent, #9f3526);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.quick-order-button:disabled { opacity: .45; cursor: not-allowed; }
+.quick-order-notice {
+  margin: .65rem 0 0;
+  color: var(--un-green, #3f6f4a);
+  font-size: 12px;
+}
+.favorite-button {
+  width: 100%;
+  min-height: 50px;
+  margin-top: .75rem;
+  padding: .95rem 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  border: 1px solid var(--un-ink, #181713);
+  background: transparent;
+  color: var(--un-ink, #181713);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.favorite-button i { font-size: 17px; }
+.favorite-button.active {
+  border-color: var(--un-accent, #9f3526);
+  color: var(--un-accent, #9f3526);
+}
+.favorite-button:disabled { opacity: .55; cursor: wait; }
+.favorite-notice {
+  margin: .65rem 0 0;
+  color: var(--un-muted, rgba(24, 23, 19, .62));
+  font-size: 12px;
+}
 .details {
   position: relative;
   margin-top: clamp(4rem, 7vw, 7rem);
@@ -325,6 +376,7 @@ main {
   .variants__head { gap:1rem; }
   .variants button { min-width:58px;min-height:48px; }
   .add-to-cart { min-height:52px;margin-top:1.5rem; }
+  .favorite-button { min-height:50px; }
   .service-notes { margin-top:2rem; }
   .details {
     margin-top:4rem;

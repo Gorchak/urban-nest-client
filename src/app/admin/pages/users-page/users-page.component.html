@@ -4,7 +4,7 @@
   <div class="users-page">
     <div class="page-header">
       <div>
-        <h1>Потрібно залогінитись</h1>
+        <h1>Потрібно увійти</h1>
         <p>Увійдіть через Auth0, щоб переглядати користувачів.</p>
       </div>
       <p-button label="Увійти" icon="pi pi-sign-in" (onClick)="login()" />
@@ -17,7 +17,10 @@
       <h1>Користувачі</h1>
       <p>Профілі, права доступу і дані доставки з Auth0</p>
     </div>
-    <p-button label="Оновити" icon="pi pi-refresh" severity="secondary" [outlined]="true" (onClick)="loadUsers()" />
+    <div class="header-actions">
+      <p-button label="Додати користувача" icon="pi pi-plus" (onClick)="openCreateUser()" />
+      <p-button label="Оновити" icon="pi pi-refresh" severity="secondary" [outlined]="true" (onClick)="loadUsers()" />
+    </div>
   </div>
 
   <div class="users-toolbar">
@@ -27,7 +30,7 @@
         pInputText
         [ngModel]="search()"
         (ngModelChange)="onSearchChange($event)"
-        placeholder="Пошук за email, іменем або нікнеймом..."
+        placeholder="Пошук за email, телефоном, іменем або нікнеймом..."
       />
     </p-iconField>
   </div>

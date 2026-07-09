@@ -19,6 +19,18 @@ label { display: grid; gap: .55rem; font-size: 14px; font-weight: 700; line-heig
 input, select, textarea { width: 100%; padding: 1rem; border: 1px solid rgba(23, 23, 20, .35); background: transparent; font: inherit; font-size: 16px; }
 select { cursor: pointer; }
 textarea { resize: vertical; }
+.field-error input,
+.field-error select,
+.field-error textarea {
+  border-color: #b33b2e;
+  background: rgba(179, 59, 46, .06);
+}
+.field-error small {
+  color: #b33b2e;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
 .checkbox { display: flex; align-items: center; gap: .7rem; margin-top: 1.25rem; cursor: pointer; }
 .checkbox input { width: 19px; height: 19px; margin: 0; accent-color: #171714; }
 .delivery-note { margin: 1rem 0 0; padding: 1rem; border: 1px solid rgba(23, 23, 20, .2); font-size: 15px; line-height: 1.5; }

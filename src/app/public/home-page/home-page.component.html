@@ -69,6 +69,18 @@
           }
         </div>
 
+        @if (!searchQuery() && favoriteProducts().length) {
+          <section class="favorites">
+            <header class="section-header">
+              <div><span class="eyebrow">Збережені речі</span><h2>Вибране</h2></div>
+              <a routerLink="/favorites">Усе вибране <i class="ri-arrow-right-line"></i></a>
+            </header>
+            <div class="products">
+              @for (product of favoriteProducts(); track product._id) { <app-public-product-card [product]="product" /> }
+            </div>
+          </section>
+        }
+
         @if (!searchQuery() && recentlyViewed().length) {
           <section class="recently-viewed">
             <header class="section-header">

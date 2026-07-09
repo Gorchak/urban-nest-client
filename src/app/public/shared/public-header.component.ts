@@ -89,6 +89,7 @@ import { toRouteSlug } from '../../core/utils/route-slug';
               @if (canAccessAdmin()) {
                 <a class="profile-admin-link" routerLink="/admin" (click)="profileMenuOpen.set(false)"><i class="ri-dashboard-line"></i> Адмін-панель</a>
               }
+              <a class="profile-admin-link" routerLink="/favorites" (click)="profileMenuOpen.set(false)"><i class="ri-heart-line"></i> Вибране</a>
               <a class="profile-admin-link" routerLink="/purchase-history" (click)="profileMenuOpen.set(false)"><i class="ri-file-list-3-line"></i> Історія замовлень</a>
               <button type="button" (click)="openProfileSettings()"><i class="ri-settings-3-line"></i> Налаштування</button>
               <button type="button" class="logout" (click)="logout()"><i class="ri-logout-box-r-line"></i> Вийти</button>

@@ -181,9 +181,11 @@ main {
   padding: 2rem 0 clamp(5rem, 10vw, 10rem);
 }
 .product-row .section-header h2,
+.favorites .section-header h2,
 .recently-viewed .section-header h2 {
   font-size: clamp(2.5rem, 5vw, 5rem);
 }
+.favorites,
 .recently-viewed {
   padding-top: clamp(2rem, 5vw, 5rem);
 }
@@ -274,6 +276,7 @@ main {
   .section-header h1,
   .section-header h2,
   .product-row .section-header h2,
+  .favorites .section-header h2,
   .recently-viewed .section-header h2 {
     font-size: clamp(2.75rem, 14vw, 4.4rem);
     line-height: .92;

@@ -102,8 +102,17 @@ export interface Sale {
   deletedAt: string | null;
 }
 
-export type CreateSaleDto = Omit<Sale, '_id' | 'createdAt' | 'updatedAt' | 'deletedAt'>;
+export type CreateSaleDto = Omit<Sale, '_id' | 'createdAt' | 'updatedAt' | 'deletedAt'> & {
+  guestId?: string;
+  quickOrder?: boolean;
+};
 export type UpdateSaleDto = Partial<CreateSaleDto>;
+
+export interface QuickOrderDto {
+  phone: string;
+  merchandiseId: string;
+  inventoryValueKey?: string | null;
+}
 
 export interface SaleListFilter {
   search?: string;

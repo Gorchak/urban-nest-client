@@ -1,13 +1,21 @@
 <main>
   @if (successOrder()) {
-    <section class="success"><i class="ri-checkbox-circle-line"></i><h1>Дякуємо за замовлення</h1><p>Номер замовлення: <strong>{{ successOrder() }}</strong></p><a routerLink="/">Повернутися до покупок</a></section>
+    <section class="success">
+      <i class="ri-checkbox-circle-line"></i>
+      <h1>Дякуємо за замовлення</h1>
+      <p>Номер замовлення: <strong>{{ successOrder() }}</strong></p>
+      <a routerLink="/">Повернутися до покупок</a>
+    </section>
   } @else {
     <header class="heading">
       <div><span>Checkout</span><h1>Оформлення замовлення</h1></div>
-      @if (!isAuthenticated()) { <button type="button" class="login-button" (click)="login()"><i class="ri-login-box-line"></i> Увійти</button> }
+      @if (!isAuthenticated()) {
+        <button type="button" class="login-button" (click)="login()"><i class="ri-login-box-line"></i> Увійти</button>
+      }
     </header>
+
     <div class="layout">
-      <form (ngSubmit)="submit()">
+      <form #checkoutForm (ngSubmit)="submit()" novalidate>
         @if (!cartService.itemCount()) {
           <div class="empty-cart-notice">
             <i class="ri-shopping-bag-line"></i>
@@ -18,35 +26,148 @@
             <a routerLink="/">Перейти до покупок</a>
           </div>
         }
-        <section><h2>Контактні дані</h2><div class="grid">
-          <label>Ім'я<input required [ngModel]="form().firstName" (ngModelChange)="patch({firstName:$event})" name="firstName" /></label>
-          <label>Прізвище<input [ngModel]="form().lastName" (ngModelChange)="patch({lastName:$event})" name="lastName" /></label>
-          <label>Email<input type="email" [ngModel]="form().email" (ngModelChange)="patch({email:$event})" name="email" /></label>
-          <label>Телефон<input required type="tel" [ngModel]="form().phone" (ngModelChange)="patch({phone:$event})" name="phone" /></label>
-        </div></section>
-        <section><h2>Доставка</h2><div class="grid">
-          <label>Спосіб доставки<select [ngModel]="form().deliveryService" (ngModelChange)="onDeliveryChange($event)" name="delivery"><option value="nova_poshta">Нова пошта</option><option value="courier">Кур'єр</option><option value="pickup">Самовивіз</option></select></label>
-          @if (form().deliveryService === 'nova_poshta') {
-            <label>Область<select [disabled]="novaPoshtaLoading()" [ngModel]="form().areaRef" (ngModelChange)="onAreaChange($event)" name="areaRef"><option value="">Оберіть область</option>@for(area of areas();track area.Ref){<option [value]="area.Ref">{{area.Description}}</option>}</select></label>
-            <label>Місто<select [disabled]="!form().areaRef || novaPoshtaLoading()" [ngModel]="form().cityRef" (ngModelChange)="onCityChange($event)" name="cityRef"><option value="">Оберіть місто</option>@for(city of cities();track city.Ref){<option [value]="city.Ref">{{city.Description}}</option>}</select></label>
-            <label>Відділення<select [disabled]="!form().cityRef || novaPoshtaLoading()" [ngModel]="form().warehouseRef" (ngModelChange)="onWarehouseChange($event)" name="warehouseRef"><option value="">Оберіть відділення</option>@for(warehouse of warehouses();track warehouse.Ref){<option [value]="warehouse.Ref">{{warehouse.Description}}</option>}</select></label>
-          } @else if (form().deliveryService === 'pickup') {
-            <p class="delivery-note">Після оформлення ми повідомимо адресу та час самовивозу.</p>
-          } @else {
-            <label>Область<input [ngModel]="form().region" (ngModelChange)="patch({region:$event})" name="region" /></label>
-            <label>Місто<input required [ngModel]="form().city" (ngModelChange)="patch({city:$event})" name="city" /></label>
+
+        <section>
+          <h2>Контактні дані</h2>
+          <div class="grid">
+            <label [class.field-error]="hasFieldError('firstName')">
+              Ім'я
+              <input [ngModel]="form().firstName" (ngModelChange)="patch({ firstName: $event })" name="firstName" />
+              @if (fieldError('firstName')) { <small>{{ fieldError('firstName') }}</small> }
+            </label>
+            <label>
+              Прізвище
+              <input [ngModel]="form().lastName" (ngModelChange)="patch({ lastName: $event })" name="lastName" />
+            </label>
+            <label>
+              Email
+              <input type="email" [ngModel]="form().email" (ngModelChange)="patch({ email: $event })" name="email" />
+            </label>
+            <label [class.field-error]="hasFieldError('phone')">
+              Телефон
+              <input type="tel" [ngModel]="form().phone" (ngModelChange)="patch({ phone: $event })" name="phone" />
+              @if (fieldError('phone')) { <small>{{ fieldError('phone') }}</small> }
+            </label>
+          </div>
+        </section>
+
+        <section>
+          <h2>Доставка</h2>
+          <div class="grid">
+            <label>
+              Спосіб доставки
+              <select [ngModel]="form().deliveryService" (ngModelChange)="onDeliveryChange($event)" name="delivery">
+                <option value="nova_poshta">Нова пошта</option>
+                <option value="courier">Кур'єр</option>
+                <option value="pickup">Самовивіз</option>
+              </select>
+            </label>
+
+            @if (form().deliveryService === 'nova_poshta') {
+              <label [class.field-error]="hasFieldError('areaRef')">
+                Область
+                <select [disabled]="novaPoshtaLoading()" [ngModel]="form().areaRef" (ngModelChange)="onAreaChange($event)" name="areaRef">
+                  <option value="">Оберіть область</option>
+                  @for (area of areas(); track area.Ref) { <option [value]="area.Ref">{{ area.Description }}</option> }
+                </select>
+                @if (fieldError('areaRef')) { <small>{{ fieldError('areaRef') }}</small> }
+              </label>
+              <label [class.field-error]="hasFieldError('cityRef')">
+                Місто
+                <select [disabled]="!form().areaRef || novaPoshtaLoading()" [ngModel]="form().cityRef" (ngModelChange)="onCityChange($event)" name="cityRef">
+                  <option value="">Оберіть місто</option>
+                  @for (city of cities(); track city.Ref) { <option [value]="city.Ref">{{ city.Description }}</option> }
+                </select>
+                @if (fieldError('cityRef')) { <small>{{ fieldError('cityRef') }}</small> }
+              </label>
+              <label [class.field-error]="hasFieldError('warehouseRef')">
+                Відділення
+                <select [disabled]="!form().cityRef || novaPoshtaLoading()" [ngModel]="form().warehouseRef" (ngModelChange)="onWarehouseChange($event)" name="warehouseRef">
+                  <option value="">Оберіть відділення</option>
+                  @for (warehouse of warehouses(); track warehouse.Ref) { <option [value]="warehouse.Ref">{{ warehouse.Description }}</option> }
+                </select>
+                @if (fieldError('warehouseRef')) { <small>{{ fieldError('warehouseRef') }}</small> }
+              </label>
+            } @else if (form().deliveryService === 'pickup') {
+              <p class="delivery-note">Після оформлення ми повідомимо адресу та час самовивозу.</p>
+            } @else {
+              <label>
+                Область
+                <input [ngModel]="form().region" (ngModelChange)="patch({ region: $event })" name="region" />
+              </label>
+              <label [class.field-error]="hasFieldError('city')">
+                Місто
+                <input [ngModel]="form().city" (ngModelChange)="patch({ city: $event })" name="city" />
+                @if (fieldError('city')) { <small>{{ fieldError('city') }}</small> }
+              </label>
+            }
+
+            @if (requiresStreet()) {
+              <label [class.field-error]="hasFieldError('street')">
+                Вулиця
+                <input [ngModel]="form().street" (ngModelChange)="patch({ street: $event })" name="street" />
+                @if (fieldError('street')) { <small>{{ fieldError('street') }}</small> }
+              </label>
+              <label [class.field-error]="hasFieldError('building')">
+                Будинок / квартира
+                <input [ngModel]="form().building" (ngModelChange)="patch({ building: $event })" name="building" />
+                @if (fieldError('building')) { <small>{{ fieldError('building') }}</small> }
+              </label>
+            }
+          </div>
+        </section>
+
+        <section>
+          <h2>Оплата</h2>
+          <label>
+            Спосіб оплати
+            <select [ngModel]="form().paymentMethod" (ngModelChange)="patch({ paymentMethod: $event })" name="payment">
+              <option value="cash_on_delivery">При отриманні</option>
+              <option value="bank_transfer">Банківський переказ</option>
+              <option value="card">Карткою</option>
+              <option value="google_pay">Google Pay</option>
+            </select>
+          </label>
+          @if (form().paymentMethod === 'google_pay') {
+            <div class="google-pay-box">
+              @if (googlePayLoading()) { <p>Перевіряємо доступність Google Pay...</p> }
+              @else if (googlePayAvailable()) { <div #googlePayButton class="google-pay-button"></div><small>Підтримуються VISA та Mastercard у гривні.</small> }
+              @else { <p>Google Pay зараз недоступний для цього пристрою або браузера.</p> }
+              @if (googlePayError()) { <p class="google-pay-error">{{ googlePayError() }}</p> }
+            </div>
           }
-          @if (requiresStreet()) {
-            <label>Вулиця<input required [ngModel]="form().street" (ngModelChange)="patch({street:$event})" name="street" /></label>
-            <label>Будинок / квартира<input required [ngModel]="form().building" (ngModelChange)="patch({building:$event})" name="building" /></label>
-          }
-        </div></section>
-        <section><h2>Оплата</h2><label>Спосіб оплати<select [ngModel]="form().paymentMethod" (ngModelChange)="patch({paymentMethod:$event})" name="payment"><option value="cash_on_delivery">При отриманні</option><option value="bank_transfer">Банківський переказ</option><option value="card">Карткою</option><option value="google_pay">Google Pay</option></select></label>@if (form().paymentMethod === 'google_pay') { <div class="google-pay-box">@if (googlePayLoading()) { <p>Перевіряємо доступність Google Pay...</p> } @else if (googlePayAvailable()) { <div #googlePayButton class="google-pay-button"></div><small>Підтримуються VISA та Mastercard у гривні.</small> } @else { <p>Google Pay зараз недоступний для цього пристрою або браузера.</p> } @if (googlePayError()) { <p class="google-pay-error">{{ googlePayError() }}</p> }</div> }</section>
-        <section><h2>Коментар</h2><textarea rows="4" [ngModel]="form().notes" (ngModelChange)="patch({notes:$event})" name="notes"></textarea><label class="checkbox"><input type="checkbox" [ngModel]="form().doNotCall" (ngModelChange)="patch({doNotCall:$event})" name="doNotCall" /> Не передзвонювати для підтвердження замовлення</label></section>
+        </section>
+
+        <section>
+          <h2>Коментар</h2>
+          <textarea rows="4" [ngModel]="form().notes" (ngModelChange)="patch({ notes: $event })" name="notes"></textarea>
+          <label class="checkbox">
+            <input type="checkbox" [ngModel]="form().doNotCall" (ngModelChange)="patch({ doNotCall: $event })" name="doNotCall" />
+            Не передзвонювати для підтвердження замовлення
+          </label>
+        </section>
+
         @if (error()) { <p class="error">{{ error() }}</p> }
-        <button class="submit" type="submit" [disabled]="submitting() || !cartService.itemCount()">{{ submitting() ? 'Оформлюємо...' : 'Оформити замовлення' }}</button>
+        <button class="submit" type="submit" [disabled]="submitting() || !cartService.itemCount()">
+          {{ submitting() ? 'Оформлюємо...' : 'Оформити замовлення' }}
+        </button>
       </form>
-      <aside><h2>Ваше замовлення</h2>@for(item of cartService.cart()?.items || []; track item.merchandiseId + item.inventoryValueKey){<article>@if(item.product?.images?.[0]){<img [src]="item.product!.images[0]" [alt]="item.product!.name" />}<div><h3>{{item.product?.name}}</h3><span>{{item.inventoryValueLabel}} · {{item.quantity}} шт.</span>@if((item.product?.discountPercentage || 0) > 0){<small>Знижка −{{item.product!.discountPercentage}}%</small>}</div><strong>{{formatPrice(cartService.unitPrice(item.product)*item.quantity)}}</strong></article>}<div class="total"><span>Разом</span><strong>{{formatPrice(cartService.subtotal())}}</strong></div></aside>
+
+      <aside>
+        <h2>Ваше замовлення</h2>
+        @for (item of cartService.cart()?.items || []; track item.merchandiseId + item.inventoryValueKey) {
+          <article>
+            @if (item.product?.images?.[0]) { <img [src]="item.product!.images[0]" [alt]="item.product!.name" /> }
+            <div>
+              <h3>{{ item.product?.name }}</h3>
+              <span>{{ item.inventoryValueLabel }} · {{ item.quantity }} шт.</span>
+              @if ((item.product?.discountPercentage || 0) > 0) { <small>Знижка -{{ item.product!.discountPercentage }}%</small> }
+            </div>
+            <strong>{{ formatPrice(cartService.unitPrice(item.product) * item.quantity) }}</strong>
+          </article>
+        }
+        <div class="total"><span>Разом</span><strong>{{ formatPrice(cartService.subtotal()) }}</strong></div>
+      </aside>
     </div>
   }
 </main>
