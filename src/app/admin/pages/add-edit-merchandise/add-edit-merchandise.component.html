@@ -7,7 +7,7 @@
   [closable]="true"
   [resizable]="false"
   styleClass="merchandise-dialog"
-  [style]="{ width: '860px', maxWidth: '96vw' }"
+  [style]="{ width: '860px', maxWidth: '96vw', height: 'min(900px, calc(100dvh - 2rem))', maxHeight: 'calc(100dvh - 2rem)' }"
   (onHide)="close()"
   [appendTo]="'body'"
 >
@@ -128,6 +128,12 @@
             ) {
               <small class="field-error">Категорія є обов'язковою</small>
             }
+          </div>
+
+          <div class="field">
+            <label for="brandId" class="field-label">Бренд</label>
+            <p-dropdown id="brandId" formControlName="brandId" [options]="brands()" optionLabel="name" optionValue="_id" placeholder="Без прив'язаного бренду" [showClear]="true" [filter]="true" filterBy="name" styleClass="w-full" (onChange)="onBrandIdChanged($event.value)" />
+            <small class="field-hint">Новий зв'язок із каталогом брендів. Старе поле «Бренд» у характеристиках залишається без змін.</small>
           </div>
 
           <!-- Short description -->
@@ -388,8 +394,26 @@
                   }
                 </label>
 
+                @if (isBrandSpecification(entry.catSpec)) {
+                  <p-dropdown
+                    [id]="'spec-' + entry.catSpec.referenceId"
+                    formControlName="value"
+                    appendTo="body"
+                    [options]="getBrandOptions(entry)"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Оберіть бренд з каталогу"
+                    [showClear]="!entry.catSpec.isRequired"
+                    [filter]="true"
+                    filterBy="label"
+                    styleClass="w-full"
+                    (onChange)="onBrandSpecificationChanged(entry, $event.value)"
+                  />
+                  <small class="field-helper">Актуальні дані зі сторінки «Бренди».</small>
+                }
+
                 <!-- string / text → input / textarea -->
-                @if (entry.catSpec.type === "string") {
+                @if (!isBrandSpecification(entry.catSpec) && entry.catSpec.type === "string") {
                   <input
                     pInputText
                     [id]="'spec-' + entry.catSpec.referenceId"
@@ -400,7 +424,7 @@
                   />
                 }
 
-                @if (entry.catSpec.type === "text") {
+                @if (!isBrandSpecification(entry.catSpec) && entry.catSpec.type === "text") {
                   <textarea
                     pInputTextarea
                     [id]="'spec-' + entry.catSpec.referenceId"
@@ -413,7 +437,7 @@
                 }
 
                 <!-- number / decimal → inputNumber -->
-                @if (entry.catSpec.type === "number") {
+                @if (!isBrandSpecification(entry.catSpec) && entry.catSpec.type === "number") {
                   <p-inputNumber
                     [id]="'spec-' + entry.catSpec.referenceId"
                     formControlName="value"
@@ -425,7 +449,7 @@
                   />
                 }
 
-                @if (entry.catSpec.type === "decimal") {
+                @if (!isBrandSpecification(entry.catSpec) && entry.catSpec.type === "decimal") {
                   <p-inputNumber
                     [id]="'spec-' + entry.catSpec.referenceId"
                     formControlName="value"
@@ -440,7 +464,7 @@
                 }
 
                 <!-- boolean → checkbox -->
-                @if (entry.catSpec.type === "boolean") {
+                @if (!isBrandSpecification(entry.catSpec) && entry.catSpec.type === "boolean") {
                   <div class="flex align-items-center gap-2">
                     <p-checkbox
                       [id]="'spec-' + entry.catSpec.referenceId"
@@ -459,8 +483,9 @@
 
                 <!-- select → dropdown -->
                 @if (
-                  entry.catSpec.type === "select" ||
-                  entry.catSpec.type === "color"
+                  !isBrandSpecification(entry.catSpec) &&
+                  (entry.catSpec.type === "select" ||
+                  entry.catSpec.type === "color")
                 ) {
                   <p-dropdown
                     [id]="'spec-' + entry.catSpec.referenceId"
@@ -477,7 +502,7 @@
                 }
 
                 <!-- multiselect -->
-                @if (entry.catSpec.type === "multiselect") {
+                @if (!isBrandSpecification(entry.catSpec) && entry.catSpec.type === "multiselect") {
                   <p-multiSelect
                     appendTo="body"
                     [id]="'spec-' + entry.catSpec.referenceId"
@@ -492,7 +517,7 @@
                 }
 
                 <!-- date → calendar -->
-                @if (entry.catSpec.type === "date") {
+                @if (!isBrandSpecification(entry.catSpec) && entry.catSpec.type === "date") {
                   <p-calendar
                     [id]="'spec-' + entry.catSpec.referenceId"
                     formControlName="value"

@@ -78,6 +78,7 @@
           <span class="summary-label">Доходи</span>
           <strong>{{ formatMoney(incomeTotal()) }}</strong>
           <small>{{ incomeItemsCount() }} продажів у періоді</small>
+          <small class="potential-income">Потенційний дохід: {{ formatMoney(potentialIncomeTotal()) }}</small>
         </div>
       </div>
     </p-card>
@@ -110,9 +111,12 @@
             <td class="amount-cell expense-amount">{{ formatMoney(row.expenses) }}</td>
             <td class="amount-cell" [class.income-empty]="row.income === null">
               @if (row.income === null) {
-                <span>—</span>
+                <span>-</span>
               } @else {
                 {{ formatMoney(row.income) }}
+                @if (row.potentialIncome !== undefined) {
+                  <small class="table-note">(Потенційний дохід: {{ formatMoney(row.potentialIncome) }})</small>
+                }
               }
             </td>
           </tr>
@@ -129,6 +133,7 @@
     <div>
       <span>Загальні доходи</span>
       <strong>{{ formatMoney(incomeTotal()) }}</strong>
+      <small>Потенційний дохід: {{ formatMoney(potentialIncomeTotal()) }}</small>
     </div>
     <div>
       <span>Загальні витрати</span>

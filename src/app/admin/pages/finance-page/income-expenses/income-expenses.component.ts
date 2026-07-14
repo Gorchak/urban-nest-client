@@ -17,6 +17,7 @@ interface FinanceTableRow {
   type: string;
   expenses: number;
   income: number | null;
+  potentialIncome?: number;
 }
 
 @Component({
@@ -47,6 +48,7 @@ export class IncomeExpensesComponent implements OnInit {
   protected loading = signal(false);
   protected expensesTotal = signal(0);
   protected incomeTotal = signal(0);
+  protected potentialIncomeTotal = signal(0);
   protected productExpensesTotal = signal(0);
   protected auxiliaryExpensesTotal = signal(0);
   protected expenseItemsCount = signal(0);
@@ -98,6 +100,7 @@ export class IncomeExpensesComponent implements OnInit {
     this.loading.set(true);
     this.expensesTotal.set(0);
     this.incomeTotal.set(0);
+    this.potentialIncomeTotal.set(0);
     this.productExpensesTotal.set(0);
     this.auxiliaryExpensesTotal.set(0);
     this.expenseItemsCount.set(0);
@@ -119,11 +122,12 @@ export class IncomeExpensesComponent implements OnInit {
       this.auxiliaryExpensesTotal.set(auxiliaryExpenses.total);
       this.expensesTotal.set(totalExpenses);
       this.incomeTotal.set(incomes.total);
+      this.potentialIncomeTotal.set(incomes.potentialTotal);
       this.expenseItemsCount.set(productExpenses.count);
       this.incomeItemsCount.set(incomes.count);
       this.auxiliaryExpenseItemsCount.set(auxiliaryExpenses.count);
       this.tableRows.set([
-        { type: 'Товари', expenses: productExpenses.total, income: incomes.total },
+        { type: 'Товари', expenses: productExpenses.total, income: incomes.total, potentialIncome: incomes.potentialTotal },
         ...auxiliaryExpenses.rows,
       ]);
     } catch (err: any) {
@@ -155,22 +159,26 @@ export class IncomeExpensesComponent implements OnInit {
     return { total, count };
   }
 
-  private async loadAllIncomes(filter: FinanceFilter): Promise<{ total: number; count: number }> {
+  private async loadAllIncomes(filter: FinanceFilter): Promise<{ total: number; potentialTotal: number; count: number }> {
     let page = 1;
     let pages = 1;
     let total = 0;
+    let potentialTotal = 0;
     let count = 0;
 
     do {
       const batch = await this.financeService.getIncomeBatch({ ...filter, page, limit: this.batchSize });
-      total += batch.data.reduce((sum, item) => sum + Number(item.grandTotal || 0), 0);
+      potentialTotal += batch.data.reduce((sum, item) => sum + Number(item.grandTotal || 0), 0);
+      total += batch.data
+        .filter((item) => item.paymentStatus === 'paid')
+        .reduce((sum, item) => sum + Number(item.grandTotal || 0), 0);
       count += batch.data.length;
       pages = batch.pagination.pages || 1;
       this.trackProgress(batch.pagination.total, batch.data.length, page);
       page += 1;
     } while (page <= pages);
 
-    return { total, count };
+    return { total, potentialTotal, count };
   }
 
   private async loadAllAuxiliaryExpenses(filter: FinanceFilter): Promise<{ total: number; count: number; rows: FinanceTableRow[] }> {

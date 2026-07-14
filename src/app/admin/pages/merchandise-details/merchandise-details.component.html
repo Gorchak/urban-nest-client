@@ -143,9 +143,17 @@
           <div class="pricing-grid">
             <div class="pricing-row pricing-row--sale">
               <span class="pricing-label">Ціна продажу</span>
-              <span class="pricing-value pricing-value--main">
-                {{ formatPrice(merchandise()!.salePrice, merchandise()!.currency) }}
-              </span>
+              <div class="pricing-value-group">
+                <span class="pricing-value pricing-value--main">
+                  {{ formatPrice(merchandise()!.salePrice, merchandise()!.currency) }}
+                </span>
+                @if (marginPercentage(merchandise()!.salePrice); as percentage) {
+                  <span
+                    class="pricing-profitability"
+                    [class.pricing-profitability--negative]="merchandise()!.salePrice < merchandise()!.purchasePrice"
+                  >Маржинальність: {{ percentage }}%</span>
+                }
+              </div>
             </div>
             <div class="pricing-row">
               <span class="pricing-label">Закупівельна</span>
@@ -153,14 +161,16 @@
             </div>
             <div class="pricing-row">
               <span class="pricing-label">Роздрібна</span>
-              <span class="pricing-value">{{ formatPrice(merchandise()!.retailPrice, merchandise()!.currency) }}</span>
-            </div>
-            @if (margin() !== null) {
-              <div class="pricing-row pricing-row--margin">
-                <span class="pricing-label">Маржинальність</span>
-                <span class="pricing-value pricing-value--margin">{{ margin() }}%</span>
+              <div class="pricing-value-group">
+                <span class="pricing-value">{{ formatPrice(merchandise()!.retailPrice, merchandise()!.currency) }}</span>
+                @if (marginPercentage(merchandise()!.retailPrice); as percentage) {
+                  <span
+                    class="pricing-profitability"
+                    [class.pricing-profitability--negative]="merchandise()!.retailPrice < merchandise()!.purchasePrice"
+                  >Маржинальність: {{ percentage }}%</span>
+                }
               </div>
-            }
+            </div>
             <div class="pricing-row">
               <span class="pricing-label">Валюта</span>
               <span class="pricing-value">{{ merchandise()!.currency }}</span>

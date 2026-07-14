@@ -480,6 +480,11 @@
   .dialog-footer__upload-status { grid-column:1/-1; }
   .dialog-footer ::ng-deep .p-button { width:100%; min-height:46px; }
 }
+::ng-deep .category-form-dialog .p-dialog-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
 
 // ::ng-deep .flag-item {
 //   .p-checkbox .p-checkbox-box.p-highlight {

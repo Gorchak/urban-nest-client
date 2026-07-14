@@ -40,6 +40,8 @@ export class MerchandiseService {
       let params = new HttpParams();
       if (filter.categoryId) params = params.set('categoryId', filter.categoryId);
       if (filter.categorySlug) params = params.set('categorySlug', filter.categorySlug);
+      if (filter.brandId) params = params.set('brandId', filter.brandId);
+      if (filter.brandSlug) params = params.set('brandSlug', filter.brandSlug);
       if (filter.includeChildren !== undefined) params = params.set('includeChildren', String(filter.includeChildren));
       if (filter.search) params = params.set('search', filter.search);
       if (filter.isActive !== undefined) params = params.set('isActive', String(filter.isActive));

@@ -24,8 +24,37 @@
         <h1>Каталог тимчасово недоступний</h1>
         <p>{{ error() }}</p>
       </section>
+    } @else if (searchQuery()) {
+      <section class="search-results">
+        <header class="search-results__header">
+          <div>
+            <span class="eyebrow">Результати пошуку</span>
+            <h1>«{{ searchQuery() }}»</h1>
+          </div>
+          <span>{{ searchResults().length }} знайдено</span>
+        </header>
+
+        @if (searchLoading()) {
+          <div class="search-results__loading"><i class="ri-loader-4-line"></i> Шукаємо товари...</div>
+        } @else if (searchError()) {
+          <div class="state search-results__empty"><i class="ri-wifi-off-line"></i><h2>Пошук недоступний</h2><p>{{ searchError() }}</p></div>
+        } @else if (searchResults().length) {
+          <div class="products">
+            @for (product of searchResults(); track product._id) {
+              <app-public-product-card [product]="product" [emphasis]="true" />
+            }
+          </div>
+        } @else {
+          <div class="state search-results__empty">
+            <i class="ri-search-eye-line"></i>
+            <h2>Нічого не знайдено</h2>
+            <p>Спробуйте змінити пошуковий запит.</p>
+            <button type="button" class="story-link" (click)="clearSearch()">Показати всі товари</button>
+          </div>
+        }
+      </section>
     } @else {
-      @if (newArrivals().length || sections().length) {
+      @if (newArrivals().length || sections().length || brands().length) {
         @if (newArrivals().length) {
           <section class="new-arrivals">
             <header class="section-header">
@@ -33,6 +62,20 @@
             </header>
             <div class="products">
               @for (product of newArrivals(); track product._id) { <app-public-product-card [product]="product" /> }
+            </div>
+          </section>
+        }
+
+        @if (!searchQuery() && brands().length) {
+          <section class="brands-strip">
+            <header><span class="eyebrow">Обирайте знайоме</span></header>
+            <div class="brand-list">
+              @for (brand of brands(); track brand._id) {
+                <a [routerLink]="['/brand', brand.slug]">
+                  @if (brand.logo) { <img [src]="optimizedUrl(brand.logo, 240)" [alt]="brand.name" loading="lazy" /> }
+                  <span>{{ brand.name }}</span>
+                </a>
+              }
             </div>
           </section>
         }

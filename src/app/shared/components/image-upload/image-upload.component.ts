@@ -45,6 +45,7 @@ interface UploadedImage {
  * Features:
  *  - Select multiple files → upload to Cloudinary via POST /api/upload
  *  - Add images by URL (manual input)
+ *  - Reorder images with drag-and-drop or arrow buttons
  *  - Remove individual images (calls DELETE /api/upload/:publicId for cloud ones)
  *  - Copy URL to clipboard
  *  - Cloudinary-optimised thumbnails (f_auto, q_auto, w_300)
@@ -124,6 +125,8 @@ export class ImageUploadComponent implements OnChanges, ControlValueAccessor {
   protected newImageUrl = signal('');
   protected disabled = signal(false);
   protected copiedIndex = signal<number | null>(null);
+  protected draggedIndex = signal<number | null>(null);
+  protected dragOverIndex = signal<number | null>(null);
 
   // ── Input sync (@Input path) ───────────────────────────────────────────────
 
@@ -210,6 +213,51 @@ export class ImageUploadComponent implements OnChanges, ControlValueAccessor {
     }
   }
 
+  // ── Reorder ────────────────────────────────────────────────────────────
+
+  protected moveImage(index: number, offset: -1 | 1): void {
+    const targetIndex = index + offset;
+    if (this.disabled() || targetIndex < 0 || targetIndex >= this.items().length) {
+      return;
+    }
+
+    this.reorder(index, targetIndex);
+  }
+
+  protected onDragStart(event: DragEvent, index: number): void {
+    if (this.disabled()) {
+      event.preventDefault();
+      return;
+    }
+
+    this.draggedIndex.set(index);
+    this.dragOverIndex.set(index);
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', String(index));
+    }
+  }
+
+  protected onDragOver(event: DragEvent, index: number): void {
+    if (this.disabled() || this.draggedIndex() === null) return;
+    event.preventDefault();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+    this.dragOverIndex.set(index);
+  }
+
+  protected onDrop(event: DragEvent, targetIndex: number): void {
+    event.preventDefault();
+    const sourceIndex = this.draggedIndex();
+    if (sourceIndex !== null && sourceIndex !== targetIndex) {
+      this.reorder(sourceIndex, targetIndex);
+    }
+    this.resetDragState();
+  }
+
+  protected onDragEnd(): void {
+    this.resetDragState();
+  }
+
   // ── Copy URL ───────────────────────────────────────────────────────────────
 
   protected copyUrl(url: string, index: number): void {
@@ -236,5 +284,23 @@ export class ImageUploadComponent implements OnChanges, ControlValueAccessor {
     const urls = this.items().map((i) => i.url);
     this.onChange(urls);
     this.imagesChange.emit(urls);
+  }
+
+  private reorder(sourceIndex: number, targetIndex: number): void {
+    this.items.update((list) => {
+      const reordered = [...list];
+      const [moved] = reordered.splice(sourceIndex, 1);
+      reordered.splice(targetIndex, 0, moved);
+      return reordered;
+    });
+    this.emitChange();
+    this.onTouched();
+    this.cdr.markForCheck();
+  }
+
+  private resetDragState(): void {
+    this.draggedIndex.set(null);
+    this.dragOverIndex.set(null);
+    this.cdr.markForCheck();
   }
 }

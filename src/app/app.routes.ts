@@ -6,6 +6,7 @@ import { MerchandiseListComponent } from './admin/pages/merchandise-list/merchan
 import { SalesPageComponent } from './admin/pages/sales-page/sales-page.component';
 import { UsersPageComponent } from './admin/pages/users-page/users-page.component';
 import { HomePageComponent } from './public/home-page/home-page.component';
+import { BrandsPageComponent } from './admin/pages/brands-page/brands-page.component';
 
 export const routes: Routes = [
   { path: '', component: HomePageComponent, pathMatch: 'full' },
@@ -25,6 +26,7 @@ export const routes: Routes = [
     path: 'checkout',
     loadComponent: () => import('./public/checkout-page/checkout-page.component').then((module) => module.CheckoutPageComponent),
   },
+  { path: 'brand/:slug', loadComponent: () => import('./public/brand-page/brand-page.component').then((m) => m.BrandPageComponent) },
   {
     path: 'purchase-history',
     loadComponent: () => import('./public/purchase-history-page/purchase-history-page.component').then((module) => module.PurchaseHistoryPageComponent),
@@ -37,6 +39,7 @@ export const routes: Routes = [
   { path: 'admin', redirectTo: 'admin/users', pathMatch: 'full' },
   { path: 'admin/categories', component: AdminCategoriesPageWithTabsComponent },
   { path: 'admin/products', component: MerchandiseListComponent },
+  { path: 'admin/brands', component: BrandsPageComponent },
   { path: 'admin/sales', component: SalesPageComponent },
   { path: 'admin/users', component: UsersPageComponent },
   { path: 'admin/finance', component: FinancePageComponent },

@@ -45,6 +45,8 @@ export interface Merchandise {
   slug: string;
   categoryId: string;
   categorySlug: string;
+  brandId: string | null;
+  brandSlug: string | null;
   description: string | null;
   shortDescription: string | null;
   specifications: MerchandiseSpecification[];
@@ -74,6 +76,7 @@ export interface CreateMerchandiseDto {
   name: string;
   slug: string;
   categoryId: string;
+  brandId: string | null;
   description: string | null;
   shortDescription: string | null;
   specifications: MerchandiseSpecification[];
@@ -100,6 +103,8 @@ export type UpdateMerchandiseDto = Partial<CreateMerchandiseDto>;
 export interface MerchandiseListFilter {
   categoryId?: string;
   categorySlug?: string;
+  brandId?: string;
+  brandSlug?: string;
   includeChildren?: boolean;
   search?: string;
   isActive?: boolean;

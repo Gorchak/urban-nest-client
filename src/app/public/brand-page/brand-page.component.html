@@ -1,0 +1,28 @@
+<main>
+  @if (loading()) {
+    <div class="state">Завантажуємо бренд...</div>
+  } @else if (error()) {
+    <div class="state"><h1>{{ error() }}</h1><a routerLink="/">На головну</a></div>
+  } @else {
+    @if (brand(); as current) {
+      <section class="hero">
+        <div class="logo">
+          @if (current.logo) { <img [src]="current.logo" [alt]="current.name" /> }
+          @else { <span>{{ current.name.charAt(0) }}</span> }
+        </div>
+        <div>
+          <span class="eyebrow">Бренд</span><h1>{{ current.name }}</h1>
+          @if (current.description) { <p>{{ current.description }}</p> }
+          @if (current.website) { <a [href]="current.website" target="_blank" rel="noopener">Офіційний сайт <i class="ri-external-link-line"></i></a> }
+        </div>
+      </section>
+      <section class="catalog">
+        <header><div><span class="eyebrow">Колекція</span><h2>Товари {{ current.name }}</h2></div><span>{{ products().length }} товарів</span></header>
+        @if (products().length) {
+          <div class="grid">@for (product of products(); track product._id) { <app-public-product-card [product]="product" [emphasis]="true" /> }</div>
+        } @else { <div class="state">Товарів цього бренду поки немає.</div> }
+      </section>
+    }
+  }
+</main>
+<app-public-footer />

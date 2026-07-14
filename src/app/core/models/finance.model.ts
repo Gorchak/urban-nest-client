@@ -26,6 +26,7 @@ export interface FinanceExpenseItem {
 export interface FinanceIncomeItem {
   _id: string;
   grandTotal: number;
+  paymentStatus: 'unpaid' | 'paid' | 'partially_paid' | 'refunded';
   createdAt: string;
 }
 

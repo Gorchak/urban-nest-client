@@ -21,6 +21,7 @@ const routePriority = (route) => {
   if (route === '/new-arrivals') return '0.8';
   if (route.startsWith('/category/')) return '0.8';
   if (route.startsWith('/product/')) return '0.7';
+  if (route.startsWith('/brand/')) return '0.7';
   return '0.6';
 };
 

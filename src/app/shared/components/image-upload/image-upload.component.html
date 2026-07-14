@@ -55,35 +55,89 @@
 
   <!-- ── Preview grid ── -->
   @if (items().length > 0) {
+    <small class="image-upload__sort-hint">
+      Перетягніть фото за <i class="pi pi-bars"></i>, щоб змінити порядок. Перше фото — головне.
+    </small>
     <div class="image-upload__previews">
       @for (item of items(); track item.url; let i = $index) {
-        <div class="image-upload__preview-item">
+        <div
+          class="image-upload__preview-item"
+          [draggable]="!disabled()"
+          [class.image-upload__preview-item--dragging]="draggedIndex() === i"
+          [class.image-upload__preview-item--drag-over]="dragOverIndex() === i && draggedIndex() !== i"
+          (dragstart)="onDragStart($event, i)"
+          (dragover)="onDragOver($event, i)"
+          (drop)="onDrop($event, i)"
+          (dragend)="onDragEnd()"
+        >
           <img
             [src]="getOptimizedUrl(item.url)"
             [alt]="'Image ' + (i + 1)"
+            [draggable]="false"
             loading="lazy"
             decoding="async"
             class="image-upload__preview-img"
           />
 
+          <span class="image-upload__position" [class.image-upload__position--main]="i === 0">
+            {{ i === 0 ? 'Головне' : i + 1 }}
+          </span>
+
           <!-- Actions overlay -->
           <div class="image-upload__actions">
+            <!-- Drag handle -->
+            <button
+              type="button"
+              class="image-upload__action-btn image-upload__drag-handle"
+              [disabled]="disabled()"
+              title="Перетягнути фото"
+              [attr.aria-label]="'Перетягнути фото ' + (i + 1)"
+            >
+              <i class="pi pi-bars"></i>
+            </button>
+
+            <!-- Move left -->
+            <button
+              type="button"
+              class="image-upload__action-btn"
+              [disabled]="disabled() || i === 0"
+              title="Перемістити ліворуч"
+              [attr.aria-label]="'Перемістити фото ' + (i + 1) + ' ліворуч'"
+              (click)="moveImage(i, -1)"
+            >
+              <i class="pi pi-chevron-left"></i>
+            </button>
+
             <!-- Copy URL -->
             <button
               type="button"
               class="image-upload__action-btn"
-              tooltipPosition="top"
+              title="Копіювати URL"
+              [attr.aria-label]="'Копіювати URL фото ' + (i + 1)"
               (click)="copyUrl(item.url, i)"
             >
               <i [class]="copiedIndex() === i ? 'pi pi-check' : 'pi pi-copy'"></i>
+            </button>
+
+            <!-- Move right -->
+            <button
+              type="button"
+              class="image-upload__action-btn"
+              [disabled]="disabled() || i === items().length - 1"
+              title="Перемістити праворуч"
+              [attr.aria-label]="'Перемістити фото ' + (i + 1) + ' праворуч'"
+              (click)="moveImage(i, 1)"
+            >
+              <i class="pi pi-chevron-right"></i>
             </button>
 
             <!-- Remove -->
             <button
               type="button"
               class="image-upload__action-btn image-upload__action-btn--danger"
-              tooltipPosition="top"
               [disabled]="disabled()"
+              title="Видалити фото"
+              [attr.aria-label]="'Видалити фото ' + (i + 1)"
               (click)="removeImage(i)"
             >
               <i class="pi pi-times"></i>

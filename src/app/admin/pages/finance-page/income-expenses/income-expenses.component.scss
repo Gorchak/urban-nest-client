@@ -104,6 +104,16 @@
   margin: .15rem 0;
 }
 
+.potential-income,
+.table-note,
+.totals-strip small {
+  color: #64748b;
+  display: block;
+  font-size: .82rem;
+  font-weight: 500;
+  margin-top: .15rem;
+}
+
 .expenses-card .summary-icon {
   background: #fee2e2;
   color: #b91c1c;
@@ -162,6 +172,10 @@
   color: #0f172a;
   font-weight: 700;
   white-space: nowrap;
+}
+
+.table-note {
+  white-space: normal;
 }
 
 .expense-amount {

@@ -49,6 +49,14 @@
     color: var(--text-color-secondary, #6b7280);
   }
 
+  &__sort-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    color: var(--text-color-secondary, #6b7280);
+  }
+
   // ── Preview grid ────────────────────────────────────────────────────────────
   &__previews {
     display: flex;
@@ -65,9 +73,20 @@
     overflow: hidden;
     border: 1px solid var(--surface-200, #e5e7eb);
     background: var(--surface-100, #f4f4f5);
+    transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
 
-    &:hover .image-upload__actions {
+    &:hover .image-upload__actions,
+    &:focus-within .image-upload__actions {
       opacity: 1;
+    }
+
+    &--dragging {
+      opacity: 0.45;
+    }
+
+    &--drag-over {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 3px var(--primary-color, #6366f1);
     }
   }
 
@@ -78,14 +97,38 @@
     display: block;
   }
 
+  &__position {
+    position: absolute;
+    top: 0.3rem;
+    left: 0.3rem;
+    z-index: 1;
+    min-width: 1.35rem;
+    padding: 0.15rem 0.35rem;
+    border-radius: 999px;
+    background: rgba(17, 24, 39, 0.78);
+    color: #fff;
+    font-size: 0.625rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+
+    &--main {
+      background: var(--primary-color, #6366f1);
+    }
+  }
+
   // ── Actions overlay ─────────────────────────────────────────────────────────
   &__actions {
     position: absolute;
     inset: 0;
     display: flex;
     align-items: center;
+    align-content: center;
     justify-content: center;
-    gap: 0.25rem;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+    padding: 0.25rem;
+    box-sizing: border-box;
     background: rgba(0, 0, 0, 0.45);
     opacity: 0;
     transition: opacity 0.15s;
@@ -95,8 +138,8 @@
     background: rgba(255, 255, 255, 0.9);
     border: none;
     border-radius: 50%;
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -109,9 +152,22 @@
       background: #fff;
     }
 
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+    }
+
     &--danger:hover {
       background: var(--red-500, #ef4444);
       color: #fff;
+    }
+  }
+
+  &__drag-handle:not(:disabled) {
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
     }
   }
 }

@@ -111,12 +111,6 @@ export class MerchandiseDetailsComponent implements OnChanges {
     return imgs[idx] ?? null;
   });
 
-  protected margin = computed(() => {
-    const m = this.merchandise();
-    if (!m || m.purchasePrice <= 0 || m.salePrice <= 0) return null;
-    return ((m.salePrice - m.purchasePrice) / m.purchasePrice * 100).toFixed(1);
-  });
-
   /** Non-empty specs only */
   protected visibleSpecs = computed(() =>
     (this.merchandise()?.specifications ?? []).filter(
@@ -196,6 +190,18 @@ export class MerchandiseDetailsComponent implements OnChanges {
 
   protected formatPrice(price: number, currency = 'UAH'): string {
     return formatCurrency(price, currency);
+  }
+
+  /** Profit percentage relative to the purchase price (the business definition used in this view). */
+  protected marginPercentage(price: number): string | null {
+    const purchasePrice = Number(this.merchandise()?.purchasePrice);
+    const comparedPrice = Number(price);
+
+    if (!Number.isFinite(purchasePrice) || purchasePrice <= 0 || !Number.isFinite(comparedPrice)) {
+      return null;
+    }
+
+    return (((comparedPrice - purchasePrice) / purchasePrice) * 100).toFixed(1);
   }
 
   protected formatDate(raw: string | null | undefined): string {

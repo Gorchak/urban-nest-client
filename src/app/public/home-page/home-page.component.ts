@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -12,6 +12,8 @@ import { PublicProductCardComponent } from '../shared/public-product-card.compon
 import { PublicFooterComponent } from '../shared/public-footer.component';
 import { RecentlyViewedService } from '../services/recently-viewed.service';
 import { FavoritesService } from '../../core/services/favorites.service';
+import { Brand } from '../../core/models/brand.model';
+import { BrandsService } from '../../core/services/brands.service';
 
 interface CategorySection {
   category: Category;
@@ -36,19 +38,26 @@ const HOME_CATEGORY_ORDER = [
   styleUrl: './home-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomePageComponent implements OnInit {
+export class HomePageComponent implements OnInit, OnDestroy {
   private categoriesService = inject(CategoriesService);
   private merchandiseService = inject(MerchandiseService);
   private seo = inject(SeoService);
   private recentlyViewedService = inject(RecentlyViewedService);
   private favoritesService = inject(FavoritesService);
+  private brandsService = inject(BrandsService);
   private cdr = inject(ChangeDetectorRef);
 
   protected categories = signal<Category[]>([]);
   protected merchandise = signal<Merchandise[]>([]);
+  protected brands = signal<Brand[]>([]);
   protected loading = signal(true);
   protected error = signal<string | null>(null);
   protected searchQuery = signal('');
+  protected searchResults = signal<Merchandise[]>([]);
+  protected searchLoading = signal(false);
+  protected searchError = signal<string | null>(null);
+  private searchTimer?: ReturnType<typeof setTimeout>;
+  private searchRequestId = 0;
 
   protected visibleCategories = computed(() =>
     this.categories()
@@ -109,7 +118,7 @@ export class HomePageComponent implements OnInit {
       ogImage: '/assets/logo.png',
     });
     try {
-      const [categories, merchandiseResult, newArrivalsResult] = await Promise.all([
+      const [categories, merchandiseResult, newArrivalsResult, brands] = await Promise.all([
         this.categoriesService.getCategories(1, 200),
         this.merchandiseService.getMerchandiseList({
           isActive: true,
@@ -126,8 +135,10 @@ export class HomePageComponent implements OnInit {
           sortOrder: 'desc',
           limit: 100,
         }),
+        this.brandsService.getBrands({ isActive: true, isVisible: true, limit: 100 }),
       ]);
       this.categories.set(categories);
+      this.brands.set(brands);
       const products = new Map([...merchandiseResult.data, ...newArrivalsResult.data].map((product) => [product._id, product]));
       this.merchandise.set([...products.values()]);
       void this.loadFavorites();
@@ -139,8 +150,33 @@ export class HomePageComponent implements OnInit {
     }
   }
 
-  protected onSearchChange(value: string): void { this.searchQuery.set(value); }
-  protected clearSearch(): void { this.searchQuery.set(''); }
+  ngOnDestroy(): void {
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+  }
+
+  protected onSearchChange(value: string): void {
+    this.searchQuery.set(value);
+    this.searchError.set(null);
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    const query = value.trim();
+    const requestId = ++this.searchRequestId;
+    if (!query) {
+      this.searchResults.set([]);
+      this.searchLoading.set(false);
+      return;
+    }
+    this.searchLoading.set(true);
+    this.searchTimer = setTimeout(() => void this.performSearch(query, requestId), 300);
+  }
+
+  protected clearSearch(): void {
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.searchRequestId += 1;
+    this.searchQuery.set('');
+    this.searchResults.set([]);
+    this.searchLoading.set(false);
+    this.searchError.set(null);
+  }
   protected sectionId(category: Category): string { return `category-${category.slug || category._id}`; }
   protected routeSlug(category: Category): string { return toRouteSlug(category.slug); }
   protected categoryImage(category: Category): string {
@@ -175,6 +211,30 @@ export class HomePageComponent implements OnInit {
       this.cdr.markForCheck();
     } catch {
       this.favoritesService.favorites.set([]);
+    }
+  }
+
+  private async performSearch(query: string, requestId: number): Promise<void> {
+    try {
+      const result = await this.merchandiseService.getMerchandiseList({
+        search: query,
+        isActive: true,
+        isVisible: true,
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
+        limit: 100,
+      });
+      if (requestId !== this.searchRequestId) return;
+      this.searchResults.set(result.data);
+    } catch {
+      if (requestId !== this.searchRequestId) return;
+      this.searchResults.set([]);
+      this.searchError.set('Не вдалося виконати пошук. Спробуйте ще раз.');
+    } finally {
+      if (requestId === this.searchRequestId) {
+        this.searchLoading.set(false);
+        this.cdr.markForCheck();
+      }
     }
   }
 }

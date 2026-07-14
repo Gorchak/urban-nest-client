@@ -72,6 +72,7 @@ export class AdminNavbarComponent {
   protected navItems = computed<MenuItem[]>(() => [
       this.navItem('Категорії', '/admin/categories', 'pi pi-list'),
       this.navItem('Товар', '/admin/products', 'pi pi-box'),
+      this.navItem('Бренди', '/admin/brands', 'pi pi-tags'),
       this.navItem('Продажі', '/admin/sales', 'pi pi-shopping-cart'),
       this.navItem('Користувачі', '/admin/users', 'pi pi-users'),
       this.navItem('Фінанси', '/admin/finance', 'pi pi-wallet'),

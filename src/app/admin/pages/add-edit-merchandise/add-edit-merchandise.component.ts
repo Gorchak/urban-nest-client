@@ -45,6 +45,8 @@ import { CategoriesService } from '../../../core/services/categories.service';
 import { MerchandiseService } from '../../../core/services/merchandise.service';
 import { ImageUploadComponent } from '../../../shared/components/image-upload/image-upload.component';
 import { InventoryEditorComponent, InventorySpecificationSource } from './inventory-editor.component';
+import { Brand } from '../../../core/models/brand.model';
+import { BrandsService } from '../../../core/services/brands.service';
 
 const TAB = { BASIC: 0, SPECS: 1, INVENTORY: 2, SEO: 3 } as const;
 type TabIndex = typeof TAB[keyof typeof TAB];
@@ -88,6 +90,7 @@ export class AddEditMerchandiseComponent implements OnChanges {
   private fb = inject(FormBuilder);
   private categoriesService = inject(CategoriesService);
   private merchandiseService = inject(MerchandiseService);
+  private brandsService = inject(BrandsService);
   private messageService = inject(MessageService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -109,6 +112,7 @@ export class AddEditMerchandiseComponent implements OnChanges {
   protected formSubmitted = signal(false);
 
   protected categories = signal<Category[]>([]);
+  protected brands = signal<Brand[]>([]);
   protected selectedCategory = signal<Category | null>(null);
   protected selectedCategoryFull = signal<Category | null>(null);
   protected specFormEntries = signal<SpecFormEntry[]>([]);
@@ -159,6 +163,7 @@ export class AddEditMerchandiseComponent implements OnChanges {
     name: ['', [Validators.required, Validators.maxLength(255)]],
     slug: ['', [Validators.required, Validators.maxLength(255)]],
     categoryId: [null, [Validators.required]],
+    brandId: [null],
     shortDescription: ['', [Validators.maxLength(1000)]],
     description: ['', [Validators.maxLength(10000)]],
     purchasePrice: [0, [Validators.required, Validators.min(0)]],
@@ -207,8 +212,12 @@ export class AddEditMerchandiseComponent implements OnChanges {
   private async loadCategories(): Promise<void> {
     this.loadingCategories.set(true);
     try {
-      const cats = await this.categoriesService.getCategories(1, 200);
+      const [cats, brands] = await Promise.all([
+        this.categoriesService.getCategories(1, 200),
+        this.brandsService.getBrands({ isActive: true, limit: 200 }),
+      ]);
       this.categories.set(cats.filter((c) => c.isActive));
+      this.brands.set(brands);
 
       // On edit mode, re-trigger specs build now that categories are loaded
       if (this.mode === 'edit' && this.merchandise) {
@@ -243,6 +252,7 @@ export class AddEditMerchandiseComponent implements OnChanges {
       name: '',
       slug: '',
       categoryId: null,
+      brandId: null,
       shortDescription: '',
       description: '',
       purchasePrice: 0,
@@ -284,6 +294,7 @@ export class AddEditMerchandiseComponent implements OnChanges {
       name: m.name,
       slug: m.slug,
       categoryId: m.categoryId,
+      brandId: m.brandId ?? null,
       shortDescription: m.shortDescription ?? '',
       description: m.description ?? '',
       purchasePrice: m.purchasePrice,
@@ -381,7 +392,12 @@ export class AddEditMerchandiseComponent implements OnChanges {
 
     for (const catSpec of activeSpecs) {
       const existing = valueMap.get(catSpec.referenceId);
-      const initialValue = existing ? existing.value : null;
+      const selectedBrand = this.brands().find((brand) => brand._id === this.form.get('brandId')?.value);
+      const initialValue = existing
+        ? existing.value
+        : this.isBrandSpecification(catSpec)
+          ? selectedBrand?.name ?? null
+          : null;
       const validators = catSpec.isRequired ? [Validators.required] : [];
 
       const group = this.fb.group({
@@ -466,6 +482,68 @@ export class AddEditMerchandiseComponent implements OnChanges {
       .map((o) => ({ label: o.label, value: o.value }));
   }
 
+  protected isBrandSpecification(catSpec: CategorySpecification): boolean {
+    const values = [catSpec.slug, catSpec.name]
+      .filter(Boolean)
+      .map((value) => String(value).toLocaleLowerCase('uk-UA').trim());
+    return values.some((value) => ['brand', 'brend', 'бренд'].includes(value));
+  }
+
+  protected getBrandOptions(entry: SpecFormEntry): Array<{ label: string; value: string }> {
+    const options = this.brands()
+      .filter((brand) => brand.isActive)
+      .map((brand) => ({ label: brand.name, value: brand.name }));
+    const currentValue = entry.ctrl.get('value')?.value;
+    if (
+      typeof currentValue === 'string' &&
+      currentValue.trim() &&
+      !options.some((option) => option.value.toLocaleLowerCase('uk-UA') === currentValue.toLocaleLowerCase('uk-UA'))
+    ) {
+      options.unshift({ label: `${currentValue} (збережене значення)`, value: currentValue });
+    }
+    return options;
+  }
+
+  protected onBrandSpecificationChanged(entry: SpecFormEntry, value: string | null): void {
+    const brand = this.findBrand(value);
+    if (brand) {
+      this.form.get('brandId')?.setValue(brand._id);
+    } else if (!value) {
+      this.form.get('brandId')?.setValue(null);
+    }
+    entry.ctrl.get('value')?.setValue(brand?.name ?? value ?? null, { emitEvent: false });
+    this.form.markAsDirty();
+    this.onSpecificationValueChanged();
+  }
+
+  protected onBrandIdChanged(brandId: string | null): void {
+    const entry = this.specFormEntries().find((item) => this.isBrandSpecification(item.catSpec));
+    if (!entry) return;
+    const brand = this.brands().find((item) => item._id === brandId);
+    entry.ctrl.get('value')?.setValue(brand?.name ?? null);
+    this.onSpecificationValueChanged();
+  }
+
+  private findBrand(value: unknown): Brand | undefined {
+    const normalized = String(value ?? '').toLocaleLowerCase('uk-UA').trim();
+    return this.brands().find((brand) =>
+      brand.name.toLocaleLowerCase('uk-UA') === normalized ||
+      brand.slug.toLocaleLowerCase('uk-UA') === normalized
+    );
+  }
+
+  private syncBrandIdFromSpecification(): void {
+    const entry = this.specFormEntries().find((item) => this.isBrandSpecification(item.catSpec));
+    if (!entry) return;
+    const value = entry.ctrl.get('value')?.value;
+    const brand = this.findBrand(value);
+    if (brand) {
+      this.form.get('brandId')?.setValue(brand._id, { emitEvent: false });
+    } else if (!value) {
+      this.form.get('brandId')?.setValue(null, { emitEvent: false });
+    }
+  }
+
   protected onSpecificationValueChanged(): void {
     this.bumpSpecsVersion();
   }
@@ -496,6 +574,8 @@ export class AddEditMerchandiseComponent implements OnChanges {
 
   protected async onSave(): Promise<void> {
     this.formSubmitted.set(true);
+
+    this.syncBrandIdFromSpecification();
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -537,6 +617,7 @@ export class AddEditMerchandiseComponent implements OnChanges {
       name: v.name,
       slug: v.slug,
       categoryId: v.categoryId,
+      brandId: v.brandId || null,
       description: v.description || null,
       shortDescription: v.shortDescription || null,
       specifications,

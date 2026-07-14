@@ -40,9 +40,10 @@ async function fetchAll(path, limit = 100) {
 }
 
 try {
-  const [categories, products] = await Promise.all([
+  const [categories, products, brands] = await Promise.all([
     fetchAll('/categories', 100),
     fetchAll('/merchandise?isActive=true&isVisible=true', 100),
+    fetchAll('/brands?isActive=true&isVisible=true', 100),
   ]);
 
   categories
@@ -52,6 +53,10 @@ try {
   products
     .filter((product) => product?.slug && product.isActive && product.isVisible)
     .forEach((product) => routes.add(`/product/${routeSegment(product.slug)}`));
+
+  brands
+    .filter((brand) => brand?.slug && brand.isActive && brand.isVisible)
+    .forEach((brand) => routes.add(`/brand/${routeSegment(brand.slug)}`));
 } catch (error) {
   console.warn(`Could not fetch prerender routes from ${apiUrl}: ${error.message}`);
 }
