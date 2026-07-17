@@ -4,6 +4,17 @@
   min-height: 100vh;
   background: var(--surface-50, #f9fafb);
 }
+
+.header-actions { display: flex; align-items: center; gap: .75rem; }
+.checkbox-notice { margin: 0 0 1rem; padding: .85rem 1rem; border: 1px solid #f0b429; border-radius: 8px; background: #fff8e6; color: #714b00; }
+.checkbox-available { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin:0 0 1rem; padding:.85rem 1rem; border:1px solid #67e8f9; border-radius:8px; background:#ecfeff; color:#155e75; }
+.checkbox-available div { display:grid; gap:.2rem; }
+.checkbox-available span { font-size:.85rem; }
+.readonly-source { color: var(--text-color-secondary, #6b7280); font-size: .8rem; white-space: nowrap; }
+.checkbox-row { background: rgba(14, 116, 144, .04); }
+.checkbox-stock-readonly { display:grid; gap:.15rem; }
+.checkbox-stock-readonly strong { color:#0e7490; font-size:1rem; }
+.checkbox-stock-readonly span { color:#64748b; font-size:.72rem; }
 .page-header {
   display: flex;
   align-items: center;

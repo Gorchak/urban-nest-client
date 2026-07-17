@@ -1,0 +1,21 @@
+:host { display: contents; }
+.sales-toolbar { display:grid; grid-template-columns:minmax(220px,280px) auto 1fr; align-items:end; gap:1rem; margin-bottom:1rem; }
+.month-filter { display:grid; gap:.4rem; }
+.month-filter label { color:#475569; font-size:.875rem; font-weight:700; }
+.sales-summary { display:grid; justify-items:end; gap:.2rem; }
+.sales-summary strong { color:#0e7490; font-size:1.15rem; }
+.sales-summary span { color:#64748b; font-size:.8rem; }
+.sales-error { margin-bottom:.75rem; padding:.75rem; border:1px solid #fecaca; border-radius:8px; background:#fef2f2; color:#b91c1c; }
+.sales-scroll { max-height:62vh; overflow:auto; border:1px solid #e2e8f0; border-radius:8px; }
+.sales-table { width:100%; border-collapse:collapse; }
+.sales-table th { position:sticky; top:0; z-index:1; background:#f8fafc; color:#475569; font-size:.82rem; text-align:left; }
+.sales-table th,.sales-table td { padding:.8rem 1rem; border-bottom:1px solid #e5e7eb; }
+.sales-table code { overflow-wrap:anywhere; }
+.amount { font-weight:700; white-space:nowrap; }
+.amount--return { color:#b91c1c; }
+.operation-tag { display:inline-flex; padding:.2rem .5rem; border-radius:999px; background:#dcfce7; color:#15803d; font-size:.75rem; font-weight:700; }
+.operation-tag--return { background:#fee2e2; color:#b91c1c; }
+.loading-more,.list-end,.empty-state { padding:1.1rem; color:#64748b; text-align:center; }
+.loading-more { display:flex; align-items:center; justify-content:center; gap:.65rem; }
+.loading-more ::ng-deep .p-progress-spinner { width:24px; height:24px; }
+@media (max-width:700px) { .sales-toolbar { grid-template-columns:1fr; align-items:stretch; } .sales-summary { justify-items:start; } .sales-table th,.sales-table td { padding:.7rem; } }

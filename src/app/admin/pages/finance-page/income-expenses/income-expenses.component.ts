@@ -10,6 +10,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ToastModule } from 'primeng/toast';
 import { ExpenseFilter, FinanceFilter } from '../../../../core/models/finance.model';
 import { FinanceService } from '../../../../core/services/finance.service';
+import { CheckboxSalesDialogComponent } from './checkbox-sales-dialog.component';
 
 type MonthPreset = 'current' | 'previous' | 'all' | null;
 
@@ -34,6 +35,7 @@ interface FinanceTableRow {
     CheckboxModule,
     ProgressSpinnerModule,
     ToastModule,
+    CheckboxSalesDialogComponent,
   ],
   templateUrl: './income-expenses.component.html',
   styleUrls: ['./income-expenses.component.scss'],
@@ -42,6 +44,7 @@ export class IncomeExpensesComponent implements OnInit {
   private financeService = inject(FinanceService);
   private messageService = inject(MessageService);
   private readonly batchSize = 50;
+  private loadVersion = 0;
 
   protected dateRange = signal<(Date | null)[] | null>(null);
   protected selectedPreset = signal<MonthPreset>('current');
@@ -53,6 +56,13 @@ export class IncomeExpensesComponent implements OnInit {
   protected auxiliaryExpensesTotal = signal(0);
   protected expenseItemsCount = signal(0);
   protected incomeItemsCount = signal(0);
+  protected websiteIncomeTotal = signal(0);
+  protected checkboxIncomeTotal = signal(0);
+  protected websiteIncomeItemsCount = signal(0);
+  protected checkboxIncomeItemsCount = signal(0);
+  protected includeCheckbox = signal(true);
+  protected showCheckboxSalesDialog = signal(false);
+  protected checkboxDialogFilter = signal<FinanceFilter>({});
   protected auxiliaryExpenseItemsCount = signal(0);
   protected tableRows = signal<FinanceTableRow[]>([]);
   protected loadedRecords = signal(0);
@@ -87,6 +97,17 @@ export class IncomeExpensesComponent implements OnInit {
     await this.loadFinanceData();
   }
 
+  protected async onIncludeCheckboxChange(value: boolean): Promise<void> {
+    this.includeCheckbox.set(value);
+    if (!value) this.showCheckboxSalesDialog.set(false);
+    await this.loadFinanceData();
+  }
+
+  protected openCheckboxSales(): void {
+    this.checkboxDialogFilter.set(this.buildFilter());
+    this.showCheckboxSalesDialog.set(true);
+  }
+
   protected formatMoney(value: number): string {
     return new Intl.NumberFormat('uk-UA', {
       style: 'currency',
@@ -96,6 +117,7 @@ export class IncomeExpensesComponent implements OnInit {
   }
 
   private async loadFinanceData(): Promise<void> {
+    const version = ++this.loadVersion;
     const filter = this.buildFilter();
     this.loading.set(true);
     this.expensesTotal.set(0);
@@ -105,39 +127,59 @@ export class IncomeExpensesComponent implements OnInit {
     this.auxiliaryExpensesTotal.set(0);
     this.expenseItemsCount.set(0);
     this.incomeItemsCount.set(0);
+    this.websiteIncomeTotal.set(0);
+    this.checkboxIncomeTotal.set(0);
+    this.websiteIncomeItemsCount.set(0);
+    this.checkboxIncomeItemsCount.set(0);
     this.auxiliaryExpenseItemsCount.set(0);
     this.tableRows.set([]);
     this.loadedRecords.set(0);
     this.totalRecords.set(0);
+    this.checkboxDialogFilter.set(filter);
 
     try {
-      const [productExpenses, incomes, auxiliaryExpenses] = await Promise.all([
+      const [productExpenses, websiteIncomes, checkboxIncomes, auxiliaryExpenses] = await Promise.all([
         this.loadAllProductExpenses(filter),
         this.loadAllIncomes(filter),
+        this.includeCheckbox()
+          ? this.loadAllCheckboxIncomes(filter)
+          : Promise.resolve({ total: 0, potentialTotal: 0, count: 0 }),
         this.loadAllAuxiliaryExpenses(filter),
       ]);
+      if (version !== this.loadVersion) return;
 
       const totalExpenses = productExpenses.total + auxiliaryExpenses.total;
+      const totalIncome = websiteIncomes.total + checkboxIncomes.total;
+      const totalPotentialIncome = websiteIncomes.potentialTotal;
       this.productExpensesTotal.set(productExpenses.total);
       this.auxiliaryExpensesTotal.set(auxiliaryExpenses.total);
       this.expensesTotal.set(totalExpenses);
-      this.incomeTotal.set(incomes.total);
-      this.potentialIncomeTotal.set(incomes.potentialTotal);
+      this.incomeTotal.set(totalIncome);
+      this.potentialIncomeTotal.set(totalPotentialIncome);
+      this.websiteIncomeTotal.set(websiteIncomes.total);
+      this.checkboxIncomeTotal.set(checkboxIncomes.total);
       this.expenseItemsCount.set(productExpenses.count);
-      this.incomeItemsCount.set(incomes.count);
+      this.websiteIncomeItemsCount.set(websiteIncomes.count);
+      this.checkboxIncomeItemsCount.set(checkboxIncomes.count);
+      this.incomeItemsCount.set(websiteIncomes.count + checkboxIncomes.count);
       this.auxiliaryExpenseItemsCount.set(auxiliaryExpenses.count);
-      this.tableRows.set([
-        { type: 'Товари', expenses: productExpenses.total, income: incomes.total, potentialIncome: incomes.potentialTotal },
+      const rows: FinanceTableRow[] = [
+        { type: 'Продажі сайту', expenses: productExpenses.total, income: websiteIncomes.total, potentialIncome: websiteIncomes.potentialTotal },
         ...auxiliaryExpenses.rows,
-      ]);
+      ];
+      if (this.includeCheckbox()) {
+        rows.splice(1, 0, { type: 'Продажі Checkbox', expenses: 0, income: checkboxIncomes.total });
+      }
+      this.tableRows.set(rows);
     } catch (err: any) {
+      if (version !== this.loadVersion) return;
       this.messageService.add({
         severity: 'error',
         summary: 'Фінанси',
         detail: err?.error?.message || 'Не вдалося отримати фінансові дані',
       });
     } finally {
-      this.loading.set(false);
+      if (version === this.loadVersion) this.loading.set(false);
     }
   }
 
@@ -179,6 +221,35 @@ export class IncomeExpensesComponent implements OnInit {
     } while (page <= pages);
 
     return { total, potentialTotal, count };
+  }
+
+  private async loadAllCheckboxIncomes(filter: FinanceFilter): Promise<{ total: number; potentialTotal: number; count: number }> {
+    try {
+      let page = 1;
+      let pages = 1;
+      let total = 0;
+      let potentialTotal = 0;
+      let count = 0;
+      do {
+        const batch = await this.financeService.getCheckboxIncomeBatch({ ...filter, page, limit: this.batchSize });
+        const batchTotal = batch.data.reduce((sum, item) => sum + Number(item.grandTotal || 0), 0);
+        total += batchTotal;
+        potentialTotal += batchTotal;
+        count += batch.data.length;
+        pages = batch.pagination.pages || 1;
+        this.trackProgress(batch.pagination.total, batch.data.length, page);
+        page += 1;
+      } while (page <= pages);
+
+      return { total, potentialTotal, count };
+    } catch (err: any) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Checkbox',
+        detail: err?.error?.message || 'Продажі Checkbox тимчасово недоступні; показано фінанси сайту',
+      });
+      return { total: 0, potentialTotal: 0, count: 0 };
+    }
   }
 
   private async loadAllAuxiliaryExpenses(filter: FinanceFilter): Promise<{ total: number; count: number; rows: FinanceTableRow[] }> {

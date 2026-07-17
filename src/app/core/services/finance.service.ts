@@ -34,6 +34,7 @@ export class FinanceService {
   private readonly merchandiseUrl = `${environment.apiUrl}/merchandise`;
   private readonly salesUrl = `${environment.apiUrl}/sales`;
   private readonly expensesUrl = `${environment.apiUrl}/expenses`;
+  private readonly checkboxUrl = `${environment.apiUrl}/checkbox`;
 
   async getExpenseBatch(filter: FinanceFilter): Promise<FinanceBatch<FinanceExpenseItem>> {
     const response = await firstValueFrom(
@@ -53,6 +54,20 @@ export class FinanceService {
     const response = await firstValueFrom(
       this.http.get<ApiResponse<FinanceIncomeItem[]>>(
         `${this.salesUrl}/finance/totals`,
+        { params: this.toParams(filter) },
+      ),
+    );
+
+    return {
+      data: response.data,
+      pagination: response.pagination ?? { total: 0, page: 1, limit: filter.limit ?? 50, pages: 0 },
+    };
+  }
+
+  async getCheckboxIncomeBatch(filter: FinanceFilter): Promise<FinanceBatch<FinanceIncomeItem>> {
+    const response = await firstValueFrom(
+      this.http.get<ApiResponse<FinanceIncomeItem[]>>(
+        `${this.checkboxUrl}/finance/totals`,
         { params: this.toParams(filter) },
       ),
     );

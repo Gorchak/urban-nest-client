@@ -24,7 +24,7 @@ main { padding: 3rem 5vw 7rem; }
 
 h1 {
   margin: .6rem 0 0;
-  font-family: Georgia, serif;
+  font-family: var(--un-serif, Georgia, serif);
   font-size: clamp(2.5rem, 5.5vw, 4.8rem);
   font-weight: 400;
   letter-spacing: -.035em;
@@ -152,7 +152,7 @@ h1 {
 }
 
 .toolbar div span {
-  font-family: Georgia, serif;
+  font-family: var(--un-serif, Georgia, serif);
   font-size: 1.8rem;
 }
 
@@ -204,7 +204,7 @@ time { color: rgba(23, 23, 20, .58); }
 .orders h2 {
   margin: 0;
   overflow-wrap: anywhere;
-  font-family: Georgia, serif;
+  font-family: var(--un-serif, Georgia, serif);
   font-size: clamp(1.25rem, 2.2vw, 1.8rem);
   font-weight: 400;
   line-height: 1.08;
@@ -327,7 +327,7 @@ time { color: rgba(23, 23, 20, .58); }
 }
 
 .summary strong {
-  font-family: Georgia, serif;
+  font-family: var(--un-serif, Georgia, serif);
   font-size: clamp(2rem, 4vw, 3.8rem);
   font-weight: 400;
   line-height: .95;
@@ -349,7 +349,7 @@ time { color: rgba(23, 23, 20, .58); }
 
 .auth-state h2, .empty-state h2 {
   margin: 0;
-  font-family: Georgia, serif;
+  font-family: var(--un-serif, Georgia, serif);
   font-size: clamp(1.7rem, 4vw, 3rem);
   font-weight: 400;
   line-height: 1;

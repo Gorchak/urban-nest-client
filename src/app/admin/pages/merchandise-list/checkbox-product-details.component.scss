@@ -1,0 +1,20 @@
+:host { display: contents; }
+.dialog-state { display:flex; align-items:center; justify-content:center; gap:.75rem; min-height:180px; color:#64748b; }
+.checkbox-product-hero { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:1rem; }
+.checkbox-product-hero h2 { margin:.3rem 0; }
+.checkbox-product-hero p { margin:0; color:#64748b; }
+.source-label { display:inline-block; padding:.2rem .45rem; border-radius:4px; background:#cffafe; color:#0e7490; font-size:.72rem; font-weight:800; letter-spacing:.08em; }
+.edit-panel,.raw-fields-section { margin-top:1rem; padding:1rem; border:1px solid #e2e8f0; border-radius:10px; }
+.edit-panel h3,.raw-fields-section h3 { margin:0 0 1rem; }
+.edit-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+.edit-grid label { display:grid; gap:.35rem; color:#475569; font-size:.85rem; font-weight:600; }
+.edit-grid input { width:100%; }
+.edit-grid ::ng-deep .p-dropdown,.edit-grid ::ng-deep .p-inputnumber,.edit-grid ::ng-deep .p-inputnumber-input { width:100%; }
+.boolean-field { display:flex!important; align-items:center; align-self:end; grid-template-columns:auto 1fr; min-height:42px; }
+.edit-actions { display:flex; justify-content:flex-end; gap:.75rem; margin-top:1rem; }
+.leftovers { margin-bottom:1rem; padding:.75rem; border-radius:6px; background:#f8fafc; color:#475569; overflow-wrap:anywhere; }
+.raw-fields-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.5rem; }
+.raw-field { display:grid; grid-template-columns:minmax(120px,.8fr) minmax(0,1.2fr); gap:.75rem; padding:.6rem .75rem; border-bottom:1px solid #f1f5f9; }
+.raw-field span { color:#64748b; overflow-wrap:anywhere; }
+.raw-field code { color:#0f172a; overflow-wrap:anywhere; white-space:pre-wrap; }
+@media (max-width:700px){.checkbox-product-hero{flex-direction:column}.edit-grid,.raw-fields-grid{grid-template-columns:1fr}.raw-field{grid-template-columns:1fr}.edit-actions{flex-direction:column}}

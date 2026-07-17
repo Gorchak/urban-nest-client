@@ -39,6 +39,7 @@ import {
   SaleStatus,
 } from '../../../core/models/sale.model';
 import { formatCurrency } from '../../../core/utils/price-format';
+import { CheckboxService, CheckboxIntegrationStatus } from '../../../core/services/checkbox.service';
 
 const emptySale = (): CreateSaleDto => ({
   orderNumber: `UN-${Date.now().toString().slice(-6)}`,
@@ -111,6 +112,7 @@ export class SalesPageComponent implements OnInit {
   private salesService = inject(SalesService);
   private messageService = inject(MessageService);
   private cdr = inject(ChangeDetectorRef);
+  private checkboxService = inject(CheckboxService);
 
   protected sales = signal<Sale[]>([]);
   protected pagination = signal<SalePagination>({ total: 0, page: 1, limit: 20, pages: 0 });
@@ -121,6 +123,13 @@ export class SalesPageComponent implements OnInit {
   protected quickEditDrafts = signal<Record<string, { status: SaleStatus; paymentStatus: SalePaymentStatus }>>({});
   protected search = signal('');
   protected statusFilter = signal<SaleStatus | null>(null);
+  protected dataSource = signal<'website' | 'checkbox'>('website');
+  protected checkboxStatus = signal<CheckboxIntegrationStatus | null>(null);
+  protected fiscalizingSaleId = signal<string | null>(null);
+  readonly dataSourceOptions = [
+    { label: 'Продажі сайту', value: 'website' },
+    { label: 'Продажі Checkbox', value: 'checkbox' },
+  ];
 
   protected showEditDialog = signal(false);
   protected showDetailsDialog = signal(false);
@@ -158,22 +167,59 @@ export class SalesPageComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
+    try {
+      this.checkboxStatus.set(await this.checkboxService.getStatus());
+    } catch {
+      // Status is informational; local sales must remain available.
+    }
     await this.loadSales();
   }
 
   protected async loadSales(): Promise<void> {
     this.loading.set(true);
     try {
-      const result = await this.salesService.getSales({
-        page: this.pagination().page,
-        limit: this.pagination().limit,
-        search: this.search() || undefined,
-        status: this.statusFilter() || undefined,
-      });
+      const result = this.dataSource() === 'checkbox'
+        ? await this.checkboxService.getReceipts({
+            page: this.pagination().page,
+            limit: this.pagination().limit,
+            search: this.search() || undefined,
+          })
+        : await this.salesService.getSales({
+            page: this.pagination().page,
+            limit: this.pagination().limit,
+            search: this.search() || undefined,
+            status: this.statusFilter() || undefined,
+          });
       this.sales.set(result.data);
       this.pagination.set(result.pagination);
     } finally {
       this.loading.set(false);
+      this.cdr.markForCheck();
+    }
+  }
+
+  protected async onDataSourceChange(value: 'website' | 'checkbox'): Promise<void> {
+    this.dataSource.set(value);
+    this.pagination.update((p) => ({ ...p, page: 1 }));
+    await this.loadSales();
+  }
+
+  protected canFiscalize(sale: Sale): boolean {
+    return sale.source !== 'checkbox'
+      && sale.payment.status === 'paid'
+      && !sale.checkboxFiscalization?.receiptId;
+  }
+
+  protected async fiscalizeSale(sale: Sale): Promise<void> {
+    this.fiscalizingSaleId.set(sale._id);
+    try {
+      await this.checkboxService.fiscalizeSale(sale._id);
+      this.messageService.add({ severity: 'success', summary: 'Checkbox', detail: 'Продаж передано на фіскалізацію' });
+      await this.loadSales();
+    } catch (err: any) {
+      this.messageService.add({ severity: 'error', summary: 'Checkbox', detail: err?.error?.message || 'Не вдалося фіскалізувати продаж' });
+    } finally {
+      this.fiscalizingSaleId.set(null);
       this.cdr.markForCheck();
     }
   }

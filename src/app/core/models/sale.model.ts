@@ -82,6 +82,8 @@ export interface SaleInventoryAdjustment {
 
 export interface Sale {
   _id: string;
+  source?: 'website' | 'checkbox';
+  externalId?: string;
   orderNumber: string;
   userId?: string | null;
   status: SaleStatus;
@@ -100,6 +102,22 @@ export interface Sale {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+  checkbox?: {
+    fiscalCode: string | null;
+    fiscalDate: string | null;
+    receiptStatus: string | null;
+    receiptType: string | null;
+    taxUrl: string | null;
+    sentToDps: boolean;
+    context?: Record<string, string | number | boolean> | null;
+  };
+  checkboxFiscalization?: {
+    status: string;
+    receiptId: string;
+    fiscalCode: string | null;
+    fiscalizedAt: string | null;
+    updatedAt: string;
+  } | null;
 }
 
 export type CreateSaleDto = Omit<Sale, '_id' | 'createdAt' | 'updatedAt' | 'deletedAt'> & {

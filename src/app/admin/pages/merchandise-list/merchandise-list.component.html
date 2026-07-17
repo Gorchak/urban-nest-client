@@ -12,14 +12,39 @@
       styleClass="total-badge"
     />
   </div>
-  <p-button
-    label="Новий товар"
-    icon="pi pi-plus"
-    (onClick)="openNew()"
-  />
+  <div class="header-actions">
+    <p-dropdown
+      [options]="dataSourceOptions"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="dataSource()"
+      (ngModelChange)="onDataSourceChange($event)"
+    />
+    @if (dataSource() === 'website') {
+      <p-button label="Новий товар" icon="pi pi-plus" (onClick)="openNew()" />
+    }
+  </div>
 </div>
 
+@if (dataSource() === 'checkbox' && checkboxStatus()?.configured === false) {
+  <div class="checkbox-notice">
+    <strong>Checkbox ще не налаштовано.</strong>
+    Додайте на сервері: {{ checkboxStatus()?.missing?.join(', ') }}.
+  </div>
+}
+
+@if (dataSource() === 'website' && checkboxStatus()?.configured === true) {
+  <div class="checkbox-available">
+    <div>
+      <strong>Товари Checkbox підключені</strong>
+      <span>Вони мають окреме джерело, щоб їх не сплутати з товарами сайту.</span>
+    </div>
+    <p-button label="Показати товари Checkbox" icon="pi pi-external-link" severity="info" (onClick)="onDataSourceChange('checkbox')" />
+  </div>
+}
+
 <!-- ─── Category tabs ──────────────────────────────────────────────────── -->
+@if (dataSource() === 'website') {
 <div class="tabs-section">
   @if (loadingCategories()) {
     <div class="tabs-skeleton">
@@ -63,6 +88,7 @@
     </div>
   }
 </div>
+}
 
 <!-- ─── Filters bar ────────────────────────────────────────────────────── -->
 <div class="filters-bar">
@@ -174,7 +200,7 @@
     </ng-template>
 
     <ng-template pTemplate="body" let-item>
-      <tr class="merchandise-row">
+      <tr class="merchandise-row" [class.checkbox-row]="item.source === 'checkbox'">
 
         <!-- Image -->
         <td class="col-image">
@@ -199,7 +225,8 @@
 
         <!-- Name -->
         <td class="col-name">
-          <div class="item-name name-link" (click)="openMerchandiseDetails(item._id)">{{ item.name }}</div>
+          <div class="item-name name-link" (click)="openProductDetails(item)">{{ item.name }}</div>
+          <p-tag [value]="item.source === 'checkbox' ? 'CHECKBOX' : 'САЙТ'" [severity]="item.source === 'checkbox' ? 'info' : 'secondary'" />
           @if (item.shortDescription) {
             <div class="item-short-desc">{{ item.shortDescription }}</div>
           }
@@ -207,11 +234,17 @@
 
         <!-- Category -->
         <td class="col-category">
-          <span class="category-label">{{ getCategoryName(item.categoryId) }}</span>
+          <span class="category-label">{{ item.source === 'checkbox' ? (item.checkbox?.groupName || 'Без групи') : getCategoryName(item.categoryId) }}</span>
         </td>
 
         <!-- Stock -->
         <td class="col-stock">
+          @if (item.source === 'checkbox') {
+            <div class="checkbox-stock-readonly">
+              <strong>{{ getStockDisplayValue(item) }}</strong>
+              <span>{{ item.checkbox?.isWeight ? 'Ваговий залишок' : 'Залишок Checkbox' }}</span>
+            </div>
+          } @else {
           <div class="stock-edit-wrapper">
             <div class="stock-control">
               <button
@@ -272,11 +305,12 @@
               (onClick)="openQuickInventory(item)"
             />
           </div>
+          }
         </td>
 
         <!-- Purchase price -->
         <td class="col-price">
-          {{ formatPrice(item.purchasePrice, item.currency) }}
+          {{ item.source === 'checkbox' ? '—' : formatPrice(item.purchasePrice, item.currency) }}
         </td>
 
         <!-- Sale price -->
@@ -286,6 +320,9 @@
 
         <!-- Discount -->
         <td class="col-discount">
+          @if (item.source === 'checkbox') {
+            <span>—</span>
+          } @else {
           <div class="discount-edit-wrapper">
             <div class="discount-input-shell">
               <input
@@ -323,6 +360,7 @@
               </div>
             }
           </div>
+          }
         </td>
 
         <!-- Active -->
@@ -340,6 +378,7 @@
 
         <!-- Actions -->
         <td class="col-actions">
+          @if (item.source !== 'checkbox') {
           <app-admin-action-menu
             [showView]="true"
             [showSale]="true"
@@ -350,6 +389,9 @@
             (edit)="openEdit(item)"
             (delete)="confirmDelete(item)"
           />
+          } @else {
+            <p-button icon="pi pi-pencil" label="Перегляд / редагування" size="small" severity="info" [outlined]="true" (onClick)="openProductDetails(item)" />
+          }
         </td>
 
       </tr>
@@ -398,6 +440,13 @@
   [visible]="showDetailsDialog()"
   (visibleChange)="showDetailsDialog.set($event)"
   [merchandiseId]="detailsMerchandiseId()"
+/>
+
+<app-checkbox-product-details
+  [visible]="showCheckboxDetailsDialog()"
+  (visibleChange)="showCheckboxDetailsDialog.set($event)"
+  [productId]="checkboxProductId()"
+  (saved)="onCheckboxProductSaved($event)"
 />
 
 <app-quick-inventory-editor

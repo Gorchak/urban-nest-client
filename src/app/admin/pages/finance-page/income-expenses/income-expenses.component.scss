@@ -38,6 +38,12 @@
   min-height: 42px;
 }
 
+.filter-separator {
+  align-self: stretch;
+  border-left: 1px solid #e2e8f0;
+  margin: 0 .25rem;
+}
+
 .loading-panel {
   align-items: center;
   background: #f8fafc;
@@ -105,6 +111,7 @@
 }
 
 .potential-income,
+.income-sources,
 .table-note,
 .totals-strip small {
   color: #64748b;
@@ -140,6 +147,21 @@
   border-radius: 8px;
   overflow: hidden;
 }
+
+.checkbox-sales-action {
+  align-items: center;
+  background: #ecfeff;
+  border: 1px solid #a5f3fc;
+  border-radius: 8px;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: .85rem 1rem;
+}
+
+.checkbox-sales-action div { display: grid; gap: .2rem; }
+.checkbox-sales-action strong { color: #155e75; }
+.checkbox-sales-action span { color: #64748b; font-size: .85rem; }
 
 .finance-table {
   border-collapse: collapse;
@@ -227,4 +249,7 @@
   .totals-strip {
     justify-self: stretch;
   }
+
+  .filter-separator { display: none; }
+  .checkbox-sales-action { align-items: stretch; flex-direction: column; }
 }

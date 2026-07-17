@@ -39,6 +39,8 @@ import { SaleFormDialogComponent, createEmptySale } from '../sales-page/sale-for
 import { CreateSaleDto, Sale } from '../../../core/models/sale.model';
 import { AdminActionMenuComponent } from '../../components/admin-action-menu/admin-action-menu.component';
 import { formatCurrency } from '../../../core/utils/price-format';
+import { CheckboxService, CheckboxIntegrationStatus } from '../../../core/services/checkbox.service';
+import { CheckboxProductDetailsComponent } from './checkbox-product-details.component';
 
 interface SubcategoryOption {
   label: string;
@@ -80,6 +82,7 @@ interface StockEditState {
     QuickInventoryEditorComponent,
     SaleFormDialogComponent,
     AdminActionMenuComponent,
+    CheckboxProductDetailsComponent,
   ],
   templateUrl: './merchandise-list.component.html',
   styleUrls: ['./merchandise-list.component.scss'],
@@ -90,6 +93,7 @@ export class MerchandiseListComponent implements OnInit {
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private cdr = inject(ChangeDetectorRef);
+  private checkboxService = inject(CheckboxService);
 
   // ── Categories (tabs) ─────────────────────────────────────────────────────
   protected categories = signal<Category[]>([]);
@@ -127,6 +131,12 @@ export class MerchandiseListComponent implements OnInit {
   protected pagination = signal<MerchandisePagination>({ total: 0, page: 1, limit: 20, pages: 0 });
   protected loading = signal(false);
   protected loadingCategories = signal(false);
+  protected dataSource = signal<'website' | 'checkbox'>('website');
+  protected checkboxStatus = signal<CheckboxIntegrationStatus | null>(null);
+  readonly dataSourceOptions = [
+    { label: 'Товари сайту', value: 'website' },
+    { label: 'Товари Checkbox', value: 'checkbox' },
+  ];
 
   // ── Filters ───────────────────────────────────────────────────────────────
   protected searchQuery = signal('');
@@ -151,6 +161,8 @@ export class MerchandiseListComponent implements OnInit {
   protected quickInventoryMerchandise = signal<Merchandise | null>(null);
   protected showSaleDialog = signal(false);
   protected saleDraft = signal<CreateSaleDto | null>(null);
+  protected showCheckboxDetailsDialog = signal(false);
+  protected checkboxProductId = signal<string | null>(null);
 
   readonly sortOptions = [
     { label: 'Дата (нові)', value: 'createdAt_desc' },
@@ -190,6 +202,11 @@ export class MerchandiseListComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     await this.loadCategories();
+    try {
+      this.checkboxStatus.set(await this.checkboxService.getStatus());
+    } catch {
+      // Status is informational; the local catalog must remain available.
+    }
     await this.loadMerchandise();
   }
 
@@ -211,7 +228,13 @@ export class MerchandiseListComponent implements OnInit {
   async loadMerchandise(): Promise<void> {
     this.loading.set(true);
     try {
-      const result = await this.fetchMerchandiseForFilter();
+      const result = this.dataSource() === 'checkbox'
+        ? await this.checkboxService.getGoods({
+            page: this.pagination().page,
+            limit: this.pagination().limit,
+            search: this.searchQuery() || undefined,
+          })
+        : await this.fetchMerchandiseForFilter();
 
       this.merchandise.set(result.data);
       this.pagination.set(result.pagination);
@@ -221,6 +244,12 @@ export class MerchandiseListComponent implements OnInit {
       this.loading.set(false);
       this.cdr.markForCheck();
     }
+  }
+
+  protected async onDataSourceChange(value: 'website' | 'checkbox'): Promise<void> {
+    this.dataSource.set(value);
+    this.pagination.update((p) => ({ ...p, page: 1 }));
+    await this.loadMerchandise();
   }
 
   private async fetchMerchandiseForFilter(): Promise<MerchandiseListResponse> {
@@ -364,8 +393,23 @@ export class MerchandiseListComponent implements OnInit {
   // ── CRUD ──────────────────────────────────────────────────────────────────
 
   protected openMerchandiseDetails(id: string): void {
+    if (id.startsWith('checkbox:')) return;
     this.detailsMerchandiseId.set(id);
     this.showDetailsDialog.set(true);
+  }
+
+  protected openProductDetails(item: Merchandise): void {
+    if (item.source === 'checkbox') {
+      this.checkboxProductId.set(item.externalId || item._id.replace(/^checkbox:/, ''));
+      this.showCheckboxDetailsDialog.set(true);
+      return;
+    }
+    this.openMerchandiseDetails(item._id);
+  }
+
+  protected onCheckboxProductSaved(updated: Merchandise): void {
+    this.merchandise.update((items) => items.map((item) => item._id === updated._id ? updated : item));
+    this.cdr.markForCheck();
   }
 
   protected openNew(): void {

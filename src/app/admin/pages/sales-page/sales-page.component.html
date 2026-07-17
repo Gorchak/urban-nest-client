@@ -6,8 +6,26 @@
       <h1>Продажі</h1>
       <p>Замовлення, оплати, доставка і статуси</p>
     </div>
-    <p-button label="Новий продаж" icon="pi pi-plus" (onClick)="openNew()" />
+    <div class="header-actions">
+      <p-dropdown
+        [options]="dataSourceOptions"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="dataSource()"
+        (ngModelChange)="onDataSourceChange($event)"
+      />
+      @if (dataSource() === 'website') {
+        <p-button label="Новий продаж" icon="pi pi-plus" (onClick)="openNew()" />
+      }
+    </div>
   </div>
+
+  @if (dataSource() === 'checkbox' && checkboxStatus()?.configured === false) {
+    <div class="checkbox-notice">
+      <strong>Checkbox ще не налаштовано.</strong>
+      Додайте на сервері: {{ checkboxStatus()?.missing?.join(', ') }}.
+    </div>
+  }
 
   <div class="sales-toolbar">
     <p-iconField iconPosition="left" styleClass="search-field">
@@ -56,8 +74,11 @@
     </ng-template>
 
     <ng-template pTemplate="body" let-sale>
-      <tr>
-        <td><code>{{ sale.orderNumber }}</code></td>
+      <tr [class.checkbox-row]="sale.source === 'checkbox'">
+        <td>
+          <code>{{ sale.orderNumber }}</code>
+          <p-tag [value]="sale.source === 'checkbox' ? 'CHECKBOX' : 'САЙТ'" [severity]="sale.source === 'checkbox' ? 'info' : 'secondary'" />
+        </td>
         <td>
           <div class="customer-cell">
             <strong>{{ customerName(sale) }}</strong>
@@ -137,6 +158,12 @@
         </td>
         <td>{{ sale.createdAt | date: 'dd.MM.yyyy' }}</td>
         <td>
+          @if (canFiscalize(sale)) {
+            <button type="button" class="icon-action checkbox-action" title="Фіскалізувати в Checkbox" [disabled]="fiscalizingSaleId() === sale._id" (click)="fiscalizeSale(sale)">
+              <i class="pi pi-receipt"></i>
+            </button>
+          }
+          @if (sale.source !== 'checkbox') {
           <app-admin-action-menu
             [showView]="true"
             [showEdit]="true"
@@ -146,6 +173,9 @@
             (edit)="openEdit(sale)"
             (delete)="deleteSale(sale)"
           />
+          } @else {
+            <span class="readonly-source">Фіскальний чек</span>
+          }
         </td>
       </tr>
     </ng-template>

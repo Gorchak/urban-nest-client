@@ -1,3 +1,143 @@
+@font-face {
+  font-family: "Berlingske Serif";
+  src:
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-Lt.woff2") format("woff2"),
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-Lt.woff") format("woff");
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berlingske Serif";
+  src:
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-LtItalic.woff2") format("woff2"),
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-LtItalic.woff") format("woff");
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berlingske Serif";
+  src:
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-Regular.woff2") format("woff2"),
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-Regular.woff") format("woff");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berlingske Serif";
+  src:
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-Italic.woff2") format("woff2"),
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-Italic.woff") format("woff");
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berlingske Serif";
+  src:
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-Md.woff2") format("woff2"),
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-Md.woff") format("woff");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berlingske Serif";
+  src:
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-MdItalic.woff2") format("woff2"),
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-MdItalic.woff") format("woff");
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berlingske Serif";
+  src:
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-SemiBold.woff2") format("woff2"),
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-SemiBold.woff") format("woff");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berlingske Serif";
+  src:
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-SemBdIta.woff2") format("woff2"),
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-SemBdIta.woff") format("woff");
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berlingske Serif";
+  src:
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-Bold.woff2") format("woff2"),
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-Bold.woff") format("woff");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berlingske Serif";
+  src:
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-BoldItalic.woff2") format("woff2"),
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-BoldItalic.woff") format("woff");
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berlingske Serif";
+  src:
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-ExtraBold.woff2") format("woff2"),
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-ExtraBold.woff") format("woff");
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berlingske Serif";
+  src:
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-ExtBdIta.woff2") format("woff2"),
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-ExtBdIta.woff") format("woff");
+  font-style: italic;
+  font-weight: 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berlingske Serif";
+  src:
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-Blk.woff2") format("woff2"),
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-Blk.woff") format("woff");
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Berlingske Serif";
+  src:
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-BlkItalic.woff2") format("woff2"),
+    url("assets/fonts/berlingske-serif/BerlingskeSerif-BlkItalic.woff") format("woff");
+  font-style: italic;
+  font-weight: 900;
+  font-display: swap;
+}
+
 :root {
   --un-ink: #181713;
   --un-muted: rgba(24, 23, 19, 0.62);
@@ -7,7 +147,7 @@
   --un-line: rgba(24, 23, 19, 0.18);
   --un-accent: #9f3526;
   --un-green: #3f6f4a;
-  --un-serif: Georgia, "Times New Roman", serif;
+  --un-serif: "Berlingske Serif", Georgia, "Times New Roman", serif;
   --un-sans: Arial, Helvetica, sans-serif;
 }
 

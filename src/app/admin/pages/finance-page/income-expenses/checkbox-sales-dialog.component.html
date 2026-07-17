@@ -1,0 +1,83 @@
+<p-dialog
+  header="Продажі Checkbox"
+  [visible]="visible"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '980px', maxWidth: '98vw' }"
+  styleClass="checkbox-sales-dialog"
+  appendTo="body"
+>
+  <div class="sales-toolbar">
+    <div class="month-filter">
+      <label for="checkbox-sales-period">Період</label>
+      <p-calendar
+        inputId="checkbox-sales-period"
+        selectionMode="range"
+        dateFormat="dd.mm.yy"
+        appendTo="body"
+        [readonlyInput]="true"
+        [showIcon]="true"
+        [ngModel]="dateRange()"
+        (ngModelChange)="onDateRangeChange($event)"
+      />
+    </div>
+    <p-button
+      label="За весь час"
+      icon="pi pi-calendar"
+      severity="secondary"
+      [outlined]="!allTime()"
+      (onClick)="showAllTime()"
+    />
+    <div class="sales-summary">
+      <strong>{{ formatMoney(loadedTotal()) }}</strong>
+      <span>Завантажено {{ sales().length }} із {{ totalCount() }} чеків</span>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="sales-error">{{ error() }}</div>
+  }
+
+  <div class="sales-scroll" (scroll)="onScroll($event)">
+    <table class="sales-table">
+      <thead>
+        <tr>
+          <th>Фіскальний код</th>
+          <th>Дата</th>
+          <th>Операція</th>
+          <th>Сума</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (sale of sales(); track sale._id) {
+          <tr>
+            <td><code>{{ sale.fiscalCode || '—' }}</code></td>
+            <td>{{ sale.createdAt | date: 'dd.MM.yyyy HH:mm' }}</td>
+            <td>
+              <span class="operation-tag" [class.operation-tag--return]="sale.grandTotal < 0">
+                {{ sale.grandTotal < 0 ? 'Повернення' : 'Продаж' }}
+              </span>
+            </td>
+            <td class="amount" [class.amount--return]="sale.grandTotal < 0">{{ formatMoney(sale.grandTotal) }}</td>
+          </tr>
+        } @empty {
+          @if (!loading()) {
+            <tr><td colspan="4" class="empty-state">Продажів за вибраний період немає</td></tr>
+          }
+        }
+      </tbody>
+    </table>
+
+    @if (loading()) {
+      <div class="loading-more"><p-progressSpinner /> <span>Завантаження чеків…</span></div>
+    } @else if (!hasMore() && sales().length > 0) {
+      <div class="list-end">Усі чеки за вибраний період завантажено</div>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Закрити" severity="secondary" (onClick)="close()" />
+  </ng-template>
+</p-dialog>

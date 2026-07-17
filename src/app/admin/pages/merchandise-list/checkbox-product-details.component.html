@@ -1,0 +1,69 @@
+<p-dialog
+  [visible]="visible"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '980px', maxWidth: '98vw' }"
+  styleClass="checkbox-product-dialog"
+  header="Товар Checkbox"
+  appendTo="body"
+>
+  @if (loading()) {
+    <div class="dialog-state"><i class="pi pi-spinner pi-spin"></i> Завантаження всіх полів...</div>
+  } @else if (error()) {
+    <p-message severity="error" [text]="error()!" />
+  } @else {
+    @if (details(); as data) {
+    <div class="checkbox-product-hero">
+      <div>
+        <span class="source-label">CHECKBOX</span>
+        <h2>{{ data.product.name }}</h2>
+        <p>{{ data.product.sku }} · {{ data.product.salePrice | number:'1.2-2' }} грн</p>
+      </div>
+      @if (!editMode()) {
+        <p-button label="Редагувати в Checkbox" icon="pi pi-pencil" (onClick)="startEdit()" />
+      }
+    </div>
+
+    <p-message severity="info" text="Checkbox API дозволяє читати залишки, але не надає endpoint для зміни кількості товару. Кнопки зміни кількості для цього джерела вимкнені." />
+    <p-message severity="info" text="Поле image_url надходить від Checkbox лише для читання. Поточний API не приймає його при редагуванні товару і не має endpoint для завантаження зображення." />
+
+    @if (editMode()) {
+      <section class="edit-panel">
+        <h3>Редаговані поля</h3>
+        <div class="edit-grid">
+          <label>Назва<input pInputText [ngModel]="draft().name" (ngModelChange)="patchDraft({ name: $event })" /></label>
+          <label>Коротка назва<input pInputText [ngModel]="draft().short_name" (ngModelChange)="patchDraft({ short_name: $event })" /></label>
+          <label>Код / SKU<input pInputText [ngModel]="draft().code" (ngModelChange)="patchDraft({ code: $event })" /></label>
+          <label>Тип<p-dropdown [options]="typeOptions" optionLabel="label" optionValue="value" [ngModel]="draft().type" (ngModelChange)="patchDraft({ type: $event })" /></label>
+          <label>Ціна, грн<p-inputNumber mode="decimal" [min]="0.01" [minFractionDigits]="2" [maxFractionDigits]="2" [ngModel]="draft().price" (ngModelChange)="patchDraft({ price: $event })" /></label>
+          <label>Штрихкод<input pInputText [ngModel]="draft().barcode" (ngModelChange)="patchDraft({ barcode: $event })" /></label>
+          <label>УКТ ЗЕД<input pInputText [ngModel]="draft().uktzed" (ngModelChange)="patchDraft({ uktzed: $event })" /></label>
+          <label>ID групи<input pInputText [ngModel]="draft().group" (ngModelChange)="patchDraft({ group: $event })" /></label>
+          <label>Позиція<p-inputNumber [ngModel]="draft().position" (ngModelChange)="patchDraft({ position: $event })" /></label>
+          <label class="boolean-field"><p-checkbox [binary]="true" [ngModel]="draft().is_weight" (ngModelChange)="patchDraft({ is_weight: $event })" /> Ваговий товар</label>
+        </div>
+        <div class="edit-actions">
+          <p-button label="Скасувати" severity="secondary" [outlined]="true" (onClick)="cancelEdit()" />
+          <p-button label="Зберегти в Checkbox" icon="pi pi-check" [loading]="saving()" (onClick)="save()" />
+        </div>
+      </section>
+    }
+
+    <section class="raw-fields-section">
+      <h3>Усі поля відповіді Checkbox</h3>
+      <div class="leftovers"><strong>Залишки по торгових точках:</strong> {{ formatLeftovers() }}</div>
+      <div class="raw-fields-grid">
+        @for (field of rawFields(); track field.path) {
+          <div class="raw-field"><span>{{ field.path }}</span><code>{{ field.value }}</code></div>
+        }
+      </div>
+    </section>
+    }
+  }
+
+  <ng-template pTemplate="footer">
+    <p-button label="Закрити" severity="secondary" (onClick)="close()" />
+  </ng-template>
+</p-dialog>

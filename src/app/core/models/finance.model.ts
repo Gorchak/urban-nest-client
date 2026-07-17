@@ -25,9 +25,11 @@ export interface FinanceExpenseItem {
 
 export interface FinanceIncomeItem {
   _id: string;
+  source?: 'website' | 'checkbox';
   grandTotal: number;
   paymentStatus: 'unpaid' | 'paid' | 'partially_paid' | 'refunded';
   createdAt: string;
+  fiscalCode?: string | null;
 }
 
 export type ExpenseDateMode = 'exact' | 'month';

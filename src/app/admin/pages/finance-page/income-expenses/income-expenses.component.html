@@ -40,6 +40,15 @@
         (onChange)="applyPreset('previous')"
       />
       <label for="previous-month">Минулий місяць</label>
+
+      <span class="filter-separator" aria-hidden="true"></span>
+      <p-checkbox
+        inputId="include-checkbox"
+        [binary]="true"
+        [ngModel]="includeCheckbox()"
+        (ngModelChange)="onIncludeCheckboxChange($event)"
+      />
+      <label for="include-checkbox">Враховувати Checkbox</label>
     </div>
 
     <button
@@ -78,7 +87,12 @@
           <span class="summary-label">Доходи</span>
           <strong>{{ formatMoney(incomeTotal()) }}</strong>
           <small>{{ incomeItemsCount() }} продажів у періоді</small>
-          <small class="potential-income">Потенційний дохід: {{ formatMoney(potentialIncomeTotal()) }}</small>
+          @if (includeCheckbox()) {
+            <small class="income-sources">Сайт: {{ formatMoney(websiteIncomeTotal()) }} · Checkbox: {{ formatMoney(checkboxIncomeTotal()) }}</small>
+          } @else {
+            <small class="income-sources">Checkbox не враховується</small>
+          }
+          <small class="potential-income">Потенційний дохід сайту: {{ formatMoney(potentialIncomeTotal()) }}</small>
         </div>
       </div>
     </p-card>
@@ -129,11 +143,26 @@
     </table>
   </div>
 
+  @if (includeCheckbox()) {
+    <div class="checkbox-sales-action">
+      <div>
+        <strong>Продажі Checkbox</strong>
+        <span>{{ checkboxIncomeItemsCount() }} чеків за вибраний період</span>
+      </div>
+      <p-button
+        label="Переглянути чеки"
+        icon="pi pi-external-link"
+        severity="info"
+        (onClick)="openCheckboxSales()"
+      />
+    </div>
+  }
+
   <div class="totals-strip">
     <div>
       <span>Загальні доходи</span>
       <strong>{{ formatMoney(incomeTotal()) }}</strong>
-      <small>Потенційний дохід: {{ formatMoney(potentialIncomeTotal()) }}</small>
+      <small>Потенційний дохід сайту: {{ formatMoney(potentialIncomeTotal()) }}</small>
     </div>
     <div>
       <span>Загальні витрати</span>
@@ -141,3 +170,9 @@
     </div>
   </div>
 </section>
+
+<app-checkbox-sales-dialog
+  [visible]="showCheckboxSalesDialog()"
+  (visibleChange)="showCheckboxSalesDialog.set($event)"
+  [initialFilter]="checkboxDialogFilter()"
+/>

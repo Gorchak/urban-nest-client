@@ -5,6 +5,13 @@
   background: var(--surface-50, #f9fafb);
 }
 
+.header-actions { display: flex; align-items: center; gap: .75rem; }
+.checkbox-notice { margin-bottom: 1rem; padding: .85rem 1rem; border: 1px solid #f0b429; border-radius: 8px; background: #fff8e6; color: #714b00; }
+.readonly-source { color: var(--text-color-secondary, #6b7280); font-size: .8rem; white-space: nowrap; }
+.checkbox-action { margin-right: .35rem; color: #0b7285; }
+.checkbox-row select, .checkbox-row button { pointer-events: none; }
+.checkbox-row { background: rgba(14, 116, 144, .04); }
+
 .page-header,
 .sales-toolbar,
 .dialog-footer,

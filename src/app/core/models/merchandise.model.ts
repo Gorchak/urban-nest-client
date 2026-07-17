@@ -40,6 +40,8 @@ export interface MerchandiseInventory {
 
 export interface Merchandise {
   _id: string;
+  source?: 'website' | 'checkbox';
+  externalId?: string;
   sku: string;
   name: string;
   slug: string;
@@ -69,6 +71,13 @@ export interface Merchandise {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+  checkbox?: {
+    type: string | null;
+    groupId: string | null;
+    groupName: string | null;
+    taxes: unknown[];
+    isWeight: boolean;
+  };
 }
 
 export interface CreateMerchandiseDto {
