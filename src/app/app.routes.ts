@@ -1,12 +1,5 @@
 import { Routes } from '@angular/router';
-import { AdminAccessPageComponent } from './admin/admin-access-page/admin-access-page.component';
-import { AdminCategoriesPageWithTabsComponent } from './admin/pages/admin-categories-page-with-tabs/admin-categories-page-with-tabs.component';
-import { FinancePageComponent } from './admin/pages/finance-page/finance-page.component';
-import { MerchandiseListComponent } from './admin/pages/merchandise-list/merchandise-list.component';
-import { SalesPageComponent } from './admin/pages/sales-page/sales-page.component';
-import { UsersPageComponent } from './admin/pages/users-page/users-page.component';
 import { HomePageComponent } from './public/home-page/home-page.component';
-import { BrandsPageComponent } from './admin/pages/brands-page/brands-page.component';
 
 export const routes: Routes = [
   { path: '', component: HomePageComponent, pathMatch: 'full' },
@@ -35,12 +28,33 @@ export const routes: Routes = [
     path: 'favorites',
     loadComponent: () => import('./public/favorites-page/favorites-page.component').then((module) => module.FavoritesPageComponent),
   },
-  { path: 'admin/access', component: AdminAccessPageComponent },
+  {
+    path: 'admin/access',
+    loadComponent: () => import('./admin/admin-access-page/admin-access-page.component').then((module) => module.AdminAccessPageComponent),
+  },
   { path: 'admin', redirectTo: 'admin/users', pathMatch: 'full' },
-  { path: 'admin/categories', component: AdminCategoriesPageWithTabsComponent },
-  { path: 'admin/products', component: MerchandiseListComponent },
-  { path: 'admin/brands', component: BrandsPageComponent },
-  { path: 'admin/sales', component: SalesPageComponent },
-  { path: 'admin/users', component: UsersPageComponent },
-  { path: 'admin/finance', component: FinancePageComponent },
+  {
+    path: 'admin/categories',
+    loadComponent: () => import('./admin/pages/admin-categories-page-with-tabs/admin-categories-page-with-tabs.component').then((module) => module.AdminCategoriesPageWithTabsComponent),
+  },
+  {
+    path: 'admin/products',
+    loadComponent: () => import('./admin/pages/merchandise-list/merchandise-list.component').then((module) => module.MerchandiseListComponent),
+  },
+  {
+    path: 'admin/brands',
+    loadComponent: () => import('./admin/pages/brands-page/brands-page.component').then((module) => module.BrandsPageComponent),
+  },
+  {
+    path: 'admin/sales',
+    loadComponent: () => import('./admin/pages/sales-page/sales-page.component').then((module) => module.SalesPageComponent),
+  },
+  {
+    path: 'admin/users',
+    loadComponent: () => import('./admin/pages/users-page/users-page.component').then((module) => module.UsersPageComponent),
+  },
+  {
+    path: 'admin/finance',
+    loadComponent: () => import('./admin/pages/finance-page/finance-page.component').then((module) => module.FinancePageComponent),
+  },
 ];
