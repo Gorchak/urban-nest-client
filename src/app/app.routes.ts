@@ -29,6 +29,31 @@ export const routes: Routes = [
     loadComponent: () => import('./public/favorites-page/favorites-page.component').then((module) => module.FavoritesPageComponent),
   },
   {
+    path: 'delivery-and-payment',
+    data: { page: 'delivery' },
+    loadComponent: () => import('./public/info-page/info-page.component').then((module) => module.InfoPageComponent),
+  },
+  {
+    path: 'returns-and-exchanges',
+    data: { page: 'returns' },
+    loadComponent: () => import('./public/info-page/info-page.component').then((module) => module.InfoPageComponent),
+  },
+  {
+    path: 'contacts',
+    data: { page: 'contacts' },
+    loadComponent: () => import('./public/info-page/info-page.component').then((module) => module.InfoPageComponent),
+  },
+  {
+    path: 'public-offer',
+    data: { page: 'offer' },
+    loadComponent: () => import('./public/info-page/info-page.component').then((module) => module.InfoPageComponent),
+  },
+  {
+    path: 'privacy-policy',
+    data: { page: 'privacy' },
+    loadComponent: () => import('./public/info-page/info-page.component').then((module) => module.InfoPageComponent),
+  },
+  {
     path: 'admin/access',
     loadComponent: () => import('./admin/admin-access-page/admin-access-page.component').then((module) => module.AdminAccessPageComponent),
   },

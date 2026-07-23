@@ -1,7 +1,15 @@
 import { writeFile } from 'node:fs/promises';
 
 const apiUrl = process.env.PRERENDER_API_URL || 'https://api.uliastore.com.ua/api';
-const routes = new Set(['/', '/new-arrivals']);
+const routes = new Set([
+  '/',
+  '/new-arrivals',
+  '/delivery-and-payment',
+  '/returns-and-exchanges',
+  '/contacts',
+  '/public-offer',
+  '/privacy-policy',
+]);
 
 const routeSegment = (value) => encodeURIComponent(String(value || ''));
 const categoryRouteSegment = (value) => encodeURIComponent(String(value || '')

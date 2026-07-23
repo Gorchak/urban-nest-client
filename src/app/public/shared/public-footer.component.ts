@@ -17,7 +17,8 @@ import { toRouteSlug } from '../../core/utils/route-slug';
           </a>
           <p>Обрані речі для красивих щоденних історій.</p>
           <div class="socials">
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram"><i class="ri-instagram-line"></i></a>
+            <a href="https://www.instagram.com/uliaconceptstore/" target="_blank" rel="noopener noreferrer" aria-label="Ulia Concept Store в Instagram"><i class="ri-instagram-line"></i></a>
+            <a href="https://www.threads.com/@uliaconceptstore?xmt=AQG0YtmoxgntwsnMmwzw-ISicsNFIvF-Buuq30Yucc9q1aA" target="_blank" rel="noopener noreferrer" aria-label="Ulia Concept Store у Threads"><i class="ri-threads-line"></i></a>
             <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook"><i class="ri-facebook-fill"></i></a>
             <a href="https://t.me" target="_blank" rel="noreferrer" aria-label="Telegram"><i class="ri-telegram-2-line"></i></a>
           </div>
@@ -32,10 +33,11 @@ import { toRouteSlug } from '../../core/utils/route-slug';
 
         <nav>
           <span>Покупцям</span>
-          <a routerLink="/">Новинки</a>
-          <a routerLink="/checkout">Оформлення замовлення</a>
-          <a href="mailto:Uliaconcept@gmail.com">Зв'язатися з нами</a>
-          <a href="tel:+380000000000">+38 000 000 00 00</a>
+          <a routerLink="/delivery-and-payment">Доставка і оплата</a>
+          <a routerLink="/returns-and-exchanges">Повернення та обмін</a>
+          <a routerLink="/contacts">Контакти та магазин</a>
+          <a href="mailto:uliaconcept%40gmail.com">uliaconcept&#64;gmail.com</a>
+          <a href="tel:+380976456131">+38 097 645 61 31</a>
         </nav>
 
         <div class="newsletter">
@@ -51,7 +53,10 @@ import { toRouteSlug } from '../../core/utils/route-slug';
 
       <div class="footer-bottom">
         <span>© {{ year }} Ulia</span>
-        <span>Зроблено з увагою до деталей</span>
+        <nav class="legal" aria-label="Правова інформація">
+          <a routerLink="/public-offer">Публічна оферта</a>
+          <a routerLink="/privacy-policy">Політика конфіденційності</a>
+        </nav>
       </div>
     </footer>
   `,
@@ -76,6 +81,8 @@ import { toRouteSlug } from '../../core/utils/route-slug';
     .newsletter button { border:0; background:transparent; color:#fff; font-size:22px; cursor:pointer; }
     .newsletter small { display:block; margin-top:.8rem; color:rgba(255,255,255,.45); font-size:10px; line-height:1.5; }
     .footer-bottom { margin-top:clamp(4rem,8vw,8rem); padding-top:1.5rem; display:flex; justify-content:space-between; gap:1rem; border-top:1px solid rgba(255,255,255,.2); color:rgba(255,255,255,.55); font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+    .legal { flex-direction:row; gap:1.4rem; }
+    .legal a { color:inherit; font-size:10px; }
     @media(max-width:950px){.footer-top{grid-template-columns:1fr 1fr}.newsletter{grid-column:1/-1}.footer-bottom{margin-top:4rem}}
     @media(max-width:560px){
       footer{padding:3.5rem 20px calc(1.5rem + env(safe-area-inset-bottom))}

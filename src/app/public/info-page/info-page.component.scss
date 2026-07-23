@@ -1,0 +1,34 @@
+:host{display:block;background:var(--un-paper);color:var(--un-ink);font-family:var(--un-sans)}
+main{min-height:65vh;padding:2rem 3vw clamp(5rem,9vw,9rem)}
+.breadcrumbs{max-width:1120px;margin:0 auto 4rem;display:flex;gap:.65rem;color:var(--un-muted);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.breadcrumbs a{color:inherit;text-decoration:none}
+article{max-width:1120px;margin:0 auto}
+header{max-width:920px;margin-bottom:clamp(3rem,7vw,6.5rem)}
+header>span,.eyebrow{display:block;margin-bottom:1rem;color:var(--un-accent);font-size:10px;font-weight:700;letter-spacing:.17em;text-transform:uppercase}
+h1{margin:0;font-family:var(--un-serif);font-size:clamp(3.3rem,8vw,8rem);font-weight:300;letter-spacing:-.045em;line-height:.86}
+article>section{max-width:760px;margin:0 0 3.2rem 28%;padding-top:2rem;border-top:1px solid var(--un-line)}
+h2{margin:0 0 1.15rem;font-family:var(--un-serif);font-size:clamp(1.8rem,3vw,2.8rem);font-weight:400;letter-spacing:-.02em}
+p,li,address{font-size:15px;line-height:1.75}
+p{margin:.6rem 0 1rem}
+ol{padding-left:1.2rem}
+li{padding-left:.4rem;margin:.5rem 0}
+a{color:inherit;text-underline-offset:3px}
+aside{max-width:760px;margin:4rem 0 0 28%;padding:1.5rem 1.7rem;background:var(--un-soft);font-size:14px;line-height:1.7}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--un-line);border-bottom:1px solid var(--un-line)}
+.contact-grid section{min-height:390px;padding:clamp(2rem,5vw,4.5rem)}
+.contact-grid section+section{border-left:1px solid var(--un-line)}
+.contact-grid h2{font-size:clamp(2.7rem,5vw,5rem)}
+address{margin:2rem 0;font-style:normal}
+.contact-grid p{font-family:var(--un-serif);font-size:clamp(1.4rem,2.5vw,2rem)}
+.contact-grid .muted{max-width:420px;margin-top:2.5rem;color:var(--un-muted);font-family:var(--un-sans);font-size:13px}
+.text-link{display:inline-flex;gap:.5rem;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+@media(max-width:760px){
+  main{padding:1.5rem 20px 5rem}
+  .breadcrumbs{margin-bottom:3rem;overflow-x:auto;white-space:nowrap}
+  header{margin-bottom:3.5rem}
+  article>section,aside{margin-left:0}
+  article>section{padding-top:1.5rem;margin-bottom:2.4rem}
+  .contact-grid{grid-template-columns:1fr}
+  .contact-grid section{min-height:0;padding:2.2rem 0}
+  .contact-grid section+section{border-left:0;border-top:1px solid var(--un-line)}
+}
