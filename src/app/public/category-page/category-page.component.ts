@@ -11,6 +11,8 @@ import { SeoService } from '../../core/services/seo.service';
 import { encodeRouteSlug, normalizeRouteSlug, toRouteSlug } from '../../core/utils/route-slug';
 import { PublicProductCardComponent } from '../shared/public-product-card.component';
 import { PublicFooterComponent } from '../shared/public-footer.component';
+import { StructuredDataService } from '../../core/services/structured-data.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-category-page',
@@ -27,6 +29,7 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
   private merchandiseService = inject(MerchandiseService);
   private seo = inject(SeoService);
   private cdr = inject(ChangeDetectorRef);
+  private structuredData = inject(StructuredDataService);
   private routeSubscription?: Subscription;
 
   protected category = signal<Category | null>(null);
@@ -44,7 +47,10 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.routeSubscription = this.route.paramMap.subscribe(() => void this.load());
   }
-  ngOnDestroy(): void { this.routeSubscription?.unsubscribe(); }
+  ngOnDestroy(): void {
+    this.routeSubscription?.unsubscribe();
+    this.structuredData.remove('category-breadcrumbs');
+  }
 
   protected async load(page = 1): Promise<void> {
     this.loading.set(true);
@@ -72,6 +78,19 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
         keywords: category.seoKeywords,
         canonicalUrl: category.canonicalUrl || `/category/${encodeRouteSlug(category.slug)}`,
         ogImage: category.ogImage || this.categoryImage(category),
+      });
+      this.structuredData.set('category-breadcrumbs', {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Головна', item: `${environment.siteUrl}/` },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: category.name,
+            item: `${environment.siteUrl}/category/${canonicalSlug}`,
+          },
+        ],
       });
       await this.loadProducts(page, false);
     } catch (error: any) {
@@ -109,6 +128,7 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
         sortOrder: sortOrder as 'asc' | 'desc',
         page,
         limit: 12,
+        view: 'card',
       };
       const result = await this.merchandiseService.getMerchandiseList(filter);
       this.products.set(result.data);
@@ -126,6 +146,6 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
     return url.includes('res.cloudinary.com') ? url.replace('/upload/', '/upload/f_auto,q_auto,w_1800/') : url;
   }
   protected pageNumbers(): number[] {
-    return Array.from({ length: this.pagination().pages }, (_, index) => index + 1);
+    return Array.from({ length: this.pagination().pages ?? 0 }, (_, index) => index + 1);
   }
 }

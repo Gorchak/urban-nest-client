@@ -22,7 +22,6 @@ const categoryRouteSegment = (value) => encodeURIComponent(String(value || '')
 function addCategoryRoute(slug) {
   const segment = categoryRouteSegment(slug);
   routes.add(`/category/${segment}`);
-  routes.add(`/category/${segment}/`);
 }
 
 async function fetchJson(path) {

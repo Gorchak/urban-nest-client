@@ -24,6 +24,7 @@ import { formatCurrency } from '../../core/utils/price-format';
             [alt]="product.name"
             class="primary"
             loading="lazy"
+            decoding="async"
           />
           @if (product.images.length > 1) {
             <img
@@ -31,6 +32,7 @@ import { formatCurrency } from '../../core/utils/price-format';
               [alt]="product.name"
               class="hover"
               loading="lazy"
+              decoding="async"
             />
           }
         } @else {

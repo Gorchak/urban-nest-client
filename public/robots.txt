@@ -3,5 +3,6 @@ Allow: /
 Disallow: /admin
 Disallow: /checkout
 Disallow: /purchase-history
+Disallow: /favorites
 
-Sitemap: http://uliastore.com.ua/sitemap.xml
+Sitemap: https://uliastore.com.ua/sitemap.xml

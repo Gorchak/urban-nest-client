@@ -39,6 +39,10 @@
     <div class="state"><h1>{{ error() }}</h1><a routerLink="/">На головну</a></div>
   } @else {
    @if (category(); as current) {
+    <nav class="breadcrumbs" aria-label="Навігаційний ланцюжок">
+      <a routerLink="/">Головна</a><i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+      <span aria-current="page">{{ current.name }}</span>
+    </nav>
     <section class="hero" [style.background-image]="categoryImage(current) ? 'linear-gradient(90deg, rgba(20,18,16,.75), rgba(20,18,16,.1)), url(' + optimizedUrl(categoryImage(current)) + ')' : null" [class.with-image]="categoryImage(current)">
       <div>
         <span>Каталог / {{ current.name }}</span>

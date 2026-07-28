@@ -130,6 +130,8 @@ export interface MerchandiseListFilter {
   sortOrder?: 'asc' | 'desc';
   page?: number;
   limit?: number;
+  view?: 'card' | 'full';
+  includeTotal?: boolean;
 }
 
 export interface MerchandisePagination {
@@ -137,6 +139,7 @@ export interface MerchandisePagination {
   page: number;
   limit: number;
   pages: number;
+  hasMore?: boolean;
 }
 
 export interface MerchandiseListResponse {

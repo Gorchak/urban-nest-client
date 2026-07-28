@@ -14,6 +14,8 @@ import { RecentlyViewedService } from '../services/recently-viewed.service';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { Brand } from '../../core/models/brand.model';
 import { BrandsService } from '../../core/services/brands.service';
+import { StructuredDataService } from '../../core/services/structured-data.service';
+import { environment } from '../../../environments/environment';
 
 interface CategorySection {
   category: Category;
@@ -46,6 +48,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
   private favoritesService = inject(FavoritesService);
   private brandsService = inject(BrandsService);
   private cdr = inject(ChangeDetectorRef);
+  private structuredData = inject(StructuredDataService);
 
   protected categories = signal<Category[]>([]);
   protected merchandise = signal<Merchandise[]>([]);
@@ -112,36 +115,51 @@ export class HomePageComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.seo.setPage({
-      title: 'Ulia',
-      description: 'Curated catalog of clothing, ceramics, shoes, bags, home decor and accessories.',
+      title: 'Ulia — жіночий одяг, взуття, аксесуари та декор',
+      description: 'Ulia — онлайн-магазин жіночого одягу, взуття, сумок, аксесуарів, кераміки та декору для дому від українських брендів.',
       canonicalUrl: '/',
       ogImage: '/assets/logo.png',
     });
     try {
-      const [categories, merchandiseResult, newArrivalsResult, brands] = await Promise.all([
+      const [categories, newArrivalsResult] = await Promise.all([
         this.categoriesService.getCategories(1, 200),
-        this.merchandiseService.getMerchandiseList({
-          isActive: true,
-          isVisible: true,
-          sortBy: 'createdAt',
-          sortOrder: 'desc',
-          limit: 100,
-        }),
         this.merchandiseService.getMerchandiseList({
           isActive: true,
           isVisible: true,
           isNewArrival: true,
           sortBy: 'createdAt',
           sortOrder: 'desc',
-          limit: 100,
+          limit: 5,
+          view: 'card',
+          includeTotal: false,
         }),
-        this.brandsService.getBrands({ isActive: true, isVisible: true, limit: 100 }),
       ]);
       this.categories.set(categories);
-      this.brands.set(brands);
-      const products = new Map([...merchandiseResult.data, ...newArrivalsResult.data].map((product) => [product._id, product]));
-      this.merchandise.set([...products.values()]);
-      void this.loadFavorites();
+      const mainCategories = categories
+        .filter((category) => !category.parentId && category.isActive && category.isVisible)
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .slice(0, 8);
+      this.structuredData.set('website', {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'Ulia',
+        alternateName: 'Ulia Concept Store',
+        url: `${environment.siteUrl}/`,
+        inLanguage: 'uk-UA',
+      });
+      this.structuredData.set('main-navigation', {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: 'Основні категорії Ulia',
+        itemListElement: mainCategories.map((category, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: category.name,
+          url: `${environment.siteUrl}/category/${toRouteSlug(category.slug)}`,
+        })),
+      });
+      this.merchandise.set(newArrivalsResult.data);
+      void this.loadSecondaryContent();
     } catch {
       this.error.set('Не вдалося завантажити каталог. Спробуйте оновити сторінку.');
     } finally {
@@ -152,6 +170,8 @@ export class HomePageComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.structuredData.remove('website');
+    this.structuredData.remove('main-navigation');
   }
 
   protected onSearchChange(value: string): void {
@@ -214,6 +234,33 @@ export class HomePageComponent implements OnInit, OnDestroy {
     }
   }
 
+  private async loadSecondaryContent(): Promise<void> {
+    try {
+      const [catalogResult, brands] = await Promise.all([
+        this.merchandiseService.getMerchandiseList({
+          isActive: true,
+          isVisible: true,
+          sortBy: 'createdAt',
+          sortOrder: 'desc',
+          limit: 40,
+          view: 'card',
+          includeTotal: false,
+        }),
+        this.brandsService.getBrands({ isActive: true, isVisible: true, limit: 30 }),
+      ]);
+      const products = new Map(
+        [...this.merchandise(), ...catalogResult.data].map((product) => [product._id, product]),
+      );
+      this.merchandise.set([...products.values()]);
+      this.brands.set(brands);
+      this.cdr.markForCheck();
+      void this.loadFavorites();
+    } catch {
+      // The critical first screen is already usable; secondary sections can
+      // remain absent when a background request fails.
+    }
+  }
+
   private async performSearch(query: string, requestId: number): Promise<void> {
     try {
       const result = await this.merchandiseService.getMerchandiseList({
@@ -222,7 +269,9 @@ export class HomePageComponent implements OnInit, OnDestroy {
         isVisible: true,
         sortBy: 'createdAt',
         sortOrder: 'desc',
-        limit: 100,
+        limit: 24,
+        view: 'card',
+        includeTotal: false,
       });
       if (requestId !== this.searchRequestId) return;
       this.searchResults.set(result.data);

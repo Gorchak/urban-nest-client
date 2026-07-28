@@ -53,6 +53,7 @@ export class NewArrivalsPageComponent implements OnInit {
         sortOrder: sortOrder as 'asc' | 'desc',
         page,
         limit: 20,
+        view: 'card',
       };
       const result = await this.merchandiseService.getMerchandiseList(filter);
       this.products.set(result.data);
@@ -66,6 +67,6 @@ export class NewArrivalsPageComponent implements OnInit {
   }
 
   protected pageNumbers(): number[] {
-    return Array.from({ length: this.pagination().pages }, (_, index) => index + 1);
+    return Array.from({ length: this.pagination().pages ?? 0 }, (_, index) => index + 1);
   }
 }

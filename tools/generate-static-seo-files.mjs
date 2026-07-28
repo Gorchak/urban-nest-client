@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 
-const DEFAULT_SITE_URL = 'http://uliastore.com.ua';
+const DEFAULT_SITE_URL = 'https://uliastore.com.ua';
 const siteUrl = String(process.env.SITE_URL || process.env.FRONTEND_URL || DEFAULT_SITE_URL).replace(/\/+$/, '');
 
 const escapeXml = (value) => String(value)
@@ -13,7 +13,8 @@ const escapeXml = (value) => String(value)
 const normalizeRoute = (route) => {
   const cleanRoute = String(route || '').trim();
   if (!cleanRoute) return null;
-  return cleanRoute.startsWith('/') ? cleanRoute : `/${cleanRoute}`;
+  const withLeadingSlash = cleanRoute.startsWith('/') ? cleanRoute : `/${cleanRoute}`;
+  return withLeadingSlash === '/' ? '/' : withLeadingSlash.replace(/\/+$/, '');
 };
 
 const routePriority = (route) => {
@@ -51,6 +52,7 @@ const robotsTxt = [
   'Disallow: /admin',
   'Disallow: /checkout',
   'Disallow: /purchase-history',
+  'Disallow: /favorites',
   '',
   `Sitemap: ${siteUrl}/sitemap.xml`,
   '',

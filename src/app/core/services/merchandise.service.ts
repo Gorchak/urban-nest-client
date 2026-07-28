@@ -15,10 +15,11 @@ interface ApiResponse<T> {
   message: string;
   data: T;
   pagination?: {
-    total: number;
+    total: number | null;
     page: number;
     limit: number;
-    pages: number;
+    pages: number | null;
+    hasMore?: boolean;
   };
 }
 
@@ -58,6 +59,8 @@ export class MerchandiseService {
       if (filter.sortOrder) params = params.set('sortOrder', filter.sortOrder);
       if (filter.page) params = params.set('page', String(filter.page));
       if (filter.limit) params = params.set('limit', String(filter.limit));
+      if (filter.view) params = params.set('view', filter.view);
+      if (filter.includeTotal !== undefined) params = params.set('includeTotal', String(filter.includeTotal));
 
       const response = await firstValueFrom(
         this.http.get<ApiResponse<Merchandise[]>>(this.apiUrl, { params })
@@ -65,7 +68,13 @@ export class MerchandiseService {
       this.merchandise.set(response.data);
       return {
         data: response.data,
-        pagination: response.pagination ?? { total: 0, page: 1, limit: 20, pages: 0 },
+        pagination: response.pagination
+          ? {
+              ...response.pagination,
+              total: response.pagination.total ?? 0,
+              pages: response.pagination.pages ?? 0,
+            }
+          : { total: 0, page: 1, limit: 20, pages: 0 },
       };
     } catch (err: any) {
       this.error.set(err.message || 'Failed to fetch merchandise');
