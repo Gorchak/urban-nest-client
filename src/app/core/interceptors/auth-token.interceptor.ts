@@ -24,7 +24,14 @@ export const authTokenInterceptor: HttpInterceptorFn = (req, next) => {
       return idTokenClaims$.pipe(
         take(1),
         timeout({ first: 5000, with: () => of(undefined) }),
-        map((claims) => (claims as any)?.__raw as string | undefined),
+        map((claims) => {
+          const tokenClaims = claims as any;
+          const expiresAt = Number(tokenClaims?.exp) * 1000;
+          if (!tokenClaims?.__raw || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
+            return undefined;
+          }
+          return tokenClaims.__raw as string;
+        }),
         catchError(() => of(undefined)),
         switchMap((token) => next(token
           ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })

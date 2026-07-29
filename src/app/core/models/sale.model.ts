@@ -51,6 +51,16 @@ export interface SalePayment {
   cardNetwork?: string | null;
   cardDetails?: string | null;
   tokenizationType?: string | null;
+  googlePay?: {
+    apiVersion: number;
+    apiVersionMinor: number;
+    description: string;
+    paymentMethodType: string;
+    token: string;
+    tokenizationType: string;
+    cardNetwork: string | null;
+    cardDetails: string | null;
+  };
 }
 
 export interface SaleItem {

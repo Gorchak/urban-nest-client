@@ -46,6 +46,10 @@ interface GooglePayPaymentsClient {
 }
 
 export interface GooglePayPaymentResult {
+  apiVersion: number;
+  apiVersionMinor: number;
+  description: string;
+  paymentMethodType: string;
   token: string;
   tokenizationType: string;
   cardNetwork: string | null;
@@ -119,6 +123,10 @@ export class GooglePayService {
     const paymentMethodData = paymentData?.paymentMethodData;
     const tokenizationData = paymentMethodData?.tokenizationData;
     return {
+      apiVersion: Number(paymentData?.apiVersion) || 2,
+      apiVersionMinor: Number(paymentData?.apiVersionMinor) || 0,
+      description: paymentMethodData?.description || '',
+      paymentMethodType: paymentMethodData?.type || 'CARD',
       token: tokenizationData?.token || '',
       tokenizationType: tokenizationData?.type || '',
       cardNetwork: paymentMethodData?.info?.cardNetwork || null,

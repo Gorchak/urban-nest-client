@@ -157,6 +157,7 @@ export class CheckoutPageComponent implements OnInit {
           cardNetwork: googlePayPayment?.cardNetwork ?? null,
           cardDetails: googlePayPayment?.cardDetails ?? null,
           tokenizationType: googlePayPayment?.tokenizationType ?? null,
+          googlePay: googlePayPayment ?? undefined,
         },
         items: [], subtotal: 0, discountTotal: 0, shippingCost: 0, grandTotal: 0, currency: 'UAH',
         notes: form.notes || null, doNotCall: form.doNotCall, inventoryAdjustment: { state: 'none', updatedAt: null },
