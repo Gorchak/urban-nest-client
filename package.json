@@ -4,7 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "npm run build:ssg-routes && npm run build:seo-files && ng build",
+    "build": "npm run build:ssg-routes && npm run build:seo-files && ng build && npm run build:netlify-output",
+    "build:netlify-output": "node tools/prepare-netlify-output.mjs",
     "build:ssg-routes": "node tools/generate-prerender-routes.mjs",
     "build:seo-files": "node tools/generate-static-seo-files.mjs",
     "watch": "ng build --watch --configuration development",
