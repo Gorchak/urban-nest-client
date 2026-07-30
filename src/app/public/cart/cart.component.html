@@ -10,7 +10,7 @@
         @for (item of cartService.cart()!.items; track key(item)) {
           <article>
             <div class="image">
-              @if (item.product?.images?.[0]) { <img [src]="item.product!.images[0]" [alt]="item.product!.name" /> }
+              @if (item.product?.images?.[0]) { <app-optimized-image [src]="item.product!.images[0]" [alt]="item.product!.name" [width]="180" [height]="240" sizes="90px" srcset="90w, 180w" /> }
               @else { <i class="ri-image-line"></i> }
             </div>
             <div class="info">

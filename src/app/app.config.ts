@@ -4,10 +4,12 @@ import { AuthService, provideAuth0 } from '@auth0/auth0-angular';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideClientHydration } from '@angular/platform-browser';
+import { IMAGE_LOADER } from '@angular/common';
 import { of } from 'rxjs';
 
 import { routes } from './app.routes';
 import { authTokenInterceptor } from './core/interceptors/auth-token.interceptor';
+import { optimizedImageLoader } from './core/utils/image-loader';
 
 function isSecureAuthOrigin(location: Location): boolean {
   return location.protocol === 'https:'
@@ -50,6 +52,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(),
     provideHttpClient(withInterceptors([authTokenInterceptor])),
     provideAnimations(),
+    { provide: IMAGE_LOADER, useValue: optimizedImageLoader },
     ...authProviders,
   ]
 };

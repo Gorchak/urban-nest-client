@@ -12,6 +12,7 @@ import { Auth0User } from '../../core/models/user.model';
 import { CreateSaleDto, SalePaymentMethod } from '../../core/models/sale.model';
 import { NovaPoshtaArea, NovaPoshtaCity, NovaPoshtaService, NovaPoshtaWarehouse } from '../../core/services/nova-poshta.service';
 import { formatCurrency } from '../../core/utils/price-format';
+import { OptimizedImageComponent } from '../../shared/components/optimized-image/optimized-image.component';
 
 interface CheckoutForm {
   firstName: string; lastName: string; email: string; phone: string;
@@ -32,7 +33,7 @@ const emptyForm = (): CheckoutForm => ({
 @Component({
   selector: 'app-checkout-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, OptimizedImageComponent],
   templateUrl: './checkout-page.component.html',
   styleUrl: './checkout-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

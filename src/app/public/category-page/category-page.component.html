@@ -1,25 +1,13 @@
 <main>
   @if (loading()) {
     <div class="category-skeleton" aria-hidden="true">
-      <section class="skeleton-hero">
-        <div>
-          <span class="skeleton-block skeleton-eyebrow"></span>
-          <span class="skeleton-block skeleton-title"></span>
-          <span class="skeleton-block skeleton-copy"></span>
-        </div>
-      </section>
-
       <section class="skeleton-catalog">
         <header>
           <div>
             <span class="skeleton-block skeleton-count"></span>
             <span class="skeleton-block skeleton-heading"></span>
           </div>
-          <div class="skeleton-filters">
-            <span class="skeleton-block"></span>
-            <span class="skeleton-block"></span>
-            <span class="skeleton-block"></span>
-          </div>
+          <span class="skeleton-block skeleton-filter-button"></span>
         </header>
         <div class="skeleton-grid">
           @for (_ of [1, 2, 3, 4, 5, 6, 7, 8]; track $index) {
@@ -43,17 +31,23 @@
       <a routerLink="/">Головна</a><i class="ri-arrow-right-s-line" aria-hidden="true"></i>
       <span aria-current="page">{{ current.name }}</span>
     </nav>
-    <section class="hero" [style.background-image]="categoryImage(current) ? 'linear-gradient(90deg, rgba(20,18,16,.75), rgba(20,18,16,.1)), url(' + optimizedUrl(categoryImage(current)) + ')' : null" [class.with-image]="categoryImage(current)">
-      <div>
-        <span>Каталог / {{ current.name }}</span>
-        <h1>{{ current.name }}</h1>
-        @if (current.shortDescription) { <p>{{ current.shortDescription }}</p> }
-      </div>
-    </section>
-
     <section class="catalog">
       <header>
-        <div><span>Знайдено {{ pagination().total }}</span><h2>Усі товари</h2></div>
+        <div><span>Знайдено {{ pagination().total }}</span><h1>{{ current.name }}</h1></div>
+        <button class="filters-trigger" type="button" (click)="filtersOpen.set(true)" aria-controls="category-filters" [attr.aria-expanded]="filtersOpen()">
+          <i class="ri-equalizer-line" aria-hidden="true"></i>
+          <span>Фільтри</span>
+        </button>
+      </header>
+
+      @if (filtersOpen()) {
+        <button class="filters-backdrop" type="button" aria-label="Закрити фільтри" (click)="closeFilters()"></button>
+      }
+      <aside id="category-filters" class="filters-panel" [class.filters-panel--open]="filtersOpen()" [attr.aria-hidden]="!filtersOpen()">
+        <div class="filters-panel__header">
+          <h2>Фільтри</h2>
+          <button type="button" (click)="closeFilters()" aria-label="Закрити фільтри"><i class="ri-close-line" aria-hidden="true"></i></button>
+        </div>
         <div class="filters">
           <input type="search" [ngModel]="search()" (ngModelChange)="search.set($event)" (keyup.enter)="onFiltersChange(1)" placeholder="Пошук у категорії" />
           @if (subcategories().length) {
@@ -75,7 +69,8 @@
           </select>
           <label><input type="checkbox" [ngModel]="inStockOnly()" (ngModelChange)="inStockOnly.set($event); onFiltersChange(1)" /> Тільки в наявності</label>
         </div>
-      </header>
+        <button class="filters-apply" type="button" (click)="onFiltersChange(1); closeFilters()">Показати товари</button>
+      </aside>
 
       @if (catalogLoading() && !products().length) {
         <div class="state">Оновлюємо товари...</div>
@@ -85,7 +80,7 @@
             <div class="catalog-loader">Оновлюємо товари...</div>
           }
           <div class="grid">
-            @for (product of products(); track product._id) { <app-public-product-card [product]="product" [emphasis]="true" /> }
+            @for (product of products(); track product._id; let index = $index) { <app-public-product-card [product]="product" [emphasis]="true" [priority]="index === 0" /> }
           </div>
         </div>
         @if (pagination().pages > 1) {
@@ -96,9 +91,33 @@
           </div>
         }
       } @else {
-        <div class="state">У цій категорії товарів не знайдено.</div>
+        @if (!categorySections().length) {
+          <div class="state">У цій категорії товарів не знайдено.</div>
+        }
       }
     </section>
+
+    @if (categorySections().length) {
+      <section class="category-showcases" [attr.aria-label]="'Категорії ' + current.name">
+        @for (section of categorySections(); track section.category._id) {
+          <article class="category-showcase">
+            <header>
+              <h2>{{ section.category.name }}</h2>
+              <a [routerLink]="['/category', categoryRoute(section.category)]">
+                Перейти до категорії {{ section.category.name }}
+                <i class="ri-arrow-right-line" aria-hidden="true"></i>
+              </a>
+            </header>
+            <div class="category-showcase__grid">
+              @for (product of section.products; track product._id) {
+                <app-public-product-card [product]="product" />
+              }
+            </div>
+          </article>
+        }
+      </section>
+    }
+
     @if (current.description) { <section class="description"><h2>Про категорію</h2><p>{{ current.description }}</p></section> }
    }
   }

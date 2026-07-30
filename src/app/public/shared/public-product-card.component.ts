@@ -6,11 +6,12 @@ import {
   hasDiscount as merchandiseHasDiscount,
 } from '../../core/models/merchandise.model';
 import { formatCurrency } from '../../core/utils/price-format';
+import { OptimizedImageComponent } from '../../shared/components/optimized-image/optimized-image.component';
 
 @Component({
   selector: 'app-public-product-card',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, OptimizedImageComponent],
   template: `
     <a
       class="card"
@@ -19,20 +20,22 @@ import { formatCurrency } from '../../core/utils/price-format';
     >
       <div class="media">
         @if (image(0)) {
-          <img
-            [src]="optimizedUrl(image(0))"
-            [alt]="product.name"
+          <app-optimized-image
             class="primary"
-            loading="lazy"
-            decoding="async"
+            [src]="image(0)"
+            [alt]="product.name"
+            [width]="700"
+            [height]="933"
+            [priority]="priority"
           />
           @if (product.images.length > 1) {
-            <img
-              [src]="optimizedUrl(image(1))"
-              [alt]="product.name"
+            <app-optimized-image
               class="hover"
-              loading="lazy"
-              decoding="async"
+              [src]="image(1)"
+              [alt]="product.name"
+              [width]="700"
+              [height]="933"
+              sizes="(max-width: 560px) 50vw, 20vw"
             />
           }
         } @else {
@@ -83,7 +86,7 @@ import { formatCurrency } from '../../core/utils/price-format';
         overflow: hidden;
         background: var(--un-soft, #f5f5f2);
       }
-      img {
+      app-optimized-image {
         position: absolute;
         inset: 0;
         width: 100%;
@@ -93,13 +96,13 @@ import { formatCurrency } from '../../core/utils/price-format';
           opacity 0.35s,
           transform 0.6s;
       }
-      img.hover {
+      app-optimized-image.hover {
         opacity: 0;
       }
-      .card:hover img.primary {
+      .card:hover app-optimized-image.primary {
         transform: scale(1.025);
       }
-      .card:hover img.hover {
+      .card:hover app-optimized-image.hover {
         opacity: 1;
         transform: scale(1.025);
       }
@@ -250,14 +253,10 @@ import { formatCurrency } from '../../core/utils/price-format';
 export class PublicProductCardComponent {
   @Input({ required: true }) product!: Merchandise;
   @Input() emphasis = false;
+  @Input() priority = false;
 
   image(index: number): string {
     return this.product.images?.[index] ?? '';
-  }
-  optimizedUrl(url: string): string {
-    return url.includes('res.cloudinary.com')
-      ? url.replace('/upload/', '/upload/f_auto,q_auto,w_700/')
-      : url;
   }
   stockLabel(): string {
     return (this.product.inventory?.total_quantity ?? 0) > 0

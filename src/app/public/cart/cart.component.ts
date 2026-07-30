@@ -7,17 +7,18 @@ import { CartService } from '../../core/services/cart.service';
 import { SalesService } from '../../core/services/sales.service';
 import { Merchandise, hasDiscount } from '../../core/models/merchandise.model';
 import { formatCurrency } from '../../core/utils/price-format';
+import { OptimizedImageComponent } from '../../shared/components/optimized-image/optimized-image.component';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, OptimizedImageComponent],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss',
   styles: [`
     .discount-line { margin-top: .65rem; display: flex; align-items: center; gap: .5rem; font-size: 10px; }
     .discount-line del { opacity: .55; }
-    .discount-line span { padding: .2rem .35rem; background: #c85436; color: #fff; font-weight: 700; opacity: 1; }
+    .discount-line span { padding: .2rem .35rem; background: #fff; color: #000; border:1px solid #000; font-weight: 700; opacity: 1; }
     .discount-line + strong { margin-top: .35rem; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,

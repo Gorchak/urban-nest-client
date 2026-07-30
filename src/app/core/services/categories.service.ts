@@ -16,6 +16,45 @@ interface ApiResponse<T> {
   };
 }
 
+const CLOTHING_CHILD_SLUGS = new Set([
+  'zhaket-ta-zhylet',
+  'kostymy',
+  'svitshot-i-hudi',
+  'leginsy',
+  'futbolki-i-topy',
+  'svetry-i-kard',
+  'spidnyci',
+  'sorochky',
+  'dzhynsy',
+  'dresses',
+]);
+
+const normalizeSlug = (value: string | null | undefined): string =>
+  String(value || '')
+    .trim()
+    .toLocaleLowerCase('uk-UA')
+    .replace(/[_\s]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+
+export function normalizeCategoryTree(categories: Category[]): Category[] {
+  const clothing = categories.find((category) => normalizeSlug(category.slug) === 'clothing');
+  if (!clothing) return categories;
+
+  return categories.map((category) => {
+    if (category.parentId || category._id === clothing._id) return category;
+    if (!CLOTHING_CHILD_SLUGS.has(normalizeSlug(category.slug))) return category;
+    return {
+      ...category,
+      parentId: clothing._id,
+      level: Math.max(1, Number(category.level) || 0),
+      path: category.path?.includes('/')
+        ? category.path
+        : `${clothing.slug}/${category.slug}`,
+    };
+  });
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -35,8 +74,9 @@ export class CategoriesService {
       const response = await firstValueFrom(
         this.http.get<ApiResponse<Category[]>>(url)
       );
-      this.categories.set(response.data);
-      return response.data;
+      const categories = normalizeCategoryTree(response.data);
+      this.categories.set(categories);
+      return categories;
     } catch (err: any) {
       this.error.set(err.message || 'Failed to fetch categories');
       throw err;

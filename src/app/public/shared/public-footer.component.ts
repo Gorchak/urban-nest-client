@@ -13,7 +13,7 @@ import { toRouteSlug } from '../../core/utils/route-slug';
       <div class="footer-top">
         <div class="identity">
           <a class="brand" routerLink="/">
-            <img src="/assets/ulia_title.svg.svg" alt="Ulia" />
+            <img src="/assets/ulia_title.svg.svg" alt="Ulia" width="92" height="65" loading="lazy" decoding="async" />
           </a>
           <p>Обрані речі для красивих щоденних історій.</p>
           <div class="socials">
@@ -61,26 +61,26 @@ import { toRouteSlug } from '../../core/utils/route-slug';
     </footer>
   `,
   styles: [`
-    :host { display:block; color:var(--un-paper, #fff); background:var(--un-ink, #181713); font-family:var(--un-sans, Arial,Helvetica,sans-serif); }
+    :host { display:block; color:#000; background:#fff; font-family:var(--un-sans); border-top:1px solid #000; }
     * { box-sizing:border-box; }
     footer { padding:clamp(3rem,7vw,7rem) 3vw 1.5rem; }
     .footer-top { display:grid; grid-template-columns:1.2fr .7fr .8fr 1.5fr; gap:clamp(2rem,5vw,6rem); }
-    .brand { display:flex; align-items:center; width:max-content; filter:invert(1); }
+    .brand { display:flex; align-items:center; width:max-content; }
     .brand img:first-child { width:54px; height:54px; object-fit:contain; }
     .brand img:last-child { width:92px; }
-    .identity p { max-width:260px; margin:2rem 0; color:rgba(255,255,255,.65); line-height:1.6; }
+    .identity p { max-width:260px; margin:2rem 0; color:#000; line-height:1.6; }
     .socials { display:flex; gap:.6rem; }
-    .socials a { width:38px; height:38px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.25); color:inherit; text-decoration:none; }
+    .socials a { width:38px; height:38px; display:grid; place-items:center; border:1px solid rgba(0,0,0,.25); color:inherit; text-decoration:none; }
     nav { display:flex; flex-direction:column; align-items:flex-start; gap:.8rem; }
     nav span,.newsletter>span { margin-bottom:.7rem; font-size:10px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
-    nav a { color:rgba(255,255,255,.7); font-size:13px; text-decoration:none; }
-    nav a:hover { color:#fff; }
+    nav a { color:#000; font-size:13px; text-decoration:none; }
+    nav a:hover { color:#000; }
     .newsletter h2 { max-width:520px; margin:0 0 2rem; font-family:var(--un-serif, Georgia,serif); font-size:clamp(2rem,3.5vw,4.2rem); font-weight:400; letter-spacing:-.035em; line-height:.98; }
-    .newsletter label { padding:.8rem 0; display:flex; border-bottom:1px solid rgba(255,255,255,.55); }
-    .newsletter input { min-width:0; flex:1; border:0; outline:0; background:transparent; color:#fff; font:inherit; }
-    .newsletter button { border:0; background:transparent; color:#fff; font-size:22px; cursor:pointer; }
-    .newsletter small { display:block; margin-top:.8rem; color:rgba(255,255,255,.45); font-size:10px; line-height:1.5; }
-    .footer-bottom { margin-top:clamp(4rem,8vw,8rem); padding-top:1.5rem; display:flex; justify-content:space-between; gap:1rem; border-top:1px solid rgba(255,255,255,.2); color:rgba(255,255,255,.55); font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+    .newsletter label { padding:.8rem 0; display:flex; border-bottom:1px solid rgba(0,0,0,.55); }
+    .newsletter input { min-width:0; flex:1; border:0; outline:0; background:transparent; color:#000; font:inherit; }
+    .newsletter button { border:0; background:transparent; color:#000; font-size:22px; cursor:pointer; }
+    .newsletter small { display:block; margin-top:.8rem; color:#000; font-size:10px; line-height:1.5; }
+    .footer-bottom { margin-top:clamp(4rem,8vw,8rem); padding-top:1.5rem; display:flex; justify-content:space-between; gap:1rem; border-top:1px solid rgba(0,0,0,.2); color:#000; font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
     .legal { flex-direction:row; gap:1.4rem; }
     .legal a { color:inherit; font-size:10px; }
     @media(max-width:950px){.footer-top{grid-template-columns:1fr 1fr}.newsletter{grid-column:1/-1}.footer-bottom{margin-top:4rem}}

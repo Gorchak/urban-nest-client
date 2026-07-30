@@ -41,7 +41,7 @@
         <article>
           <a class="media" [routerLink]="['/product', productSlug(favorite)]">
             @if (productImage(favorite)) {
-              <img [src]="optimizedUrl(productImage(favorite))" [alt]="productName(favorite)" />
+              <app-optimized-image [src]="productImage(favorite)" [alt]="productName(favorite)" [width]="700" [height]="933" />
             } @else {
               <i class="ri-image-line"></i>
             }
@@ -60,4 +60,3 @@
     </section>
   }
 </main>
-

@@ -29,7 +29,7 @@ import { toRouteSlug } from '../../core/utils/route-slug';
     <div class="navigation-shell" (mouseleave)="closeCategoryMenu()">
     <header class="site-header">
       <a class="brand" routerLink="/" aria-label="Ulia">
-        <img src="/assets/ulia_title.svg.svg" alt="Ulia" />
+        <img src="/assets/ulia_title.svg.svg" alt="Ulia" width="84" height="60" decoding="async" />
       </a>
 
       <nav class="main-nav">
@@ -77,7 +77,7 @@ import { toRouteSlug } from '../../core/utils/route-slug';
          @if (currentUser(); as user) {
           <button type="button" class="user-button" [attr.aria-label]="'Відкрити профіль ' + displayName(user)" (click)="toggleProfileMenu()">
             @if (avatar(user)) {
-              <img [src]="avatar(user)" [alt]="displayName(user)" />
+              <img [src]="avatar(user)" [alt]="displayName(user)" width="34" height="34" loading="lazy" decoding="async" />
             } @else {
               <i class="ri-user-line"></i>
             }
@@ -170,12 +170,12 @@ import { toRouteSlug } from '../../core/utils/route-slug';
   styles: [`
     :host { position: sticky; top: 0; z-index: 900; display: block; color: var(--un-ink, #181713); background: var(--un-paper, #fff); font-family: var(--un-sans, Arial, Helvetica, sans-serif); }
     button { font: inherit; cursor: pointer; }
-    .announcement { min-height: 32px; padding: 8px 3vw; display: flex; justify-content: center; gap: 3rem; background: var(--un-ink, #181713); color: var(--un-paper, #fff); font-size: 9px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+    .announcement { min-height: 32px; padding: 8px 3vw; display: flex; justify-content: center; gap: 3rem; border-bottom:1px solid #000; background: #fff; color: #000; font-size: 9px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
     .navigation-shell { position: relative; }
     .site-header { min-height: 82px; padding: 0 3vw; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 2rem; border-bottom: 1px solid var(--un-line, rgba(24,23,19,.18)); background: rgba(255,255,255,.94); backdrop-filter: blur(14px); }
     .brand { display: flex; align-items: center; text-decoration: none; }
-    .brand img:first-child { width: 42px; height: 42px; object-fit: contain; }
-    .brand img:last-child { width: 82px; }
+    .brand img:first-child { width: 50px; height: 50px; object-fit: contain; }
+    .brand img:last-child { width: 98px; }
     .main-nav { display: flex; justify-content: center; gap: 1.5rem; overflow-x: auto; scrollbar-width: none; }
     .main-nav a, .admin-link { padding: .6rem 0; display: flex; align-items: center; gap: .2rem; color: inherit; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-decoration: none; text-transform: uppercase; white-space: nowrap; }
     .main-nav a.active, .main-nav a:hover, .main-nav a.menu-open, .admin-link:hover { color: var(--un-accent, #9f3526); }
@@ -208,8 +208,8 @@ import { toRouteSlug } from '../../core/utils/route-slug';
       :host { position:sticky; }
       .site-header { min-height:64px; padding:0 16px; display:grid; grid-template-columns:1fr auto 1fr; gap:.5rem; }
       .brand { grid-column:2; justify-self:center; z-index:2; }
-      .brand img:first-child { width:38px; height:38px; }
-      .brand img:last-child { width:70px; }
+      .brand img:first-child { width:44px; height:44px; }
+      .brand img:last-child { width:82px; }
       .main-nav { display:none; }
       .actions { grid-column:1 / -1; grid-row:1; display:grid; grid-template-columns:auto 1fr auto auto; align-items:center; gap:.15rem; z-index:3; }
       .menu-button { display:grid; order:1; justify-self:start; position:relative; z-index:4; }

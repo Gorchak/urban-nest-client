@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Category, CategorySpecification } from '../../core/models/category.model';
@@ -16,11 +16,12 @@ import { FavoritesService } from '../../core/services/favorites.service';
 import { formatCurrency } from '../../core/utils/price-format';
 import { toRouteSlug } from '../../core/utils/route-slug';
 import { OneClickOrderDialogComponent } from './one-click-order-dialog.component';
+import { OptimizedImageComponent } from '../../shared/components/optimized-image/optimized-image.component';
 
 @Component({
   selector: 'app-product-page',
   standalone: true,
-  imports: [CommonModule, RouterLink, PublicProductCardComponent, PublicFooterComponent, OneClickOrderDialogComponent],
+  imports: [CommonModule, RouterLink, PublicProductCardComponent, PublicFooterComponent, OneClickOrderDialogComponent, OptimizedImageComponent],
   templateUrl: './product-page.component.html',
   styleUrl: './product-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,7 +36,9 @@ export class ProductPageComponent implements OnInit, OnDestroy {
   private cartService = inject(CartService);
   private favoritesService = inject(FavoritesService);
   private cdr = inject(ChangeDetectorRef);
+  private document = inject(DOCUMENT);
   private routeSubscription?: Subscription;
+  private previousBodyOverflow = '';
 
   protected product = signal<Merchandise | null>(null);
   protected category = signal<Category | null>(null);
@@ -49,6 +52,7 @@ export class ProductPageComponent implements OnInit, OnDestroy {
   protected favoriteNotice = signal<string | null>(null);
   protected showQuickOrder = signal(false);
   protected quickOrderNotice = signal<string | null>(null);
+  protected imagePreviewOpen = signal(false);
 
   protected availableVariants = computed(() =>
     (this.product()?.inventory?.attribute_quantities ?? []).filter((row) => row.quantity > 0),
@@ -79,12 +83,35 @@ export class ProductPageComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.routeSubscription = this.route.paramMap.subscribe(() => void this.load());
   }
-  ngOnDestroy(): void { this.routeSubscription?.unsubscribe(); }
+  ngOnDestroy(): void {
+    this.routeSubscription?.unsubscribe();
+    this.restorePageScroll();
+  }
+
+  @HostListener('document:keydown.escape')
+  protected closeImagePreview(): void {
+    this.imagePreviewOpen.set(false);
+    this.restorePageScroll();
+  }
+
+  protected openImagePreview(): void {
+    if (this.product()?.images?.[this.activeImage()]) {
+      this.previousBodyOverflow = this.document.body.style.overflow;
+      this.document.body.style.overflow = 'hidden';
+      this.imagePreviewOpen.set(true);
+    }
+  }
+
+  private restorePageScroll(): void {
+    this.document.body.style.overflow = this.previousBodyOverflow;
+  }
 
   private async load(): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
     this.activeImage.set(0);
+    this.imagePreviewOpen.set(false);
+    this.restorePageScroll();
     this.selectedVariant.set(null);
     this.quickOrderNotice.set(null);
     try {
@@ -191,9 +218,6 @@ export class ProductPageComponent implements OnInit, OnDestroy {
   protected finalPrice(product: Merchandise): number { return getDiscountedPrice(product); }
   protected formatPrice(product: Merchandise, value = getDiscountedPrice(product)): string {
     return formatCurrency(value, product.currency);
-  }
-  protected optimizedUrl(url: string, width = 1000): string {
-    return url.includes('res.cloudinary.com') ? url.replace('/upload/', `/upload/f_auto,q_auto,w_${width}/`) : url;
   }
   protected routeSlug(category: Category): string {
     return toRouteSlug(category.slug);

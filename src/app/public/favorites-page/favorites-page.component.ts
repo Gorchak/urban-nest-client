@@ -5,11 +5,12 @@ import { FavoritesService } from '../../core/services/favorites.service';
 import { Favorite } from '../../core/models/favorite.model';
 import { formatCurrency } from '../../core/utils/price-format';
 import { getDiscountedPrice } from '../../core/models/merchandise.model';
+import { OptimizedImageComponent } from '../../shared/components/optimized-image/optimized-image.component';
 
 @Component({
   selector: 'app-favorites-page',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, OptimizedImageComponent],
   templateUrl: './favorites-page.component.html',
   styleUrl: './favorites-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,8 +81,4 @@ export class FavoritesPageComponent implements OnInit {
     return formatCurrency(price, product?.currency || 'UAH');
   }
 
-  protected optimizedUrl(url: string, width = 700): string {
-    return url.includes('res.cloudinary.com') ? url.replace('/upload/', `/upload/f_auto,q_auto,w_${width}/`) : url;
-  }
 }
-

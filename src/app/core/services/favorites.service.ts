@@ -30,11 +30,22 @@ export class FavoritesService {
       catchError(() => of(false)),
     ));
 
-    return firstValueFrom(isAuthenticated$.pipe(
+    const authenticated = await firstValueFrom(isAuthenticated$.pipe(
       take(1),
       timeout({ first: 5000, with: () => of(false) }),
       catchError(() => of(false)),
     ));
+    if (!authenticated) return false;
+
+    const claims$ = this.auth.idTokenClaims$;
+    if (!claims$?.pipe) return false;
+    const claims = await firstValueFrom(claims$.pipe(
+      take(1),
+      timeout({ first: 5000, with: () => of(null) }),
+      catchError(() => of(null)),
+    )) as any;
+    const expiresAt = Number(claims?.exp) * 1000;
+    return Boolean(claims?.__raw && Number.isFinite(expiresAt) && expiresAt > Date.now());
   }
 
   async load(): Promise<Favorite[]> {
@@ -78,4 +89,3 @@ export class FavoritesService {
     });
   }
 }
-

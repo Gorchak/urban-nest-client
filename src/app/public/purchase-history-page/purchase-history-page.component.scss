@@ -130,7 +130,7 @@ h1 {
   display: grid;
   place-items: center;
   border: 1px solid rgba(23, 23, 20, .14);
-  background: rgba(245, 242, 235, .75);
+  background: #fff;
   font-size: 15px;
 }
 
@@ -194,7 +194,7 @@ h1 {
 code {
   padding: .25rem .45rem;
   background: rgba(23, 23, 20, .08);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--un-sans);
   font-size: 11px;
   font-weight: 700;
 }
@@ -272,12 +272,12 @@ time { color: rgba(23, 23, 20, .58); }
   text-transform: uppercase;
 }
 
-.status-pending_payment { color: #a65719; background: #fff6e9; }
-.status-processing { color: #255d78; background: #ecf7fb; }
-.status-shipped { color: #255d78; background: #ecf7fb; }
-.status-delivered { color: #2d6a43; background: #eef8f0; }
-.status-cancelled { color: #a2312a; background: #fff0ef; }
-.status-refunded { color: #5f5f5a; background: #f0efea; }
+.status-pending_payment,
+.status-processing,
+.status-shipped,
+.status-delivered,
+.status-cancelled,
+.status-refunded { color: #000; background: #fff; }
 
 .status-area small {
   color: rgba(23, 23, 20, .62);

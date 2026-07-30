@@ -104,7 +104,13 @@ export class AdminAccessService {
     return idTokenClaims$.pipe(
       take(1),
       timeout({ first: 5000, with: () => of(null) }),
-      map((claims) => (claims as any)?.__raw || null),
+      map((claims) => {
+        const tokenClaims = claims as any;
+        const expiresAt = Number(tokenClaims?.exp) * 1000;
+        return tokenClaims?.__raw && Number.isFinite(expiresAt) && expiresAt > Date.now()
+          ? tokenClaims.__raw
+          : null;
+      }),
       catchError(() => of(null)),
     );
   }

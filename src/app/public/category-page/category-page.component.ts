@@ -43,6 +43,8 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
   protected sort = signal('createdAt_desc');
   protected inStockOnly = signal(false);
   protected selectedSubcategoryId = signal('');
+  protected filtersOpen = signal(false);
+  protected categorySections = signal<Array<{ category: Category; products: Merchandise[] }>>([]);
 
   ngOnInit(): void {
     this.routeSubscription = this.route.paramMap.subscribe(() => void this.load());
@@ -72,6 +74,7 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
           .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.name.localeCompare(b.name, 'uk')),
       );
       this.category.set(category);
+      this.categorySections.set([]);
       this.seo.setPage({
         title: category.seoTitle || `${category.name} | Ulia`,
         description: category.seoDescription || category.shortDescription || category.description,
@@ -93,6 +96,7 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
         ],
       });
       await this.loadProducts(page, false);
+      await this.loadCategorySections(category, categories);
     } catch (error: any) {
       this.error.set(error?.message ?? 'Не вдалося завантажити категорію');
     } finally {
@@ -108,6 +112,10 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
 
   protected async onFiltersChange(page = 1): Promise<void> {
     await this.loadProducts(page);
+  }
+
+  protected closeFilters(): void {
+    this.filtersOpen.set(false);
   }
 
   protected async loadProducts(page = 1, showCatalogLoading = true): Promise<void> {
@@ -142,10 +150,52 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
   protected categoryImage(category: Category): string {
     return category.bannerImage || category.coverImage || category.image || category.images?.[0] || '';
   }
-  protected optimizedUrl(url: string): string {
-    return url.includes('res.cloudinary.com') ? url.replace('/upload/', '/upload/f_auto,q_auto,w_1800/') : url;
-  }
   protected pageNumbers(): number[] {
     return Array.from({ length: this.pagination().pages ?? 0 }, (_, index) => index + 1);
+  }
+
+  protected categoryRoute(category: Category): string {
+    return toRouteSlug(category.slug);
+  }
+
+  private async loadCategorySections(root: Category, categories: Category[]): Promise<void> {
+    const descendants: Category[] = [];
+    const parentIds = new Set([root._id]);
+
+    while (true) {
+      const next = categories.filter(
+        (item) =>
+          item.parentId &&
+          parentIds.has(String(item.parentId)) &&
+          item.isActive &&
+          item.isVisible &&
+          !descendants.some((known) => known._id === item._id),
+      );
+      if (!next.length) break;
+      descendants.push(...next);
+      next.forEach((item) => parentIds.add(item._id));
+    }
+
+    const sections = await Promise.all(
+      descendants.map(async (category) => {
+        try {
+          const result = await this.merchandiseService.getMerchandiseList({
+            categoryId: category._id,
+            isActive: true,
+            isVisible: true,
+            sortBy: 'createdAt',
+            sortOrder: 'desc',
+            limit: 4,
+            view: 'card',
+            includeTotal: false,
+          });
+          return { category, products: result.data };
+        } catch {
+          return { category, products: [] };
+        }
+      }),
+    );
+
+    this.categorySections.set(sections.filter((section) => section.products.length > 0));
   }
 }

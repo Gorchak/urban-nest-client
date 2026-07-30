@@ -61,7 +61,9 @@
               <div><span class="eyebrow">Щойно додано</span><h1>Новинки</h1></div>
             </header>
             <div class="products">
-              @for (product of newArrivals(); track product._id) { <app-public-product-card [product]="product" /> }
+              @for (product of newArrivals(); track product._id; let index = $index) {
+                <app-public-product-card [product]="product" [priority]="index === 0" />
+              }
             </div>
           </section>
         }
@@ -72,7 +74,9 @@
             <div class="brand-list">
               @for (brand of brands(); track brand._id) {
                 <a [routerLink]="['/brand', brand.slug]">
-                  @if (brand.logo) { <img [src]="optimizedUrl(brand.logo, 240)" [alt]="brand.name" loading="lazy" /> }
+                  @if (brand.logo) {
+                    <app-optimized-image [src]="brand.logo" [alt]="brand.name" [width]="240" [height]="120" fit="contain" sizes="160px" srcset="120w, 180w, 240w" />
+                  }
                   <span>{{ brand.name }}</span>
                 </a>
               }
@@ -85,7 +89,14 @@
             <section class="category-story" [class.category-story--reverse]="sectionIndex % 2" [id]="sectionId(section.category)">
               <a class="category-story__image" [routerLink]="['/category', routeSlug(section.category)]">
                 @if (categoryImage(section.category)) {
-                  <img [src]="optimizedUrl(categoryImage(section.category), 1400)" [alt]="section.title" loading="lazy" />
+                  <app-optimized-image
+                    [src]="categoryImage(section.category)"
+                    [alt]="section.title"
+                    [width]="1200"
+                    [height]="900"
+                    sizes="(max-width: 760px) 100vw, 52vw"
+                    srcset="480w, 700w, 900w, 1200w"
+                  />
                 } @else {
                   <i class="ri-image-line"></i>
                 }

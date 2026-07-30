@@ -16,6 +16,7 @@ import { Brand } from '../../core/models/brand.model';
 import { BrandsService } from '../../core/services/brands.service';
 import { StructuredDataService } from '../../core/services/structured-data.service';
 import { environment } from '../../../environments/environment';
+import { OptimizedImageComponent } from '../../shared/components/optimized-image/optimized-image.component';
 
 interface CategorySection {
   category: Category;
@@ -35,7 +36,7 @@ const HOME_CATEGORY_ORDER = [
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, PublicProductCardComponent, PublicFooterComponent],
+  imports: [CommonModule, FormsModule, RouterLink, PublicProductCardComponent, PublicFooterComponent, OptimizedImageComponent],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -201,9 +202,6 @@ export class HomePageComponent implements OnInit, OnDestroy {
   protected routeSlug(category: Category): string { return toRouteSlug(category.slug); }
   protected categoryImage(category: Category): string {
     return category.bannerImage || category.coverImage || category.image || category.images?.[0] || '';
-  }
-  protected optimizedUrl(url: string, width = 900): string {
-    return url?.includes('res.cloudinary.com') ? url.replace('/upload/', `/upload/f_auto,q_auto,w_${width}/`) : url;
   }
 
   private normalizeCategoryKey(value: string): string {

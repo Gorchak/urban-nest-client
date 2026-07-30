@@ -7,19 +7,18 @@
     @if (brand(); as current) {
       <section class="hero">
         <div class="logo">
-          @if (current.logo) { <img [src]="current.logo" [alt]="current.name" /> }
+          @if (current.logo) { <app-optimized-image [src]="current.logo" [alt]="current.name" [width]="320" [height]="240" [priority]="true" fit="contain" sizes="320px" srcset="180w, 240w, 320w" /> }
           @else { <span>{{ current.name.charAt(0) }}</span> }
         </div>
         <div>
           <span class="eyebrow">Бренд</span><h1>{{ current.name }}</h1>
           @if (current.description) { <p>{{ current.description }}</p> }
-          @if (current.website) { <a [href]="current.website" target="_blank" rel="noopener">Офіційний сайт <i class="ri-external-link-line"></i></a> }
         </div>
       </section>
       <section class="catalog">
         <header><div><span class="eyebrow">Колекція</span><h2>Товари {{ current.name }}</h2></div><span>{{ products().length }} товарів</span></header>
         @if (products().length) {
-          <div class="grid">@for (product of products(); track product._id) { <app-public-product-card [product]="product" [emphasis]="true" /> }</div>
+          <div class="grid">@for (product of products(); track product._id; let index = $index) { <app-public-product-card [product]="product" [emphasis]="true" [priority]="index === 0" /> }</div>
         } @else { <div class="state">Товарів цього бренду поки немає.</div> }
       </section>
     }

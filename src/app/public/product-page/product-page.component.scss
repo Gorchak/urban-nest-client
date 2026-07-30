@@ -32,17 +32,20 @@ main {
 }
 .product {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(340px, 2fr);
+  grid-template-columns: minmax(0, 1.2fr) minmax(340px, 1fr);
   gap: clamp(2rem, 3vw, 4rem);
   align-items: start;
 }
 .gallery {
   min-width: 0;
-  max-width: 100%;
+  width: 100%;
+  max-width: 820px;
+  min-height: clamp(600px, 68vh, 760px);
   display: grid;
   grid-template-columns: 72px minmax(0, 1fr);
   gap: 1rem;
   align-items: start;
+  justify-self: center;
 }
 .thumbs {
   display: flex;
@@ -54,34 +57,39 @@ main {
   aspect-ratio: 3/4;
   overflow: hidden;
   border: 1px solid transparent;
-  background: #e4ded4;
+  background: #fff;
 }
 .thumbs button.active {
   border-color: var(--un-ink, #181713);
 }
-.thumbs img {
+.thumbs app-optimized-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 .main-image {
+  position: relative;
   min-width: 0;
-  width: 100%;
-//   height: min(68vh, 680px);
-  min-height: 460px;
-//   padding: clamp(0.75rem, 1.5vw, 1.25rem);
+  width: min(100%, 720px);
+  height: auto;
+  aspect-ratio: 1 / 1;
+  min-height: 0;
   display: grid;
   place-items: center;
   overflow: hidden;
-  background: #e4ded4;
+  background: #fff;
+  justify-self: center;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  cursor: zoom-in;
 }
-.main-image img {
+.main-image:disabled { cursor: default; }
+.main-image app-optimized-image {
   display: block;
-  width: auto;
-  height: auto;
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
 }
 .main-image i {
   font-size: 4rem;
@@ -104,7 +112,7 @@ main {
 .summary h1 {
   margin: 1rem 0;
   font-family: var(--un-serif, Georgia, serif);
-  font-size: clamp(3rem, 5vw, 5.5rem);
+  font-size: clamp(1.8rem, 3vw, 2.75rem);
   font-weight: 400;
   letter-spacing: -0.04em;
   line-height: 0.95;
@@ -135,7 +143,7 @@ main {
   display: block;
   color: var(--un-accent, #9f3526);
   font-family: var(--un-serif, Georgia, serif);
-  font-size: clamp(2.5rem, 4vw, 4.5rem);
+  font-size: clamp(1.8rem, 3vw, 2.75rem);
   font-weight: 400;
   letter-spacing: -0.04em;
 }
@@ -276,7 +284,7 @@ main {
 .collection h2 {
   margin: 0.5rem 0 1.5rem;
   font-family: var(--un-serif, Georgia, serif);
-  font-size: clamp(3rem, 6vw, 6rem);
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
   font-weight: 400;
   letter-spacing: -0.04em;
 }
@@ -324,6 +332,61 @@ main {
   place-content: center;
   text-align: center;
 }
+.image-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  padding: clamp(12px, 2vw, 28px);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.image-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(0, 0, 0, .88);
+  cursor: zoom-out;
+}
+.image-modal__content {
+  position: relative;
+  z-index: 1;
+  width: calc(100vw - clamp(24px, 4vw, 56px));
+  height: calc(100dvh - clamp(24px, 4vw, 56px));
+  max-width: 100%;
+  max-height: 100%;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.image-modal__content img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: calc(100vw - clamp(24px, 4vw, 56px));
+  max-height: calc(100dvh - clamp(24px, 4vw, 56px));
+  object-fit: contain;
+  object-position: center;
+  image-rendering: auto;
+  pointer-events: auto;
+}
+.image-modal__close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, .7);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .55);
+  color: #fff;
+  font-size: 26px;
+  cursor: pointer;
+  pointer-events: auto;
+}
 @media (max-width: 1000px) {
   .product {
     grid-template-columns: 1fr;
@@ -332,7 +395,9 @@ main {
     position: static;
   }
   .main-image {
-    height: min(72vh, 650px);
+    width: min(100%, 680px);
+    height: auto;
+    aspect-ratio: 1 / 1;
   }
   .cards {
     grid-template-columns: repeat(3, 1fr);
@@ -352,6 +417,7 @@ main {
   .gallery {
     grid-template-columns: 1fr;
     gap: .75rem;
+    min-height: 0;
   }
   .thumbs {
     order: 2;
@@ -368,10 +434,10 @@ main {
     aspect-ratio: 4 / 5;
   }
   .summary { padding-top:0; }
-  .summary h1 { margin:.75rem 0 1rem;font-size:clamp(2.8rem,14vw,4.2rem);line-height:.94; }
+  .summary h1 { margin:.75rem 0 1rem;font-size:clamp(1.7rem,8vw,2.25rem);line-height:1; }
   .lead { margin:0;font-size:14px;line-height:1.55; }
   .price-block { margin:1.5rem 0 .55rem; }
-  .price { font-size:clamp(2.2rem,11vw,3.2rem); }
+  .price { font-size:clamp(1.7rem,8vw,2.25rem); }
   .variants { margin-top:2rem; }
   .variants__head { gap:1rem; }
   .variants button { min-width:58px;min-height:48px; }
@@ -384,7 +450,7 @@ main {
     grid-template-columns: 1fr;
     gap:2rem;
   }
-  .details h2,.collection h2 { margin:.4rem 0 1rem;font-size:clamp(2.8rem,14vw,4rem);line-height:.95; }
+  .details h2,.collection h2 { margin:.4rem 0 1rem;font-size:clamp(1.4rem,7vw,1.8rem);line-height:1; }
   .details p { margin-bottom:0;font-size:14px;line-height:1.65; }
   .details dl div { grid-template-columns:minmax(100px,.8fr) 1.2fr;gap:1rem;line-height:1.4; }
   .collection { padding-top:5rem; }

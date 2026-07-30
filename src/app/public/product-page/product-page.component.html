@@ -15,13 +15,34 @@
       <div class="gallery">
         <div class="thumbs">
           @for (image of item.images; track image; let index = $index) {
-            <button [class.active]="activeImage() === index" (click)="activeImage.set(index)"><img [src]="optimizedUrl(image, 180)" [alt]="item.name" /></button>
+            <button [class.active]="activeImage() === index" (click)="activeImage.set(index)">
+              <app-optimized-image [src]="image" [alt]="item.name" [width]="180" [height]="240" sizes="72px" srcset="96w, 144w, 180w" />
+            </button>
           }
         </div>
-        <div class="main-image">
-          @if (item.images[activeImage()]) { <img [src]="optimizedUrl(item.images[activeImage()], 1400)" [alt]="item.name" /> }
+        <button
+          type="button"
+          class="main-image"
+          [disabled]="!item.images[activeImage()]"
+          aria-label="Відкрити зображення у повному розмірі"
+          (click)="openImagePreview()"
+        >
+          @if (item.images[activeImage()]) {
+            <app-optimized-image
+              [src]="item.images[activeImage()]"
+              [alt]="item.name"
+              [width]="1200"
+              [height]="1600"
+              [priority]="true"
+              fit="contain"
+              objectPosition="center center"
+              [fillContainer]="true"
+              sizes="(max-width: 760px) 100vw, 58vw"
+              srcset="480w, 700w, 900w, 1200w, 1400w"
+            />
+          }
           @else { <i class="ri-image-line"></i> }
-        </div>
+        </button>
       </div>
 
       <div class="summary">
@@ -126,6 +147,18 @@
         <header><span>Може сподобатися</span><h2>Схожі товари</h2></header>
         <div class="cards">@for (related of relatedProducts(); track related._id) { <app-public-product-card [product]="related" /> }</div>
       </section>
+    }
+
+    @if (imagePreviewOpen() && item.images[activeImage()]) {
+      <div class="image-modal" role="dialog" aria-modal="true" aria-label="Перегляд зображення товару" (click)="closeImagePreview()">
+        <div class="image-modal__backdrop" aria-hidden="true"></div>
+        <div class="image-modal__content" (click)="$event.stopPropagation()">
+          <button class="image-modal__close" type="button" aria-label="Закрити перегляд" (click)="closeImagePreview()">
+            <i class="ri-close-line" aria-hidden="true"></i>
+          </button>
+          <img [src]="item.images[activeImage()]" [alt]="item.name" decoding="async" />
+        </div>
+      </div>
     }
    }
   }
