@@ -196,6 +196,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://uliastore.com.ua/product/asymmetric-play</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://uliastore.com.ua/product/bg105</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -331,6 +336,26 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://uliastore.com.ua/product/day-off</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/day-off-black</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/day-off-blue</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/double-ruffles</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://uliastore.com.ua/product/dzhynsy-chorni</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -392,6 +417,16 @@
   </url>
   <url>
     <loc>https://uliastore.com.ua/product/freya-2</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/futbolka%20i%20said</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/futbolka%20i%20said%201</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -497,6 +532,11 @@
   </url>
   <url>
     <loc>https://uliastore.com.ua/product/kyrtka%20krop</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/la-nuit</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -672,6 +712,21 @@
   </url>
   <url>
     <loc>https://uliastore.com.ua/product/short%20denim</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/sorochka</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/sorochka1</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/sorochka2</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

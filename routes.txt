@@ -37,6 +37,7 @@
 /product/ami
 /product/angel
 /product/angel1
+/product/asymmetric-play
 /product/bg105
 /product/bg136
 /product/bg141
@@ -64,6 +65,10 @@
 /product/cloudy1
 /product/connie
 /product/cukornyca
+/product/day-off
+/product/day-off-black
+/product/day-off-blue
+/product/double-ruffles
 /product/dzhynsy-chorni
 /product/dzhynsy-siri
 /product/dzhynsy-siri1
@@ -77,6 +82,8 @@
 /product/freya
 /product/freya-1
 /product/freya-2
+/product/futbolka%20i%20said
+/product/futbolka%20i%20said%201
 /product/futbolka%20jangol
 /product/glechyk-zhyttj
 /product/golybka
@@ -98,6 +105,7 @@
 /product/kryla
 /product/kryla%20milk
 /product/kyrtka%20krop
+/product/la-nuit
 /product/lexy
 /product/lizette
 /product/maria
@@ -133,6 +141,9 @@
 /product/shiny
 /product/shiny1
 /product/short%20denim
+/product/sorochka
+/product/sorochka1
+/product/sorochka2
 /product/ss26
 /product/ss26-1
 /product/ss26-2

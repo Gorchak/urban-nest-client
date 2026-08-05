@@ -124,15 +124,13 @@
             <select [ngModel]="form().paymentMethod" (ngModelChange)="patch({ paymentMethod: $event })" name="payment">
               <option value="cash_on_delivery">При отриманні</option>
               <option value="bank_transfer">Банківський переказ</option>
-              <option value="google_pay">Google Pay</option>
+              <option value="online">Онлайн-оплата (Google Pay / Apple Pay)</option>
             </select>
           </label>
-          @if (form().paymentMethod === 'google_pay') {
+          @if (form().paymentMethod === 'online') {
             <div class="google-pay-box">
-              @if (googlePayLoading()) { <p>Перевіряємо доступність Google Pay...</p> }
-              @else if (googlePayAvailable()) { <div #googlePayButton class="google-pay-button"></div><small>Підтримуються VISA та Mastercard у гривні.</small> }
-              @else { <p>Google Pay зараз недоступний для цього пристрою або браузера.</p> }
-              @if (googlePayError()) { <p class="google-pay-error">{{ googlePayError() }}</p> }
+              <p>Після оформлення замовлення ви перейдете на захищену платіжну сторінку WayForPay.</p>
+              <small>На сторінці оплати доступні Google Pay та Apple Pay.</small>
             </div>
           }
         </section>

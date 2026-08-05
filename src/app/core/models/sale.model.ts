@@ -112,6 +112,11 @@ export interface Sale {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+  paymentRedirect?: {
+    action: string;
+    method: 'POST';
+    fields: Array<{ name: string; value: string }>;
+  };
   checkbox?: {
     fiscalCode: string | null;
     fiscalDate: string | null;
