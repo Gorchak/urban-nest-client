@@ -26,7 +26,7 @@ const emptyForm = (): CheckoutForm => ({
   firstName: '', lastName: '', email: '', phone: '',
   deliveryService: 'nova_poshta', areaRef: '', region: '', cityRef: '', city: '',
   warehouseRef: '', warehouse: '', street: '', building: '', apartment: '', postalCode: '',
-  paymentMethod: 'wayforpay', notes: '', doNotCall: false,
+  paymentMethod: 'cash_on_delivery', notes: '', doNotCall: false,
 });
 
 @Component({

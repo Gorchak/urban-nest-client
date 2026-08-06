@@ -124,7 +124,6 @@
             <select [ngModel]="form().paymentMethod" (ngModelChange)="patch({ paymentMethod: $event })" name="payment">
               <option value="cash_on_delivery">При отриманні</option>
               <option value="bank_transfer">Банківський переказ</option>
-              <option value="online">Онлайн-оплата (Google Pay / Apple Pay)</option>
               <option value="wayforpay">Онлайн оплата / WayForPay</option>
             </select>
           </label>
