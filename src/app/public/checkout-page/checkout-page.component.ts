@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
 import { firstValueFrom } from 'rxjs';
 import { AdminAccessService } from '../../core/services/admin-access.service';
@@ -26,7 +26,7 @@ const emptyForm = (): CheckoutForm => ({
   firstName: '', lastName: '', email: '', phone: '',
   deliveryService: 'nova_poshta', areaRef: '', region: '', cityRef: '', city: '',
   warehouseRef: '', warehouse: '', street: '', building: '', apartment: '', postalCode: '',
-  paymentMethod: 'cash_on_delivery', notes: '', doNotCall: false,
+  paymentMethod: 'online', notes: '', doNotCall: false,
 });
 
 @Component({
@@ -43,6 +43,7 @@ export class CheckoutPageComponent implements OnInit {
   protected cartService = inject(CartService);
   private salesService = inject(SalesService);
   private novaPoshta = inject(NovaPoshtaService);
+  private route = inject(ActivatedRoute);
 
   protected isAuthenticated = signal(false);
   protected user = signal<Auth0User | null>(null);
@@ -63,6 +64,7 @@ export class CheckoutPageComponent implements OnInit {
     this.isAuthenticated.set(access.isAuthenticated);
     this.user.set(access.user);
     await this.cartService.load();
+    await this.handlePaymentReturn();
     if (access.user) this.prefill(access.user);
     await this.loadAreas();
     if (this.form().areaRef) await this.onAreaChange(this.form().areaRef, true);
@@ -139,11 +141,11 @@ export class CheckoutPageComponent implements OnInit {
         notes: form.notes || null, doNotCall: form.doNotCall, inventoryAdjustment: { state: 'none', updatedAt: null },
       };
       const sale = await this.salesService.checkout(payload);
-      await this.cartService.handleCheckoutComplete();
       if (sale.paymentRedirect) {
         this.submitPaymentRedirect(sale.paymentRedirect);
         return;
       }
+      await this.cartService.handleCheckoutComplete();
       this.successOrder.set(sale.orderNumber);
     } catch (error: any) {
       this.error.set(error?.error?.message || error?.message || 'Не вдалося оформити замовлення');
@@ -192,6 +194,34 @@ export class CheckoutPageComponent implements OnInit {
     });
     document.body.appendChild(form);
     form.submit();
+  }
+
+  private async handlePaymentReturn(): Promise<void> {
+    if (this.route.snapshot.queryParamMap.get('payment') !== 'return') return;
+    const orderReference = this.route.snapshot.queryParamMap.get('orderReference');
+    if (!orderReference) {
+      this.error.set('Не вдалося перевірити результат оплати. Спробуйте оформити замовлення ще раз.');
+      return;
+    }
+
+    try {
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        const result = await this.salesService.getWayForPayStatus(orderReference);
+        if (result.status === 'approved') {
+          await this.cartService.handleCheckoutComplete();
+          this.successOrder.set(orderReference);
+          return;
+        }
+        if (result.status === 'declined' || result.status === 'not_found') {
+          this.error.set(result.reason || 'Оплата не пройшла. Спробуйте ще раз або виберіть інший спосіб оплати.');
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+      this.error.set('Підтвердження оплати ще не отримано. Спробуйте оновити сторінку через кілька секунд.');
+    } catch {
+      this.error.set('Не вдалося перевірити результат оплати. Спробуйте ще раз або виберіть інший спосіб оплати.');
+    }
   }
 
   private async loadAreas(): Promise<void> {

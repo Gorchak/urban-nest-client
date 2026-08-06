@@ -100,6 +100,21 @@ export class SalesService {
     return response.data;
   }
 
+  async getWayForPayStatus(orderReference: string): Promise<{
+    orderReference: string;
+    status: 'pending' | 'completing' | 'approved' | 'declined' | 'not_found';
+    reason?: string | null;
+  }> {
+    const response = await firstValueFrom(
+      this.http.get<ApiResponse<{
+        orderReference: string;
+        status: 'pending' | 'completing' | 'approved' | 'declined' | 'not_found';
+        reason?: string | null;
+      }>>(`${this.apiUrl}/wayforpay/status/${encodeURIComponent(orderReference)}`),
+    );
+    return response.data;
+  }
+
   async quickOrder(data: QuickOrderDto): Promise<Sale> {
     const response = await firstValueFrom(
       this.http.post<ApiResponse<Sale>>(`${this.apiUrl}/quick-order`, data),
