@@ -26,7 +26,7 @@ const emptyForm = (): CheckoutForm => ({
   firstName: '', lastName: '', email: '', phone: '',
   deliveryService: 'nova_poshta', areaRef: '', region: '', cityRef: '', city: '',
   warehouseRef: '', warehouse: '', street: '', building: '', apartment: '', postalCode: '',
-  paymentMethod: 'online', notes: '', doNotCall: false,
+  paymentMethod: 'wayforpay', notes: '', doNotCall: false,
 });
 
 @Component({
@@ -119,7 +119,7 @@ export class CheckoutPageComponent implements OnInit {
     this.submitting.set(true);
     this.error.set(null);
     try {
-      const isOnlinePayment = form.paymentMethod === 'online';
+      const isOnlinePayment = form.paymentMethod === 'wayforpay';
       await this.cartService.prepareForCheckout();
       const payload: CreateSaleDto & { guestId?: string } = {
         guestId: this.cartService.getGuestIdValue(),
@@ -198,6 +198,11 @@ export class CheckoutPageComponent implements OnInit {
 
   private async handlePaymentReturn(): Promise<void> {
     if (this.route.snapshot.queryParamMap.get('payment') !== 'return') return;
+    const paymentError = this.route.snapshot.queryParamMap.get('paymentError');
+    if (paymentError) {
+      this.error.set(paymentError);
+      return;
+    }
     const orderReference = this.route.snapshot.queryParamMap.get('orderReference');
     if (!orderReference) {
       this.error.set('Не вдалося перевірити результат оплати. Спробуйте оформити замовлення ще раз.');

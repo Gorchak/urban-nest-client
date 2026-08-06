@@ -153,6 +153,7 @@ export class SalesPageComponent implements OnInit {
     { label: 'Google Pay', value: 'google_pay' },
     { label: 'Банківський переказ', value: 'bank_transfer' },
     { label: 'Онлайн', value: 'online' },
+    { label: 'WayForPay', value: 'wayforpay' },
   ];
 
   protected paymentStatusOptions: Array<{ label: string; value: SalePaymentStatus }> = [

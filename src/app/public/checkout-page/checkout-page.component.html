@@ -125,12 +125,13 @@
               <option value="cash_on_delivery">При отриманні</option>
               <option value="bank_transfer">Банківський переказ</option>
               <option value="online">Онлайн-оплата (Google Pay / Apple Pay)</option>
+              <option value="wayforpay">Онлайн оплата / WayForPay</option>
             </select>
           </label>
-          @if (form().paymentMethod === 'online') {
+          @if (form().paymentMethod === 'wayforpay') {
             <div class="google-pay-box">
               <p>Після оформлення замовлення ви перейдете на захищену платіжну сторінку WayForPay.</p>
-              <small>WayForPay покаже доступні для вашого пристрою способи оплати, зокрема Google Pay або Apple Pay.</small>
+              <small>На сторінці WayForPay введіть дані своєї банківської картки та підтвердьте оплату.</small>
             </div>
           }
         </section>

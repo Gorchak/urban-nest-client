@@ -11,7 +11,8 @@ export type SalePaymentMethod =
   | 'cash_on_delivery'
   | 'google_pay'
   | 'bank_transfer'
-  | 'online';
+  | 'online'
+  | 'wayforpay';
 
 export type SalePaymentStatus = 'unpaid' | 'paid' | 'partially_paid' | 'refunded';
 
