@@ -177,23 +177,11 @@ export class CheckoutPageComponent implements OnInit {
   }
 
   private submitPaymentRedirect(paymentRedirect: NonNullable<import('../../core/models/sale.model').Sale['paymentRedirect']>): void {
-    const target = new URL(paymentRedirect.action);
-    if (target.origin !== 'https://secure.wayforpay.com') {
+    const target = new URL(paymentRedirect.url);
+    if (target.protocol !== 'https:' || target.hostname !== 'secure.wayforpay.com') {
       throw new Error('Некоректна адреса платіжної сторінки');
     }
-    const form = document.createElement('form');
-    form.method = paymentRedirect.method;
-    form.action = paymentRedirect.action;
-    form.acceptCharset = 'UTF-8';
-    paymentRedirect.fields.forEach(({ name, value }) => {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = name;
-      input.value = value;
-      form.appendChild(input);
-    });
-    document.body.appendChild(form);
-    form.submit();
+    window.location.assign(target.toString());
   }
 
   private async handlePaymentReturn(): Promise<void> {

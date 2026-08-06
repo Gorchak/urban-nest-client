@@ -11,6 +11,6 @@ export const environment = {
     allowedCardNetworks: ['VISA', 'MASTERCARD'],
     allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
     gateway: 'wayforpay',
-    gatewayMerchantId: 'urban_nest_dev_netify_app',
+    gatewayMerchantId: 'urban_nest_dev_netlify_app',
   },
 };

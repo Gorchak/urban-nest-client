@@ -114,9 +114,7 @@ export interface Sale {
   updatedAt: string;
   deletedAt: string | null;
   paymentRedirect?: {
-    action: string;
-    method: 'POST';
-    fields: Array<{ name: string; value: string }>;
+    url: string;
   };
   checkbox?: {
     fiscalCode: string | null;
