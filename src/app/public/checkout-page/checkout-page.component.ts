@@ -182,6 +182,7 @@ export class CheckoutPageComponent implements OnInit {
     const form = document.createElement('form');
     form.method = paymentRedirect.method;
     form.action = paymentRedirect.action;
+    form.acceptCharset = 'UTF-8';
     paymentRedirect.fields.forEach(({ name, value }) => {
       const input = document.createElement('input');
       input.type = 'hidden';
