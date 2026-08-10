@@ -151,6 +151,7 @@ export interface SaleListFilter {
   status?: SaleStatus;
   paymentStatus?: SalePaymentStatus;
   categoryId?: string;
+  includeDeleted?: boolean;
   page?: number;
   limit?: number;
 }

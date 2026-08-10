@@ -45,6 +45,16 @@
       (ngModelChange)="onStatusFilterChange($event)"
       placeholder="Статус"
     />
+    @if (dataSource() === 'website') {
+      <label class="show-deleted-toggle">
+        <input
+          type="checkbox"
+          [ngModel]="showDeleted()"
+          (ngModelChange)="onShowDeletedChange($event)"
+        />
+        <span>Показати видалені продажі</span>
+      </label>
+    }
   </div>
 
   <p-table
@@ -74,10 +84,13 @@
     </ng-template>
 
     <ng-template pTemplate="body" let-sale>
-      <tr [class.checkbox-row]="sale.source === 'checkbox'">
+      <tr [class.checkbox-row]="sale.source === 'checkbox'" [class.deleted-row]="sale.deletedAt">
         <td>
           <code>{{ sale.orderNumber }}</code>
           <p-tag [value]="sale.source === 'checkbox' ? 'CHECKBOX' : 'САЙТ'" [severity]="sale.source === 'checkbox' ? 'info' : 'secondary'" />
+          @if (sale.deletedAt) {
+            <p-tag value="ВИДАЛЕНО" severity="danger" />
+          }
         </td>
         <td>
           <div class="customer-cell">
@@ -122,7 +135,7 @@
               <button type="button" class="icon-action" title="Скасувати" (click)="cancelQuickEdit(sale)">
                 <i class="pi pi-times"></i>
               </button>
-            } @else {
+            } @else if (!sale.deletedAt) {
               <button type="button" class="icon-action" title="Редагувати оплату" (click)="startQuickEdit(sale)">
                 <i class="pi pi-pen-to-square"></i>
               </button>
@@ -149,7 +162,7 @@
               <button type="button" class="icon-action" title="Скасувати" (click)="cancelQuickEdit(sale)">
                 <i class="pi pi-times"></i>
               </button>
-            } @else {
+            } @else if (!sale.deletedAt) {
               <button type="button" class="icon-action" title="Редагувати статус" (click)="startQuickEdit(sale)">
                 <i class="pi pi-pen-to-square"></i>
               </button>
@@ -166,8 +179,8 @@
           @if (sale.source !== 'checkbox') {
           <app-admin-action-menu
             [showView]="true"
-            [showEdit]="true"
-            [showDelete]="true"
+            [showEdit]="!sale.deletedAt"
+            [showDelete]="!sale.deletedAt"
             [deleteDisabled]="deletingSaleId() === sale._id"
             (view)="openDetails(sale)"
             (edit)="openEdit(sale)"

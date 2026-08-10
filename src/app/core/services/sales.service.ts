@@ -41,6 +41,7 @@ export class SalesService {
       if (filter.status) params = params.set('status', filter.status);
       if (filter.paymentStatus) params = params.set('paymentStatus', filter.paymentStatus);
       if (filter.categoryId) params = params.set('categoryId', filter.categoryId);
+      if (filter.includeDeleted) params = params.set('includeDeleted', 'true');
       if (filter.page) params = params.set('page', String(filter.page));
       if (filter.limit) params = params.set('limit', String(filter.limit));
 

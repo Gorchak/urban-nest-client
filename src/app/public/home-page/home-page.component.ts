@@ -198,11 +198,7 @@ export class HomePageComponent implements OnInit, OnDestroy {
     this.searchLoading.set(false);
     this.searchError.set(null);
   }
-  protected sectionId(category: Category): string { return `category-${category.slug || category._id}`; }
   protected routeSlug(category: Category): string { return toRouteSlug(category.slug); }
-  protected categoryImage(category: Category): string {
-    return category.bannerImage || category.coverImage || category.image || category.images?.[0] || '';
-  }
 
   private normalizeCategoryKey(value: string): string {
     return value.toLocaleLowerCase('uk-UA').replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();

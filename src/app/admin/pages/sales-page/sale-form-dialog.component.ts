@@ -163,9 +163,7 @@ export class SaleFormDialogComponent implements OnChanges {
   protected paymentMethodOptions: Array<{ label: string; value: SalePaymentMethod }> = [
     { label: 'Картка', value: 'card' },
     { label: 'Післяплата', value: 'cash_on_delivery' },
-    { label: 'Google Pay', value: 'google_pay' },
     { label: 'Банківський переказ', value: 'bank_transfer' },
-    { label: 'Онлайн', value: 'online' },
     { label: 'WayForPay', value: 'wayforpay' },
   ];
 

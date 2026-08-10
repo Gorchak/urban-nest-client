@@ -123,6 +123,7 @@ export class SalesPageComponent implements OnInit {
   protected quickEditDrafts = signal<Record<string, { status: SaleStatus; paymentStatus: SalePaymentStatus }>>({});
   protected search = signal('');
   protected statusFilter = signal<SaleStatus | null>(null);
+  protected showDeleted = signal(false);
   protected dataSource = signal<'website' | 'checkbox'>('website');
   protected checkboxStatus = signal<CheckboxIntegrationStatus | null>(null);
   protected fiscalizingSaleId = signal<string | null>(null);
@@ -150,9 +151,7 @@ export class SalesPageComponent implements OnInit {
   protected paymentMethodOptions: Array<{ label: string; value: SalePaymentMethod }> = [
     { label: 'Картка', value: 'card' },
     { label: 'Післяплата', value: 'cash_on_delivery' },
-    { label: 'Google Pay', value: 'google_pay' },
     { label: 'Банківський переказ', value: 'bank_transfer' },
-    { label: 'Онлайн', value: 'online' },
     { label: 'WayForPay', value: 'wayforpay' },
   ];
 
@@ -190,6 +189,7 @@ export class SalesPageComponent implements OnInit {
             limit: this.pagination().limit,
             search: this.search() || undefined,
             status: this.statusFilter() || undefined,
+            includeDeleted: this.showDeleted(),
           });
       this.sales.set(result.data);
       this.pagination.set(result.pagination);
@@ -207,6 +207,7 @@ export class SalesPageComponent implements OnInit {
 
   protected canFiscalize(sale: Sale): boolean {
     return sale.source !== 'checkbox'
+      && !sale.deletedAt
       && sale.payment.status === 'paid'
       && !sale.checkboxFiscalization?.receiptId;
   }
@@ -238,6 +239,12 @@ export class SalesPageComponent implements OnInit {
 
   protected async onStatusFilterChange(value: SaleStatus | null): Promise<void> {
     this.statusFilter.set(value);
+    this.pagination.update((p) => ({ ...p, page: 1 }));
+    await this.loadSales();
+  }
+
+  protected async onShowDeletedChange(value: boolean): Promise<void> {
+    this.showDeleted.set(value);
     this.pagination.update((p) => ({ ...p, page: 1 }));
     await this.loadSales();
   }

@@ -68,49 +68,8 @@
           </section>
         }
 
-        @if (!searchQuery() && brands().length) {
-          <section class="brands-strip">
-            <header><span class="eyebrow">Обирайте знайоме</span></header>
-            <div class="brand-list">
-              @for (brand of brands(); track brand._id) {
-                <a [routerLink]="['/brand', brand.slug]">
-                  @if (brand.logo) {
-                    <app-optimized-image [src]="brand.logo" [alt]="brand.name" [width]="240" [height]="120" fit="contain" sizes="160px" srcset="120w, 180w, 240w" />
-                  }
-                  <span>{{ brand.name }}</span>
-                </a>
-              }
-            </div>
-          </section>
-        }
-
         <div class="category-sections">
           @for (section of sections(); track section.category._id; let sectionIndex = $index) {
-            <section class="category-story" [class.category-story--reverse]="sectionIndex % 2" [id]="sectionId(section.category)">
-              <a class="category-story__image" [routerLink]="['/category', routeSlug(section.category)]">
-                @if (categoryImage(section.category)) {
-                  <app-optimized-image
-                    [src]="categoryImage(section.category)"
-                    [alt]="section.title"
-                    [width]="1200"
-                    [height]="900"
-                    sizes="(max-width: 760px) 100vw, 52vw"
-                    srcset="480w, 700w, 900w, 1200w"
-                  />
-                } @else {
-                  <i class="ri-image-line"></i>
-                }
-              </a>
-              <div class="category-story__copy">
-                <span class="eyebrow">#{{ section.title.toLocaleLowerCase('uk-UA') }}</span>
-                <h2>{{ section.category.shortDescription || section.title }}</h2>
-                <p>{{ section.category.description || 'Речі, які легко поєднувати та приємно обирати знову.' }}</p>
-                <a class="story-link" [routerLink]="['/category', routeSlug(section.category)]">
-                  Дивитися категорію <i class="ri-arrow-right-line"></i>
-                </a>
-              </div>
-            </section>
-
             <section class="product-row">
               <header class="section-header">
                 <div><span class="eyebrow">Добірка 0{{ sectionIndex + 1 }}</span><h2>{{ section.title }}</h2></div>
@@ -142,6 +101,22 @@
             </header>
             <div class="products">
               @for (product of recentlyViewed(); track product._id) { <app-public-product-card [product]="product" /> }
+            </div>
+          </section>
+        }
+
+        @if (!searchQuery() && brands().length) {
+          <section class="brands-strip">
+            <header><span class="eyebrow">Обирайте знайоме</span></header>
+            <div class="brand-list">
+              @for (brand of brands(); track brand._id) {
+                <a [routerLink]="['/brand', brand.slug]">
+                  @if (brand.logo) {
+                    <app-optimized-image [src]="brand.logo" [alt]="brand.name" [width]="240" [height]="120" fit="contain" sizes="160px" srcset="120w, 180w, 240w" />
+                  }
+                  <span>{{ brand.name }}</span>
+                </a>
+              }
             </div>
           </section>
         }

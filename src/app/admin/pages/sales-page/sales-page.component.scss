@@ -11,6 +11,9 @@
 .checkbox-action { margin-right: .35rem; color: #0b7285; }
 .checkbox-row select, .checkbox-row button { pointer-events: none; }
 .checkbox-row { background: rgba(14, 116, 144, .04); }
+.deleted-row { opacity: .72; background: rgba(185, 28, 28, .045); }
+.show-deleted-toggle { display: flex; align-items: center; gap: .5rem; cursor: pointer; white-space: nowrap; }
+.show-deleted-toggle input { width: 1rem; height: 1rem; accent-color: #111; }
 
 .page-header,
 .sales-toolbar,
