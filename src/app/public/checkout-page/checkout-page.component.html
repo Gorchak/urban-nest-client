@@ -66,26 +66,29 @@
             @if (form().deliveryService === 'nova_poshta') {
               <label [class.field-error]="hasFieldError('areaRef')">
                 Область
-                <select [disabled]="novaPoshtaLoading()" [ngModel]="form().areaRef" (ngModelChange)="onAreaChange($event)" name="areaRef">
-                  <option value="">Оберіть область</option>
-                  @for (area of areas(); track area.Ref) { <option [value]="area.Ref">{{ area.Description }}</option> }
-                </select>
+                <p-autoComplete [suggestions]="areaSuggestions()" field="Description" [dropdown]="true"
+                  [forceSelection]="false" [minLength]="0" [delay]="250" [disabled]="novaPoshtaLoading()"
+                  [ngModel]="selectedArea()" (ngModelChange)="onAreaModelChange($event)"
+                  (completeMethod)="searchAreas($event.query)" (onSelect)="onAreaChange($event.value.Ref)"
+                  name="areaRef" placeholder="Почніть вводити область" />
                 @if (fieldError('areaRef')) { <small>{{ fieldError('areaRef') }}</small> }
               </label>
               <label [class.field-error]="hasFieldError('cityRef')">
                 Місто
-                <select [disabled]="!form().areaRef || novaPoshtaLoading()" [ngModel]="form().cityRef" (ngModelChange)="onCityChange($event)" name="cityRef">
-                  <option value="">Оберіть місто</option>
-                  @for (city of cities(); track city.Ref) { <option [value]="city.Ref">{{ city.Description }}</option> }
-                </select>
+                <p-autoComplete [suggestions]="cities()" field="Description" [dropdown]="true"
+                  [forceSelection]="false" [minLength]="0" [delay]="250" [disabled]="!form().region"
+                  [ngModel]="selectedCity()" (ngModelChange)="onCityModelChange($event)"
+                  (completeMethod)="searchCities($event.query)" (onSelect)="onCityChange($event.value.Ref)"
+                  name="cityRef" placeholder="Почніть вводити місто" />
                 @if (fieldError('cityRef')) { <small>{{ fieldError('cityRef') }}</small> }
               </label>
               <label [class.field-error]="hasFieldError('warehouseRef')">
                 Відділення
-                <select [disabled]="!form().cityRef || novaPoshtaLoading()" [ngModel]="form().warehouseRef" (ngModelChange)="onWarehouseChange($event)" name="warehouseRef">
-                  <option value="">Оберіть відділення</option>
-                  @for (warehouse of warehouses(); track warehouse.Ref) { <option [value]="warehouse.Ref">{{ warehouse.Description }}</option> }
-                </select>
+                <p-autoComplete [suggestions]="warehouses()" field="Description" [dropdown]="true"
+                  [forceSelection]="false" [minLength]="0" [delay]="250" [disabled]="!form().city"
+                  [ngModel]="selectedWarehouse()" (ngModelChange)="onWarehouseModelChange($event)"
+                  (completeMethod)="searchWarehouses($event.query)" (onSelect)="onWarehouseChange($event.value.Ref)"
+                  name="warehouseRef" placeholder="Номер або адреса відділення" />
                 @if (fieldError('warehouseRef')) { <small>{{ fieldError('warehouseRef') }}</small> }
               </label>
             } @else if (form().deliveryService === 'pickup') {

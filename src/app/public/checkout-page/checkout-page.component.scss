@@ -25,6 +25,12 @@ textarea { resize: vertical; }
   border-color: #b33b2e;
   background: #fff;
 }
+input:disabled { cursor: not-allowed; opacity: .6; }
+::ng-deep .p-autocomplete,
+::ng-deep .p-autocomplete-input { width: 100%; }
+::ng-deep .p-autocomplete-input { min-height: 52px; border-radius: 0; }
+::ng-deep .p-autocomplete-dropdown { border-radius: 0; }
+.field-error ::ng-deep .p-autocomplete-input { border-color: #b33b2e; background: #fff; }
 .field-error small {
   color: #b33b2e;
   font-size: 12px;

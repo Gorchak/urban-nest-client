@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, Output, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, Output, ViewChild, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -30,6 +30,8 @@ export class OneClickOrderDialogComponent {
   protected error = signal<string | null>(null);
   protected success = signal(false);
 
+  @ViewChild('phoneInput') private phoneInput?: ElementRef<HTMLInputElement>;
+
   protected close(): void {
     if (this.loading()) return;
     this.visibleChange.emit(false);
@@ -40,8 +42,9 @@ export class OneClickOrderDialogComponent {
     const product = this.product;
     if (!product || this.loading()) return;
 
-    const phone = this.phone().trim();
-    if (!phone) {
+    // iOS can autofill the DOM value without propagating the complete value through ngModel.
+    const phone = this.phoneInput?.nativeElement.value ?? this.phone();
+    if (!phone.trim()) {
       this.error.set('Вкажіть номер телефону');
       return;
     }
@@ -62,6 +65,11 @@ export class OneClickOrderDialogComponent {
       this.loading.set(false);
       this.cdr.markForCheck();
     }
+  }
+
+  protected onPhoneInput(event: Event): void {
+    this.phone.set((event.target as HTMLInputElement).value);
+    this.error.set(null);
   }
 
   private reset(): void {

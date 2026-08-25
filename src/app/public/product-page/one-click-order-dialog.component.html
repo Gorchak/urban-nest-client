@@ -22,12 +22,14 @@
         <label>
           Номер телефону
           <input
+            #phoneInput
             type="tel"
             inputmode="tel"
             autocomplete="tel"
+            name="tel"
             placeholder="+380"
-            [ngModel]="phone()"
-            (ngModelChange)="phone.set($event); error.set(null)"
+            [value]="phone()"
+            (input)="onPhoneInput($event)"
           />
         </label>
 

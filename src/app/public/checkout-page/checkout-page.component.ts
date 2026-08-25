@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { firstValueFrom } from 'rxjs';
 import { AdminAccessService } from '../../core/services/admin-access.service';
 import { CartService } from '../../core/services/cart.service';
@@ -32,7 +33,7 @@ const emptyForm = (): CheckoutForm => ({
 @Component({
   selector: 'app-checkout-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, OptimizedImageComponent],
+  imports: [CommonModule, FormsModule, RouterLink, AutoCompleteModule, OptimizedImageComponent],
   templateUrl: './checkout-page.component.html',
   styleUrl: './checkout-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,8 +53,12 @@ export class CheckoutPageComponent implements OnInit {
   protected error = signal<string | null>(null);
   protected novaPoshtaLoading = signal(false);
   protected areas = signal<NovaPoshtaArea[]>([]);
+  protected areaSuggestions = signal<NovaPoshtaArea[]>([]);
   protected cities = signal<NovaPoshtaCity[]>([]);
   protected warehouses = signal<NovaPoshtaWarehouse[]>([]);
+  protected selectedArea = signal<NovaPoshtaArea | string | null>(null);
+  protected selectedCity = signal<NovaPoshtaCity | string | null>(null);
+  protected selectedWarehouse = signal<NovaPoshtaWarehouse | string | null>(null);
   protected form = signal<CheckoutForm>(emptyForm());
   protected formErrors = signal<CheckoutFormErrors>({});
 
@@ -69,6 +74,7 @@ export class CheckoutPageComponent implements OnInit {
     await this.loadAreas();
     if (this.form().areaRef) await this.onAreaChange(this.form().areaRef, true);
     if (this.form().cityRef) await this.onCityChange(this.form().cityRef, true);
+    if (this.form().warehouseRef) this.onWarehouseChange(this.form().warehouseRef);
   }
 
   protected patch(patch: Partial<CheckoutForm>): void {
@@ -93,19 +99,73 @@ export class CheckoutPageComponent implements OnInit {
   }
   protected async onAreaChange(areaRef: string, preserve = false): Promise<void> {
     const area = this.areas().find((item) => item.Ref === areaRef);
+    this.selectedArea.set(area || this.form().region || null);
     this.patch({ areaRef, region: area?.Description || '', ...(preserve ? {} : { cityRef: '', city: '', warehouseRef: '', warehouse: '' }) });
+    if (!preserve) {
+      this.selectedCity.set(null);
+      this.selectedWarehouse.set(null);
+    }
     this.novaPoshtaLoading.set(true);
     try { this.cities.set(await this.novaPoshta.getCities(areaRef)); } finally { this.novaPoshtaLoading.set(false); }
   }
   protected async onCityChange(cityRef: string, preserve = false): Promise<void> {
     const city = this.cities().find((item) => item.Ref === cityRef);
+    this.selectedCity.set(city || this.form().city || null);
     this.patch({ cityRef, city: city?.Description || this.form().city, ...(preserve ? {} : { warehouseRef: '', warehouse: '' }) });
+    if (!preserve) this.selectedWarehouse.set(null);
     this.novaPoshtaLoading.set(true);
     try { this.warehouses.set(await this.novaPoshta.getWarehouses(cityRef)); } finally { this.novaPoshtaLoading.set(false); }
   }
   protected onWarehouseChange(warehouseRef: string): void {
     const warehouse = this.warehouses().find((item) => item.Ref === warehouseRef);
+    this.selectedWarehouse.set(warehouse || this.form().warehouse || null);
     this.patch({ warehouseRef, warehouse: warehouse?.Description || '' });
+  }
+
+  protected searchAreas(query = ''): void {
+    const normalized = query.trim().toLocaleLowerCase('uk-UA');
+    this.areaSuggestions.set(this.areas().filter((area) =>
+      area.Description.toLocaleLowerCase('uk-UA').includes(normalized)
+    ));
+  }
+
+  protected onAreaModelChange(value: NovaPoshtaArea | string | null): void {
+    this.selectedArea.set(value);
+    if (typeof value !== 'string') return;
+    this.patch({ region: value, areaRef: '', city: '', cityRef: '', warehouse: '', warehouseRef: '' });
+    this.selectedCity.set(null);
+    this.selectedWarehouse.set(null);
+  }
+
+  protected async searchCities(query = ''): Promise<void> {
+    this.novaPoshtaLoading.set(true);
+    try {
+      this.cities.set(await this.novaPoshta.getCities(this.form().areaRef || undefined, query, query ? 100 : 500));
+    } finally {
+      this.novaPoshtaLoading.set(false);
+    }
+  }
+
+  protected onCityModelChange(value: NovaPoshtaCity | string | null): void {
+    this.selectedCity.set(value);
+    if (typeof value !== 'string') return;
+    this.patch({ city: value, cityRef: '', warehouse: '', warehouseRef: '' });
+    this.selectedWarehouse.set(null);
+  }
+
+  protected async searchWarehouses(query = ''): Promise<void> {
+    if (!this.form().cityRef) return;
+    this.novaPoshtaLoading.set(true);
+    try {
+      this.warehouses.set(await this.novaPoshta.getWarehouses(this.form().cityRef, query, query ? 100 : 500));
+    } finally {
+      this.novaPoshtaLoading.set(false);
+    }
+  }
+
+  protected onWarehouseModelChange(value: NovaPoshtaWarehouse | string | null): void {
+    this.selectedWarehouse.set(value);
+    if (typeof value === 'string') this.patch({ warehouse: value, warehouseRef: '' });
   }
 
   protected async submit(): Promise<void> {
@@ -157,9 +217,9 @@ export class CheckoutPageComponent implements OnInit {
     if (!form.firstName.trim()) errors.firstName = 'Вкажіть імʼя';
     if (!form.phone.trim()) errors.phone = 'Вкажіть номер телефону';
     if (form.deliveryService === 'nova_poshta') {
-      if (!form.areaRef) errors.areaRef = 'Оберіть область';
-      if (!form.cityRef) errors.cityRef = 'Оберіть місто';
-      if (!form.warehouseRef) errors.warehouseRef = 'Оберіть відділення';
+      if (!form.region.trim()) errors.areaRef = 'Вкажіть область';
+      if (!form.city.trim()) errors.cityRef = 'Вкажіть місто';
+      if (!form.warehouse.trim()) errors.warehouseRef = 'Вкажіть відділення';
     }
     if (form.deliveryService === 'courier') {
       if (!form.city.trim()) errors.city = 'Вкажіть місто';
