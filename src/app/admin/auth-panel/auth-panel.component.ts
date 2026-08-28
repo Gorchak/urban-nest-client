@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { AuthService } from '@auth0/auth0-angular';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, of } from 'rxjs';
@@ -10,7 +10,7 @@ import { catchError, of } from 'rxjs';
   templateUrl: './auth-panel.component.html',
   styleUrl: './auth-panel.component.scss'
 })
-export class AuthPanelComponent implements OnInit {
+export class AuthPanelComponent {
   private auth = inject(AuthService);
 
   private isAuthenticated$ = this.auth.isAuthenticated$.pipe(catchError(() => of(false)));
@@ -22,12 +22,6 @@ export class AuthPanelComponent implements OnInit {
   protected isLoading = toSignal(this.isLoading$, { initialValue: false });
 
   protected isProcessing = signal(false);
-
-  ngOnInit(): void {
-    this.isAuthenticated$.subscribe();
-    this.user$.subscribe();
-    this.isLoading$.subscribe();
-  }
 
   protected login(): void {
     if (this.isProcessing()) return;

@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { AdminNavbarComponent } from './admin/admin-navbar/admin-navbar.component';
@@ -14,12 +15,16 @@ import { filter } from 'rxjs';
 })
 export class AppComponent {
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   protected isAdminRoute = signal(globalThis.location?.pathname.startsWith('/admin') ?? this.router.url.startsWith('/admin'));
 
   constructor() {
     this.router.events
-      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .pipe(
+        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe((event) => this.isAdminRoute.set(event.urlAfterRedirects.startsWith('/admin')));
   }
 }

@@ -118,6 +118,14 @@
       </section>
     }
 
+    @if (hasMoreSections() || sectionsLoading()) {
+      <div class="category-showcases__more">
+        <button type="button" [disabled]="sectionsLoading()" (click)="loadMoreSections()">
+          {{ sectionsLoading() ? 'Завантажуємо…' : 'Показати більше категорій' }}
+        </button>
+      </div>
+    }
+
     @if (current.description) { <section class="description"><h2>Про категорію</h2><p>{{ current.description }}</p></section> }
    }
   }

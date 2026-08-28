@@ -61,6 +61,8 @@ export class CheckoutPageComponent implements OnInit {
   protected selectedWarehouse = signal<NovaPoshtaWarehouse | string | null>(null);
   protected form = signal<CheckoutForm>(emptyForm());
   protected formErrors = signal<CheckoutFormErrors>({});
+  private cityRequestId = 0;
+  private warehouseRequestId = 0;
 
   @ViewChild('checkoutForm') private checkoutForm?: ElementRef<HTMLElement>;
 
@@ -138,11 +140,13 @@ export class CheckoutPageComponent implements OnInit {
   }
 
   protected async searchCities(query = ''): Promise<void> {
+    const requestId = ++this.cityRequestId;
     this.novaPoshtaLoading.set(true);
     try {
-      this.cities.set(await this.novaPoshta.getCities(this.form().areaRef || undefined, query, query ? 100 : 500));
+      const cities = await this.novaPoshta.getCities(this.form().areaRef || undefined, query, 50);
+      if (requestId === this.cityRequestId) this.cities.set(cities);
     } finally {
-      this.novaPoshtaLoading.set(false);
+      if (requestId === this.cityRequestId) this.novaPoshtaLoading.set(false);
     }
   }
 
@@ -155,11 +159,13 @@ export class CheckoutPageComponent implements OnInit {
 
   protected async searchWarehouses(query = ''): Promise<void> {
     if (!this.form().cityRef) return;
+    const requestId = ++this.warehouseRequestId;
     this.novaPoshtaLoading.set(true);
     try {
-      this.warehouses.set(await this.novaPoshta.getWarehouses(this.form().cityRef, query, query ? 100 : 500));
+      const warehouses = await this.novaPoshta.getWarehouses(this.form().cityRef, query, 50);
+      if (requestId === this.warehouseRequestId) this.warehouses.set(warehouses);
     } finally {
-      this.novaPoshtaLoading.set(false);
+      if (requestId === this.warehouseRequestId) this.novaPoshtaLoading.set(false);
     }
   }
 

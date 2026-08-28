@@ -10,15 +10,18 @@ import {
   signal,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
+  DestroyRef,
+  OnDestroy,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
   FormsModule,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { from, of } from 'rxjs';
+import { catchError, finalize, mergeMap, toArray } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -74,9 +77,11 @@ interface UploadedImage {
   templateUrl: './image-upload.component.html',
   styleUrls: ['./image-upload.component.scss'],
 })
-export class ImageUploadComponent implements OnChanges, ControlValueAccessor {
+export class ImageUploadComponent implements OnChanges, OnDestroy, ControlValueAccessor {
   private uploadService = inject(UploadService);
   private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
+  private copiedTimer?: ReturnType<typeof setTimeout>;
 
   // ── @Input/@Output API (usable without reactive forms) ────────────────────
 
@@ -155,27 +160,33 @@ export class ImageUploadComponent implements OnChanges, ControlValueAccessor {
     this.uploadProgress.set(`Завантаження 0 із ${files.length}...`);
     this.cdr.markForCheck();
 
-    let done = 0;
-    const uploads = files.map((f) =>
-      this.uploadService.upload(f).pipe(
-        catchError(() => of(null))
-      )
-    );
-
-    forkJoin(uploads).subscribe((results) => {
-      const successful = results.filter(
-        (r): r is NonNullable<typeof r> => r !== null
-      );
-      done = successful.length;
+    // Keep browser/server memory and outbound connections bounded for large selections.
+    from(files.map((file, index) => ({ file, index }))).pipe(
+      mergeMap(
+        ({ file, index }) => this.uploadService.upload(file).pipe(
+          mergeMap((result) => of({ result, index })),
+          catchError(() => of({ result: null, index })),
+        ),
+        3,
+      ),
+      toArray(),
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => {
+        this.uploading.set(false);
+        this.uploadProgress.set('');
+        input.value = '';
+        this.cdr.markForCheck();
+      }),
+    ).subscribe((results) => {
+      const successful = results
+        .filter((item): item is { result: NonNullable<typeof item.result>; index: number } => item.result !== null)
+        .sort((left, right) => left.index - right.index)
+        .map((item) => item.result);
       this.items.update((list) => [
         ...list,
         ...successful.map((r) => ({ url: r.url, publicId: r.publicId })),
       ]);
-      this.uploading.set(false);
-      this.uploadProgress.set('');
       this.emitChange();
-      input.value = '';
-      this.cdr.markForCheck();
     });
   }
 
@@ -263,12 +274,17 @@ export class ImageUploadComponent implements OnChanges, ControlValueAccessor {
   protected copyUrl(url: string, index: number): void {
     navigator.clipboard.writeText(url).then(() => {
       this.copiedIndex.set(index);
-      setTimeout(() => {
+      if (this.copiedTimer) clearTimeout(this.copiedTimer);
+      this.copiedTimer = setTimeout(() => {
         this.copiedIndex.set(null);
         this.cdr.markForCheck();
       }, 1500);
       this.cdr.markForCheck();
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.copiedTimer) clearTimeout(this.copiedTimer);
   }
 
   // ── Optimised URL ──────────────────────────────────────────────────────────

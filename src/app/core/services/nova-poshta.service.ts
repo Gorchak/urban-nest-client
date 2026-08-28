@@ -40,7 +40,7 @@ export class NovaPoshtaService {
     return response.data;
   }
 
-  async getCities(areaRef?: string, search?: string, limit = 500): Promise<NovaPoshtaCity[]> {
+  async getCities(areaRef?: string, search?: string, limit = 50): Promise<NovaPoshtaCity[]> {
     let params = new HttpParams();
     if (areaRef) params = params.set('areaRef', areaRef);
     if (search) params = params.set('search', search);
@@ -52,7 +52,7 @@ export class NovaPoshtaService {
     return response.data;
   }
 
-  async getWarehouses(cityRef: string, search?: string, limit = 500): Promise<NovaPoshtaWarehouse[]> {
+  async getWarehouses(cityRef: string, search?: string, limit = 50): Promise<NovaPoshtaWarehouse[]> {
     let params = new HttpParams().set('cityRef', cityRef).set('limit', String(limit));
     if (search) params = params.set('search', search);
 

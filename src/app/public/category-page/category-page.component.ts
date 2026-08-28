@@ -45,6 +45,10 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
   protected selectedSubcategoryId = signal('');
   protected filtersOpen = signal(false);
   protected categorySections = signal<Array<{ category: Category; products: Merchandise[] }>>([]);
+  protected sectionsLoading = signal(false);
+  protected hasMoreSections = signal(false);
+  private pendingSectionCategories: Category[] = [];
+  private sectionLoadId = 0;
 
   ngOnInit(): void {
     this.routeSubscription = this.route.paramMap.subscribe(() => void this.load());
@@ -96,7 +100,8 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
         ],
       });
       await this.loadProducts(page, false);
-      await this.loadCategorySections(category, categories);
+      this.prepareCategorySections(category, categories);
+      void this.loadMoreSections();
     } catch (error: any) {
       this.error.set(error?.message ?? 'Не вдалося завантажити категорію');
     } finally {
@@ -158,7 +163,27 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
     return toRouteSlug(category.slug);
   }
 
-  private async loadCategorySections(root: Category, categories: Category[]): Promise<void> {
+  protected async loadMoreSections(): Promise<void> {
+    if (this.sectionsLoading() || !this.pendingSectionCategories.length) return;
+    this.sectionsLoading.set(true);
+    const loadId = this.sectionLoadId;
+    const batch = this.pendingSectionCategories.splice(0, 3);
+    this.hasMoreSections.set(this.pendingSectionCategories.length > 0);
+
+    try {
+      const sections = await Promise.all(batch.map((category) => this.loadCategorySection(category)));
+      if (loadId !== this.sectionLoadId) return;
+      this.categorySections.update((current) => [
+        ...current,
+        ...sections.filter((section) => section.products.length > 0),
+      ]);
+    } finally {
+      if (loadId === this.sectionLoadId) this.sectionsLoading.set(false);
+      this.cdr.markForCheck();
+    }
+  }
+
+  private prepareCategorySections(root: Category, categories: Category[]): void {
     const descendants: Category[] = [];
     const parentIds = new Set([root._id]);
 
@@ -176,26 +201,27 @@ export class CategoryPageComponent implements OnInit, OnDestroy {
       next.forEach((item) => parentIds.add(item._id));
     }
 
-    const sections = await Promise.all(
-      descendants.map(async (category) => {
-        try {
-          const result = await this.merchandiseService.getMerchandiseList({
-            categoryId: category._id,
-            isActive: true,
-            isVisible: true,
-            sortBy: 'createdAt',
-            sortOrder: 'desc',
-            limit: 4,
-            view: 'card',
-            includeTotal: false,
-          });
-          return { category, products: result.data };
-        } catch {
-          return { category, products: [] };
-        }
-      }),
-    );
+    this.sectionLoadId += 1;
+    this.pendingSectionCategories = descendants;
+    this.categorySections.set([]);
+    this.hasMoreSections.set(descendants.length > 0);
+  }
 
-    this.categorySections.set(sections.filter((section) => section.products.length > 0));
+  private async loadCategorySection(category: Category): Promise<{ category: Category; products: Merchandise[] }> {
+    try {
+      const result = await this.merchandiseService.getMerchandiseList({
+        categoryId: category._id,
+        isActive: true,
+        isVisible: true,
+        sortBy: 'createdAt',
+        sortOrder: 'desc',
+        limit: 4,
+        view: 'card',
+        includeTotal: false,
+      });
+      return { category, products: result.data };
+    } catch {
+      return { category, products: [] };
+    }
   }
 }

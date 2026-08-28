@@ -6,7 +6,9 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Input,
+  DestroyRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
@@ -63,6 +65,7 @@ import { UploadService } from '../../../core/services/upload.service';
 export class SingleImagePickerComponent implements ControlValueAccessor {
   private uploadService = inject(UploadService);
   private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
 
   @Input() label = 'Зображення';
   @Input() placeholder = 'https://...';
@@ -132,7 +135,10 @@ export class SingleImagePickerComponent implements ControlValueAccessor {
 
     this.uploadService
       .upload(file)
-      .pipe(catchError(() => of(null)))
+      .pipe(
+        catchError(() => of(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe((result) => {
         this.uploading.set(false);
         if (result) {
