@@ -1,13 +1,21 @@
 <main>
-  <section class="heading">
-    <span>Щойно додано</span>
-    <h1>Новинки</h1>
-    <p>Нові знахідки, які щойно з'явилися в нашій добірці.</p>
-  </section>
-
   <section class="catalog">
     <header>
-      <span>Знайдено {{ pagination().total }}</span>
+      <div><span>Знайдено {{ pagination().total }}</span><h1>Новинки</h1></div>
+      <button class="filters-trigger" type="button" (click)="filtersOpen.set(true)" aria-controls="new-arrivals-filters" [attr.aria-expanded]="filtersOpen()">
+        <i class="ri-equalizer-line" aria-hidden="true"></i>
+        <span>Сортування і пошук</span>
+      </button>
+    </header>
+
+    @if (filtersOpen()) {
+      <button class="filters-backdrop" type="button" aria-label="Закрити сортування і пошук" (click)="closeFilters()"></button>
+    }
+    <aside id="new-arrivals-filters" class="filters-panel" [class.filters-panel--open]="filtersOpen()" [attr.aria-hidden]="!filtersOpen()">
+      <div class="filters-panel__header">
+        <h2>Сортування і пошук</h2>
+        <button type="button" (click)="closeFilters()" aria-label="Закрити сортування і пошук"><i class="ri-close-line" aria-hidden="true"></i></button>
+      </div>
       <div class="filters">
         <input type="search" [ngModel]="search()" (ngModelChange)="search.set($event)" (keyup.enter)="load(1)" placeholder="Пошук серед новинок" />
         <select [ngModel]="sort()" (ngModelChange)="sort.set($event); load(1)">
@@ -18,7 +26,8 @@
         </select>
         <label><input type="checkbox" [ngModel]="inStockOnly()" (ngModelChange)="inStockOnly.set($event); load(1)" /> Тільки в наявності</label>
       </div>
-    </header>
+      <button class="filters-apply" type="button" (click)="load(1); closeFilters()">Показати товари</button>
+    </aside>
 
     @if (loading()) {
       <div class="state">Завантажуємо новинки...</div>

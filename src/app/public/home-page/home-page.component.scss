@@ -118,18 +118,18 @@ main {
 }
 .brands-strip {
   margin-top: clamp(4rem, 8vw, 7rem);
-  padding: 1.5rem 0;
+  padding: 1rem 0;
   border-top: 1px solid var(--ink);
   border-bottom: 1px solid var(--ink);
 }
-.brands-strip header { display:flex; align-items:end; justify-content:space-between; margin-bottom:1rem; }
+.brands-strip header { display:flex; align-items:end; justify-content:space-between; margin-bottom:.65rem; }
 .brands-strip h2 { margin:0; font:400 clamp(2rem,4vw,3.5rem) var(--un-serif,Georgia,serif); }
 .brand-list { display:flex; overflow-x:auto; scrollbar-width:thin; }
-.brand-list a { min-width:150px; height:100px; padding:14px; display:flex; flex:1 0 150px; flex-direction:column; align-items:center; justify-content:center; gap:.55rem; border-right:1px solid var(--line); color:inherit; text-decoration:none; }
+.brand-list a { min-width:132px; height:82px; padding:10px 14px; display:flex; flex:1 0 132px; flex-direction:column; align-items:center; justify-content:center; gap:.35rem; border-right:1px solid var(--line); color:inherit; text-decoration:none; }
 .brand-list a:first-child { border-left:1px solid var(--line); }
-.brand-list app-optimized-image { width:100%; height:52px; object-fit:contain; filter:grayscale(1); transition:filter .2s; }
+.brand-list app-optimized-image { width:86%; height:40px; object-fit:contain; filter:grayscale(1); transition:filter .2s; }
 .brand-list a:hover app-optimized-image { filter:none; }
-.brand-list span { font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+.brand-list span { font-size:9px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; }
 .story-link {
   padding: 14px 18px;
   display: inline-flex;
@@ -227,7 +227,7 @@ main {
 }
 @media (max-width: 720px) {
   .home-search {
-    padding: 8px 16px;
+    display: none;
   }
   main {
     padding: 0 16px 5rem;

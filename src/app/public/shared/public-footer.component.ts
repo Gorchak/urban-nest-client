@@ -19,25 +19,32 @@ import { toRouteSlug } from '../../core/utils/route-slug';
           <div class="socials">
             <a href="https://www.instagram.com/uliaconceptstore/" target="_blank" rel="noopener noreferrer" aria-label="Ulia Concept Store в Instagram"><i class="ri-instagram-line"></i></a>
             <a href="https://www.threads.com/@uliaconceptstore?xmt=AQG0YtmoxgntwsnMmwzw-ISicsNFIvF-Buuq30Yucc9q1aA" target="_blank" rel="noopener noreferrer" aria-label="Ulia Concept Store у Threads"><i class="ri-threads-line"></i></a>
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook"><i class="ri-facebook-fill"></i></a>
             <a href="https://t.me" target="_blank" rel="noreferrer" aria-label="Telegram"><i class="ri-telegram-2-line"></i></a>
           </div>
         </div>
 
-        <nav>
-          <span>Каталог</span>
-          @for (category of categories(); track category._id) {
-            <a [routerLink]="['/category', routeSlug(category)]">{{ category.name }}</a>
-          }
+        <nav class="footer-group" [class.footer-group--open]="openSection() === 'catalog'">
+          <button type="button" class="footer-group__toggle" [attr.aria-expanded]="openSection() === 'catalog'" aria-controls="footer-catalog" (click)="toggleSection('catalog')">
+            <span>Каталог</span><i [class]="openSection() === 'catalog' ? 'ri-subtract-line' : 'ri-add-line'"></i>
+          </button>
+          <div id="footer-catalog" class="footer-group__content">
+            @for (category of categories(); track category._id) {
+              <a [routerLink]="['/category', routeSlug(category)]">{{ category.name }}</a>
+            }
+          </div>
         </nav>
 
-        <nav>
-          <span>Покупцям</span>
-          <a routerLink="/delivery-and-payment">Доставка і оплата</a>
-          <a routerLink="/returns-and-exchanges">Повернення та обмін</a>
-          <a routerLink="/contacts">Контакти та магазин</a>
-          <a href="mailto:uliaconcept%40gmail.com">uliaconcept&#64;gmail.com</a>
-          <a href="tel:+380976456131">+38 097 645 61 31</a>
+        <nav class="footer-group" [class.footer-group--open]="openSection() === 'buyers'">
+          <button type="button" class="footer-group__toggle" [attr.aria-expanded]="openSection() === 'buyers'" aria-controls="footer-buyers" (click)="toggleSection('buyers')">
+            <span>Покупцям</span><i [class]="openSection() === 'buyers' ? 'ri-subtract-line' : 'ri-add-line'"></i>
+          </button>
+          <div id="footer-buyers" class="footer-group__content">
+            <a routerLink="/delivery-and-payment">Доставка і оплата</a>
+            <a routerLink="/returns-and-exchanges">Повернення та обмін</a>
+            <a routerLink="/contacts">Контакти та магазин</a>
+            <a href="mailto:uliaconcept%40gmail.com">uliaconcept&#64;gmail.com</a>
+            <a href="tel:+380976456131">+38 097 645 61 31</a>
+          </div>
         </nav>
 
         <div class="newsletter">
@@ -75,6 +82,8 @@ import { toRouteSlug } from '../../core/utils/route-slug';
     nav span,.newsletter>span { margin-bottom:.7rem; font-size:10px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
     nav a { color:#000; font-size:13px; text-decoration:none; }
     nav a:hover { color:#000; }
+    .footer-group__toggle { display:none; }
+    .footer-group__content { display:flex; flex-direction:column; align-items:flex-start; gap:.8rem; }
     .newsletter h2 { max-width:520px; margin:0 0 2rem; font-family:var(--un-serif, Georgia,serif); font-size:clamp(2rem,3.5vw,4.2rem); font-weight:400; letter-spacing:-.035em; line-height:.98; }
     .newsletter label { padding:.8rem 0; display:flex; border-bottom:1px solid rgba(0,0,0,.55); }
     .newsletter input { min-width:0; flex:1; border:0; outline:0; background:transparent; color:#000; font:inherit; }
@@ -88,7 +97,13 @@ import { toRouteSlug } from '../../core/utils/route-slug';
       footer{padding:3.5rem 20px calc(1.5rem + env(safe-area-inset-bottom))}
       .footer-top{grid-template-columns:1fr;gap:2.5rem}
       .identity p{margin:1.25rem 0}
-      nav{gap:.95rem}
+      .footer-group{display:block;border-top:1px solid rgba(0,0,0,.18)}
+      .footer-group:last-of-type{border-bottom:1px solid rgba(0,0,0,.18)}
+      .footer-group__toggle{width:100%;min-height:58px;padding:0;display:flex;align-items:center;justify-content:space-between;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer}
+      .footer-group__toggle span{margin:0;font-family:var(--un-serif,Georgia,serif);font-size:20px;font-weight:400;letter-spacing:0;text-transform:none}
+      .footer-group__toggle i{font-size:17px}
+      .footer-group__content{max-height:0;gap:.25rem;overflow:hidden;opacity:0;transition:max-height .3s ease,opacity .2s ease,padding .3s ease}
+      .footer-group--open .footer-group__content{max-height:600px;padding:0 0 20px;opacity:1}
       nav a{min-height:24px;display:flex;align-items:center}
       .newsletter{grid-column:auto;padding-top:.5rem}
       .newsletter h2{margin-bottom:1.25rem;font-size:clamp(2.4rem,12vw,3.3rem)}
@@ -103,6 +118,10 @@ export class PublicFooterComponent implements OnInit {
   private categoriesService = inject(CategoriesService);
   protected categories = signal<Category[]>([]);
   protected year = new Date().getFullYear();
+  protected openSection = signal<'catalog' | 'buyers' | null>('catalog');
+  protected toggleSection(section: 'catalog' | 'buyers'): void {
+    this.openSection.update((current) => current === section ? null : section);
+  }
   protected routeSlug(category: Category): string {
     return toRouteSlug(category.slug);
   }

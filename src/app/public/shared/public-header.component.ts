@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -13,11 +14,12 @@ import { UserProfileDialogComponent } from '../../admin/pages/users-page/user-pr
 import { CartService } from '../../core/services/cart.service';
 import { CartComponent } from '../cart/cart.component';
 import { toRouteSlug } from '../../core/utils/route-slug';
+import { FavoritesService } from '../../core/services/favorites.service';
 
 @Component({
   selector: 'app-public-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, ToastModule, UserProfileDialogComponent, CartComponent],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, ToastModule, UserProfileDialogComponent, CartComponent],
   providers: [MessageService],
   template: `
     <p-toast position="top-right" />
@@ -28,6 +30,22 @@ import { toRouteSlug } from '../../core/utils/route-slug';
 
     <div class="navigation-shell" (mouseleave)="closeCategoryMenu()">
     <header class="site-header">
+      <div class="mobile-leading">
+        <button
+          type="button"
+          class="menu-button"
+          [attr.aria-expanded]="mobileMenuOpen()"
+          aria-controls="mobile-navigation"
+          [attr.aria-label]="mobileMenuOpen() ? 'Закрити меню' : 'Відкрити меню'"
+          (click)="toggleMobileMenu()"
+        >
+          <i [class]="mobileMenuOpen() ? 'ri-close-line' : 'ri-menu-2-line'"></i>
+        </button>
+        <button type="button" class="search-button" [attr.aria-expanded]="searchOpen()" aria-controls="header-search" aria-label="Відкрити пошук" (click)="toggleSearch()">
+          <i class="ri-search-line"></i>
+        </button>
+      </div>
+
       <a class="brand" routerLink="/" aria-label="Ulia">
         <img src="/assets/ulia_title.svg.svg" alt="Ulia" width="84" height="60" decoding="async" />
       </a>
@@ -53,16 +71,10 @@ import { toRouteSlug } from '../../core/utils/route-slug';
       </nav>
 
       <div class="actions">
-        <button
-          type="button"
-          class="menu-button"
-          [attr.aria-expanded]="mobileMenuOpen()"
-          aria-controls="mobile-navigation"
-          [attr.aria-label]="mobileMenuOpen() ? 'Закрити меню' : 'Відкрити меню'"
-          (click)="toggleMobileMenu()"
-        >
-          <i [class]="mobileMenuOpen() ? 'ri-close-line' : 'ri-menu-2-line'"></i>
-        </button>
+        <a class="favorites-button" routerLink="/favorites" aria-label="Вибрані товари">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z"/></svg>
+          @if (favoritesService.count()) { <span>{{ favoritesService.count() }}</span> }
+        </a>
         <button type="button" class="cart-button" aria-label="Відкрити кошик" (click)="cartService.isOpen.set(true)">
           <i class="ri-shopping-bag-line"></i>
           @if (cartService.itemCount()) { <span>{{ cartService.itemCount() }}</span> }
@@ -101,6 +113,14 @@ import { toRouteSlug } from '../../core/utils/route-slug';
         }
       </div>
     </header>
+
+    @if (searchOpen()) {
+      <form id="header-search" class="header-search" role="search" (submit)="submitSearch($event)">
+        <button type="submit" class="header-search__submit" aria-label="Шукати"><i class="ri-search-line"></i></button>
+        <input #searchInput type="search" name="search" [(ngModel)]="searchQuery" autocomplete="off" placeholder="Що ви шукаєте?" aria-label="Пошук товарів" />
+        <button type="button" aria-label="Закрити пошук" (click)="closeSearch()"><i class="ri-close-line"></i></button>
+      </form>
+    }
 
     @if (mobileMenuOpen()) {
       <div class="mobile-menu-backdrop" (click)="closeMobileMenu()"></div>
@@ -189,9 +209,15 @@ import { toRouteSlug } from '../../core/utils/route-slug';
     .category-menu__items a i { flex: 0 0 auto; font-size: 14px; opacity: 0; transform: translateX(-4px); transition: opacity .2s,transform .2s; }
     .category-menu__items a:hover i { opacity: 1; transform: translateX(0); }
     .actions { position: relative; display: flex; align-items: center; gap: 1rem; }
+    .mobile-leading,.search-button { display:none; }
     .menu-button { display:none; width:42px; height:42px; place-items:center; border:0; background:transparent; color:inherit; font-size:24px; }
-    .cart-button { position:relative; width:38px; height:38px; display:grid; place-items:center; border:0; background:transparent; font-size:20px; }
-    .cart-button span { position:absolute; top:0; right:0; min-width:16px; height:16px; padding:0 3px; display:grid; place-items:center; border-radius:99px; background:var(--un-accent, #9f3526); color:#fff; font-size:9px; font-weight:700; }
+    .cart-button,.favorites-button { position:relative; width:38px; height:38px; display:grid; place-items:center; border:0; background:transparent; color:inherit; font-size:20px; text-decoration:none; }
+    .favorites-button svg { width:21px; height:21px; display:block; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+    .cart-button span,.favorites-button span { position:absolute; top:0; right:0; min-width:16px; height:16px; padding:0 3px; display:grid; place-items:center; border-radius:99px; background:var(--un-accent, #9f3526); color:#fff; font-size:9px; font-weight:700; }
+    .header-search { min-height:64px; padding:0 3vw; display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:.35rem; border-bottom:1px solid var(--un-line, rgba(24,23,19,.18)); background:#fff; }
+    .header-search input { min-width:0; height:48px; border:0; outline:0; background:transparent; color:inherit; font:inherit; font-size:16px; }
+    .header-search button { width:42px; height:42px; border:0; background:transparent; color:inherit; font-size:22px; }
+    .header-search__submit { font-size:20px !important; }
     .user-button, .login-button { display: flex; align-items: center; gap: .5rem; border: 0; background: transparent; color: inherit; font-size: 11px; font-weight: 700; }
     .user-button img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; }
     .user-button > i:first-child { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid rgba(24,23,19,.25); border-radius: 50%; }
@@ -206,16 +232,16 @@ import { toRouteSlug } from '../../core/utils/route-slug';
     @media (max-width: 650px) { .site-header { gap: .75rem; }.admin-link { font-size:0; }.admin-link i { font-size:16px; }.user-button span { display:none; }.main-nav { gap:1rem; } }
     @media (max-width: 760px) {
       :host { position:sticky; }
-      .site-header { min-height:64px; padding:0 16px; display:grid; grid-template-columns:1fr auto 1fr; gap:.5rem; }
+      .site-header { min-height:64px; padding:0 12px; display:grid; grid-template-columns:minmax(82px,1fr) auto minmax(126px,1fr); gap:.25rem; }
+      .mobile-leading { grid-column:1; grid-row:1; display:flex; align-items:center; justify-self:start; z-index:3; }
       .brand { grid-column:2; justify-self:center; z-index:2; }
-      .brand img:first-child { width:44px; height:44px; }
-      .brand img:last-child { width:82px; }
+      .brand img { width:76px !important; height:54px !important; object-fit:contain; }
       .main-nav { display:none; }
-      .actions { grid-column:1 / -1; grid-row:1; display:grid; grid-template-columns:auto 1fr auto auto; align-items:center; gap:.15rem; z-index:3; }
-      .menu-button { display:grid; order:1; justify-self:start; position:relative; z-index:4; }
-      .cart-button { width:42px; height:42px; order:3; position:relative; z-index:4; }
+      .actions { grid-column:3; grid-row:1; justify-self:end; display:flex; align-items:center; gap:0; z-index:3; }
+      .menu-button,.search-button { width:40px; height:44px; display:grid; place-items:center; border:0; background:transparent; color:inherit; font-size:22px; }
+      .cart-button,.favorites-button { width:40px; height:44px; }
       .admin-link,.user-loading { display:none; }
-      .login-button,.user-button { width:42px; height:42px; padding:0; display:grid; place-items:center; order:4; border-radius:50%; position:relative; z-index:4; }
+      .login-button,.user-button { width:40px; height:44px; padding:0; display:grid; place-items:center; border-radius:0; position:relative; z-index:4; }
       .login-button { font-size:0; }
       .login-button i { font-size:21px; }
       .user-button { gap:0; }
@@ -233,18 +259,21 @@ import { toRouteSlug } from '../../core/utils/route-slug';
       .mobile-subnav a { min-height:42px; display:flex; align-items:center; color:var(--un-muted, rgba(24,23,19,.62)); font-size:13px; text-decoration:none; }
       .mobile-admin-link { margin-top:18px; padding:14px 0; display:flex; justify-content:space-between; color:inherit; font-size:11px; font-weight:700; letter-spacing:.1em; text-decoration:none; text-transform:uppercase; }
       .profile-menu { position:fixed; top:64px; right:16px; }
+      .header-search { position:absolute; top:64px; left:0; right:0; z-index:6; min-height:60px; padding:0 12px; box-shadow:0 12px 24px rgba(24,23,19,.1); }
       @keyframes drawer-in { from { transform:translateX(-100%); } to { transform:translateX(0); } }
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PublicHeaderComponent implements OnInit {
+export class PublicHeaderComponent implements OnInit, OnDestroy {
   private auth = inject(AuthService);
   private adminAccess = inject(AdminAccessService);
   private categoriesService = inject(CategoriesService);
   private messageService = inject(MessageService);
   private elementRef = inject(ElementRef) as ElementRef<HTMLElement>;
+  private router = inject(Router);
   protected cartService = inject(CartService);
+  protected favoritesService = inject(FavoritesService);
 
   protected categories = signal<Category[]>([]);
   protected currentUser = signal<Auth0User | null>(null);
@@ -256,6 +285,8 @@ export class PublicHeaderComponent implements OnInit {
   protected categoryMenuLeft = signal(0);
   protected mobileMenuOpen = signal(false);
   protected mobileExpandedCategory = signal<string | null>(null);
+  protected searchOpen = signal(false);
+  protected searchQuery = '';
 
   protected rootCategories = computed(() =>
     this.categories()
@@ -291,6 +322,11 @@ export class PublicHeaderComponent implements OnInit {
     } catch {
       this.cartService.cart.set(null);
     }
+    if (this.currentUser()) void this.favoritesService.load();
+  }
+
+  ngOnDestroy(): void {
+    this.setMobileScrollLocked(false);
   }
 
   protected login(): void {
@@ -340,14 +376,32 @@ export class PublicHeaderComponent implements OnInit {
     requestAnimationFrame(() => this.keepCategoryMenuInViewport(shell));
   }
   protected closeCategoryMenu(): void { this.activeCategory.set(null); }
+  protected toggleSearch(): void {
+    this.searchOpen.update((value) => !value);
+    if (this.searchOpen()) this.closeMobileMenu();
+  }
+  protected closeSearch(): void { this.searchOpen.set(false); }
+  protected submitSearch(event: Event): void {
+    event.preventDefault();
+    const query = this.searchQuery.trim();
+    if (!query) return;
+    this.closeSearch();
+    void this.router.navigate(['/'], { queryParams: { search: query } });
+  }
   protected toggleMobileMenu(): void {
     this.mobileMenuOpen.update((value) => !value);
+    this.setMobileScrollLocked(this.mobileMenuOpen());
     if (!this.mobileMenuOpen()) this.mobileExpandedCategory.set(null);
     this.closeCategoryMenu();
   }
   protected closeMobileMenu(): void {
     this.mobileMenuOpen.set(false);
+    this.setMobileScrollLocked(false);
     this.mobileExpandedCategory.set(null);
+  }
+  private setMobileScrollLocked(locked: boolean): void {
+    document.documentElement.style.overflow = locked ? 'hidden' : '';
+    document.body.style.overflow = locked ? 'hidden' : '';
   }
   protected toggleMobileCategory(category: Category): void {
     this.mobileExpandedCategory.update((value) => value === category._id ? null : category._id);

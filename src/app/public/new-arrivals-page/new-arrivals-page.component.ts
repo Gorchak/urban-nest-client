@@ -27,6 +27,7 @@ export class NewArrivalsPageComponent implements OnInit {
   protected search = signal('');
   protected sort = signal('createdAt_desc');
   protected inStockOnly = signal(false);
+  protected filtersOpen = signal(false);
 
   ngOnInit(): void {
     this.seo.setPage({
@@ -68,5 +69,8 @@ export class NewArrivalsPageComponent implements OnInit {
 
   protected pageNumbers(): number[] {
     return Array.from({ length: this.pagination().pages ?? 0 }, (_, index) => index + 1);
+  }
+  protected closeFilters(): void {
+    this.filtersOpen.set(false);
   }
 }

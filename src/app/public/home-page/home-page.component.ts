@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Category } from '../../core/models/category.model';
 import { Merchandise } from '../../core/models/merchandise.model';
 import { CategoriesService } from '../../core/services/categories.service';
@@ -17,6 +17,7 @@ import { BrandsService } from '../../core/services/brands.service';
 import { StructuredDataService } from '../../core/services/structured-data.service';
 import { environment } from '../../../environments/environment';
 import { OptimizedImageComponent } from '../../shared/components/optimized-image/optimized-image.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 interface CategorySection {
   category: Category;
@@ -50,6 +51,8 @@ export class HomePageComponent implements OnInit, OnDestroy {
   private brandsService = inject(BrandsService);
   private cdr = inject(ChangeDetectorRef);
   private structuredData = inject(StructuredDataService);
+  private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
 
   protected categories = signal<Category[]>([]);
   protected merchandise = signal<Merchandise[]>([]);
@@ -115,6 +118,12 @@ export class HomePageComponent implements OnInit, OnDestroy {
   );
 
   async ngOnInit(): Promise<void> {
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const query = params.get('search')?.trim() ?? '';
+        if (query !== this.searchQuery()) this.onSearchChange(query);
+      });
     this.seo.setPage({
       title: 'Ulia — жіночий одяг, взуття, аксесуари та декор',
       description: 'Ulia — онлайн-магазин жіночого одягу, взуття, сумок, аксесуарів, кераміки та декору для дому від українських брендів.',
