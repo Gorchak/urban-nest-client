@@ -643,6 +643,47 @@
               class="w-full"
             />
           </div>
+
+          <div class="field field--full">
+            <p-divider />
+            <h3>Рейтинг товару для Google</h3>
+            <small class="field-helper">Заповнюйте лише на основі реальних оцінок покупців. Шкала автоматично: від 1 до 5.</small>
+          </div>
+          <div class="field">
+            <label for="aggregateRatingValue" class="field-label">Середня оцінка</label>
+            <p-inputNumber inputId="aggregateRatingValue" formControlName="aggregateRatingValue" [min]="1" [max]="5" [minFractionDigits]="0" [maxFractionDigits]="2" />
+          </div>
+          <div class="field">
+            <label for="aggregateReviewCount" class="field-label">Кількість оцінок / відгуків</label>
+            <p-inputNumber inputId="aggregateReviewCount" formControlName="aggregateReviewCount" [min]="1" [useGrouping]="false" />
+          </div>
+
+          <div class="field field--full">
+            <p-divider />
+            <h3>Відгук для Google</h3>
+            <small class="field-helper">Додайте реальний опублікований відгук. Якщо поля не заповнені повністю, review не потрапить у JSON-LD.</small>
+          </div>
+          <div class="field">
+            <label for="reviewAuthor" class="field-label">Автор</label>
+            <input pInputText id="reviewAuthor" formControlName="reviewAuthor" class="w-full" />
+          </div>
+          <div class="field">
+            <label for="reviewRatingValue" class="field-label">Оцінка автора</label>
+            <p-inputNumber inputId="reviewRatingValue" formControlName="reviewRatingValue" [min]="1" [max]="5" [minFractionDigits]="0" [maxFractionDigits]="1" />
+          </div>
+          <div class="field">
+            <label for="reviewDatePublished" class="field-label">Дата публікації</label>
+            <input pInputText type="date" id="reviewDatePublished" formControlName="reviewDatePublished" class="w-full" />
+          </div>
+          <div class="field field--full">
+            <label for="reviewBody" class="field-label">Текст відгуку</label>
+            <textarea pInputTextarea id="reviewBody" formControlName="reviewBody" rows="3" class="w-full"></textarea>
+          </div>
+          @if (formSubmitted() && form.hasError('incompleteStructuredProductData')) {
+            <div class="field field--full">
+              <small class="p-error">Для рейтингу заповніть оцінку та кількість; для відгуку — автора, оцінку й текст.</small>
+            </div>
+          }
         </div>
       </p-tabPanel>
     </p-tabView>

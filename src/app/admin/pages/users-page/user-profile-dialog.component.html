@@ -27,6 +27,14 @@
           [ngModel]="editable().avatarUrl"
           (ngModelChange)="patch({ avatarUrl: $event })"
         />
+        <label class="checkbox-label newsletter-preference">
+          <p-checkbox
+            [binary]="true"
+            [ngModel]="editable().newsletterSubscribed"
+            (ngModelChange)="patch({ newsletterSubscribed: $event })"
+          />
+          <span>Підписатися на новинки та оновлення магазину</span>
+        </label>
       </section>
 
       @if (showAdminFields) {

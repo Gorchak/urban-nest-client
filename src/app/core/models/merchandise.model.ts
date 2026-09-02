@@ -38,6 +38,20 @@ export interface MerchandiseInventory {
   attribute_quantities: InventoryAttributeQuantity[];
 }
 
+export interface MerchandiseAggregateRating {
+  ratingValue: number;
+  reviewCount: number;
+  bestRating: 5;
+  worstRating: 1;
+}
+
+export interface MerchandiseReview {
+  author: string;
+  reviewBody: string;
+  ratingValue: number;
+  datePublished: string | null;
+}
+
 export interface Merchandise {
   _id: string;
   source?: 'website' | 'checkbox';
@@ -68,6 +82,8 @@ export interface Merchandise {
   seoKeywords: string[];
   canonicalUrl: string | null;
   ogImage: string | null;
+  aggregateRating: MerchandiseAggregateRating | null;
+  review: MerchandiseReview | null;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -105,6 +121,8 @@ export interface CreateMerchandiseDto {
   seoKeywords: string[];
   canonicalUrl: string | null;
   ogImage: string | null;
+  aggregateRating: MerchandiseAggregateRating | null;
+  review: MerchandiseReview | null;
 }
 
 export type UpdateMerchandiseDto = Partial<CreateMerchandiseDto>;

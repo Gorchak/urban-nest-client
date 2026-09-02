@@ -130,10 +130,16 @@
               <option value="wayforpay">Онлайн оплата / WayForPay</option>
             </select>
           </label>
-          @if (form().paymentMethod === 'wayforpay') {
-            <div class="google-pay-box">
-              <p>Після оформлення замовлення ви перейдете на захищену платіжну сторінку WayForPay.</p>
-              <small>На сторінці WayForPay введіть дані своєї банківської картки та підтвердьте оплату.</small>
+          @if (usesWayForPay()) {
+            <div class="payment-notice" [class.payment-notice--deposit]="form().paymentMethod === 'cash_on_delivery'">
+              @if (form().paymentMethod === 'cash_on_delivery') {
+                <strong>Увага! Для оплати при отриманні необхідна передоплата {{ formatPrice(wayForPayBaseAmount()) }}.</strong>
+                <p>Після оформлення замовлення ви будете перенаправлені на захищену сторінку WayForPay для внесення передоплати.</p>
+              } @else {
+                <p>Після оформлення замовлення ви перейдете на захищену платіжну сторінку WayForPay.</p>
+              }
+              <p>Комісія платіжного сервісу становить 2% ({{ formatPrice(wayForPayFee()) }}) і буде додана до суми оплати.</p>
+              <strong>До оплати через WayForPay: {{ formatPrice(wayForPayCharge()) }}</strong>
             </div>
           }
         </section>
@@ -166,7 +172,11 @@
             <strong>{{ formatPrice(cartService.unitPrice(item.product) * item.quantity) }}</strong>
           </article>
         }
-        <div class="total"><span>Разом</span><strong>{{ formatPrice(cartService.subtotal()) }}</strong></div>
+        <div class="total"><span>Разом за товари</span><strong>{{ formatPrice(cartService.subtotal()) }}</strong></div>
+        @if (usesWayForPay()) {
+          <div class="payment-summary-row"><span>Комісія WayForPay 2%</span><strong>{{ formatPrice(wayForPayFee()) }}</strong></div>
+          <div class="payment-summary-row payment-summary-row--charge"><span>Зараз до оплати</span><strong>{{ formatPrice(wayForPayCharge()) }}</strong></div>
+        }
       </aside>
     </div>
   }

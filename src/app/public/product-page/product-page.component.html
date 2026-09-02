@@ -130,7 +130,16 @@
       @if (displaySpecifications().length) {
         <dl>
           @for (entry of displaySpecifications(); track entry.spec.referenceId) {
-            <div><dt>{{ specificationLabel(entry.spec, entry.definition) }}</dt><dd>{{ specificationValue(entry.spec, entry.definition) }}</dd></div>
+            <div>
+              <dt>{{ specificationLabel(entry.spec, entry.definition) }}</dt>
+              <dd>
+                @if (isBrandSpecification(entry.spec, entry.definition) && item.brandSlug) {
+                  <a class="brand-link" [routerLink]="['/brand', item.brandSlug]">{{ specificationValue(entry.spec, entry.definition) }}</a>
+                } @else {
+                  {{ specificationValue(entry.spec, entry.definition) }}
+                }
+              </dd>
+            </div>
           }
         </dl>
       }

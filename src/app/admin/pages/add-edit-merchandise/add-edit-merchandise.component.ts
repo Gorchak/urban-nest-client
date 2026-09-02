@@ -56,6 +56,16 @@ interface SpecFormEntry {
   catSpec: CategorySpecification;
 }
 
+const structuredProductDataValidator = (control: AbstractControl) => {
+  const value = control.value ?? {};
+  const ratingValues = [value.aggregateRatingValue, value.aggregateReviewCount];
+  const reviewValues = [value.reviewAuthor, value.reviewBody, value.reviewRatingValue];
+  const hasValue = (item: unknown) => item !== null && item !== undefined && item !== '';
+  const ratingIncomplete = ratingValues.some(hasValue) && !ratingValues.every(hasValue);
+  const reviewIncomplete = reviewValues.some(hasValue) && !reviewValues.every(hasValue);
+  return ratingIncomplete || reviewIncomplete ? { incompleteStructuredProductData: true } : null;
+};
+
 @Component({
   selector: 'app-add-edit-merchandise',
   standalone: true,
@@ -183,7 +193,13 @@ export class AddEditMerchandiseComponent implements OnChanges {
     seoKeywords: [''],
     canonicalUrl: ['', [Validators.maxLength(2048)]],
     ogImage: ['', [Validators.maxLength(2048)]],
-  });
+    aggregateRatingValue: [null, [Validators.min(1), Validators.max(5)]],
+    aggregateReviewCount: [null, [Validators.min(1), Validators.pattern(/^\d+$/)]],
+    reviewAuthor: [''],
+    reviewBody: [''],
+    reviewRatingValue: [null, [Validators.min(1), Validators.max(5)]],
+    reviewDatePublished: [''],
+  }, { validators: structuredProductDataValidator });
 
   get specificationsArray(): FormArray {
     return this.form.get('specifications') as FormArray;
@@ -269,6 +285,12 @@ export class AddEditMerchandiseComponent implements OnChanges {
       seoKeywords: '',
       canonicalUrl: '',
       ogImage: '',
+      aggregateRatingValue: null,
+      aggregateReviewCount: null,
+      reviewAuthor: '',
+      reviewBody: '',
+      reviewRatingValue: null,
+      reviewDatePublished: '',
     });
     this.form.markAsPristine();
     this.form.markAsUntouched();
@@ -311,6 +333,12 @@ export class AddEditMerchandiseComponent implements OnChanges {
       seoKeywords: m.seoKeywords?.join(', ') ?? '',
       canonicalUrl: m.canonicalUrl ?? '',
       ogImage: m.ogImage ?? '',
+      aggregateRatingValue: m.aggregateRating?.ratingValue ?? null,
+      aggregateReviewCount: m.aggregateRating?.reviewCount ?? null,
+      reviewAuthor: m.review?.author ?? '',
+      reviewBody: m.review?.reviewBody ?? '',
+      reviewRatingValue: m.review?.ratingValue ?? null,
+      reviewDatePublished: m.review?.datePublished?.slice(0, 10) ?? '',
     });
     this.inventory.set(m.inventory ?? {
       total_quantity: 0,
@@ -463,7 +491,8 @@ export class AddEditMerchandiseComponent implements OnChanges {
   }
 
   protected isTab3Invalid(): boolean {
-    return ['seoTitle', 'seoDescription', 'canonicalUrl', 'ogImage'].some(
+    return this.form.hasError('incompleteStructuredProductData') || ['seoTitle', 'seoDescription', 'canonicalUrl', 'ogImage', 'aggregateRatingValue',
+      'aggregateReviewCount', 'reviewAuthor', 'reviewBody', 'reviewRatingValue', 'reviewDatePublished'].some(
       (f) => this.form.get(f)?.invalid
     );
   }
@@ -639,6 +668,18 @@ export class AddEditMerchandiseComponent implements OnChanges {
         : [],
       canonicalUrl: v.canonicalUrl || null,
       ogImage: v.ogImage || null,
+      aggregateRating: v.aggregateRatingValue != null && v.aggregateReviewCount != null ? {
+        ratingValue: Number(v.aggregateRatingValue),
+        reviewCount: Number(v.aggregateReviewCount),
+        bestRating: 5,
+        worstRating: 1,
+      } : null,
+      review: v.reviewAuthor && v.reviewBody && v.reviewRatingValue != null ? {
+        author: v.reviewAuthor,
+        reviewBody: v.reviewBody,
+        ratingValue: Number(v.reviewRatingValue),
+        datePublished: v.reviewDatePublished || null,
+      } : null,
     };
 
     this.saving.set(true);

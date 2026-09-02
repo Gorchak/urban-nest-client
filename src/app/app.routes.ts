@@ -55,6 +55,7 @@ export const routes: Routes = [
     data: { page: 'privacy' },
     loadComponent: () => import('./public/info-page/info-page.component').then((module) => module.InfoPageComponent),
   },
+  { path: 'newsletter/unsubscribe', loadComponent: () => import('./public/newsletter-unsubscribe-page/newsletter-unsubscribe-page.component').then((m) => m.NewsletterUnsubscribePageComponent) },
   {
     path: 'admin/access',
     loadComponent: () => import('./admin/admin-access-page/admin-access-page.component').then((module) => module.AdminAccessPageComponent),
@@ -84,4 +85,5 @@ export const routes: Routes = [
     path: 'admin/finance',
     loadComponent: () => import('./admin/pages/finance-page/finance-page.component').then((module) => module.FinancePageComponent),
   },
+  { path: 'admin/newsletter', loadComponent: () => import('./admin/pages/newsletter-page/newsletter-page.component').then((m) => m.NewsletterPageComponent) },
 ];

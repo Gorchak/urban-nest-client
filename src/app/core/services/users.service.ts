@@ -86,4 +86,18 @@ export class UsersService {
     );
     return response.data;
   }
+
+  async getNewsletterPreference(id: string): Promise<boolean> {
+    const response = await firstValueFrom(
+      this.http.get<ApiResponse<{ isSubscribed: boolean }>>(`${this.apiUrl}/${encodeURIComponent(id)}/newsletter`),
+    );
+    return response.data.isSubscribed;
+  }
+
+  async setNewsletterPreference(id: string, enabled: boolean): Promise<boolean> {
+    const response = await firstValueFrom(
+      this.http.put<ApiResponse<{ isSubscribed: boolean }>>(`${this.apiUrl}/${encodeURIComponent(id)}/newsletter`, { enabled }),
+    );
+    return response.data.isSubscribed;
+  }
 }

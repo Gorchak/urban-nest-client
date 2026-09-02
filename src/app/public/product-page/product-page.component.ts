@@ -134,6 +134,25 @@ export class ProductPageComponent implements OnInit, OnDestroy {
         ogImage: product.ogImage || product.images?.[0],
         type: 'product',
       });
+      const aggregateRating = product.aggregateRating ? {
+        '@type': 'AggregateRating',
+        ratingValue: product.aggregateRating.ratingValue,
+        reviewCount: product.aggregateRating.reviewCount,
+        bestRating: product.aggregateRating.bestRating || 5,
+        worstRating: product.aggregateRating.worstRating || 1,
+      } : undefined;
+      const review = product.review ? {
+        '@type': 'Review',
+        author: { '@type': 'Person', name: product.review.author },
+        reviewBody: product.review.reviewBody,
+        ...(product.review.datePublished ? { datePublished: product.review.datePublished } : {}),
+        reviewRating: {
+          '@type': 'Rating',
+          ratingValue: product.review.ratingValue,
+          bestRating: 5,
+          worstRating: 1,
+        },
+      } : undefined;
       this.structuredData.set('product', {
         '@context': 'https://schema.org',
         '@type': 'Product',
@@ -141,6 +160,8 @@ export class ProductPageComponent implements OnInit, OnDestroy {
         description: product.seoDescription || product.shortDescription || product.description || product.name,
         sku: product.sku,
         image: product.images || [],
+        ...(aggregateRating ? { aggregateRating } : {}),
+        ...(review ? { review } : {}),
         offers: {
           '@type': 'Offer',
           price: this.finalPrice(product),
@@ -229,6 +250,12 @@ export class ProductPageComponent implements OnInit, OnDestroy {
     const value = spec.value;
     const values = Array.isArray(value) ? value : [value];
     return values.map((item) => definition?.options?.find((option) => option.value === String(item))?.label ?? String(item)).join(', ');
+  }
+  protected isBrandSpecification(spec: MerchandiseSpecification, definition?: CategorySpecification): boolean {
+    const identifiers = [spec.slug, definition?.slug, definition?.name]
+      .filter(Boolean)
+      .map((value) => String(value).trim().toLocaleLowerCase('uk-UA'));
+    return identifiers.some((value) => ['brand', 'brend', 'бренд'].includes(value));
   }
 
   private async loadFavorites(): Promise<void> {

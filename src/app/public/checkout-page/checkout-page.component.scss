@@ -45,6 +45,9 @@ input:disabled { cursor: not-allowed; opacity: .6; }
 .google-pay-box small { color: rgba(23, 23, 20, .62); font-size: 12px; }
 .google-pay-button { min-height: 40px; }
 .google-pay-error { color: #b33b2e; }
+.payment-notice { margin-top: 1rem; padding: 1rem; display: grid; gap: .65rem; border: 1px solid rgba(23, 23, 20, .2); font-size: 14px; line-height: 1.45; }
+.payment-notice--deposit { border-color: #e1c46b; background: #fff3c9; color: #725611; }
+.payment-notice p, .payment-notice strong { margin: 0; }
 .empty-cart-notice { margin-bottom: 2rem; padding: 1.25rem; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; border: 1px solid var(--un-accent, #000); background: #fff; }
 .empty-cart-notice i { font-size: 28px; color: var(--un-accent, #9f3526); }
 .empty-cart-notice div { display: grid; gap: .3rem; }
@@ -61,6 +64,8 @@ article h3 { margin: 0 0 .4rem; font-size: 12px; }
 article span { font-size: 10px; opacity: .6; }
 article small { margin-top: .35rem; display: block; color: var(--un-accent, #9f3526); font-size: 10px; font-weight: 700; }
 .total { padding-top: 1.5rem; display: flex; justify-content: space-between; font-size: 20px; }
+.payment-summary-row { padding-top: .75rem; display: flex; justify-content: space-between; gap: 1rem; font-size: 13px; }
+.payment-summary-row--charge { font-size: 16px; }
 .success { min-height: 65vh; display: grid; place-content: center; justify-items: center; text-align: center; }
 .success i { font-size: 60px; color: var(--un-green, #3f6f4a); }
 .success a { width: auto; margin-top: 1rem; }

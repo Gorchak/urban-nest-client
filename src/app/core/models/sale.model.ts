@@ -52,6 +52,10 @@ export interface SalePayment {
   cardNetwork?: string | null;
   cardDetails?: string | null;
   tokenizationType?: string | null;
+  basePaymentAmount?: number;
+  serviceFee?: number;
+  chargedAmount?: number;
+  balanceDue?: number;
   googlePay?: {
     apiVersion: number;
     apiVersionMinor: number;

@@ -94,6 +94,19 @@ export class CheckoutPageComponent implements OnInit {
   protected formatPrice(value: number): string {
     return formatCurrency(value);
   }
+  protected wayForPayBaseAmount(): number {
+    const subtotal = this.cartService.subtotal();
+    return this.form().paymentMethod === 'cash_on_delivery' ? 300 : subtotal;
+  }
+  protected wayForPayFee(): number {
+    return Math.round(this.wayForPayBaseAmount() * 0.02 * 100) / 100;
+  }
+  protected wayForPayCharge(): number {
+    return Math.round((this.wayForPayBaseAmount() + this.wayForPayFee()) * 100) / 100;
+  }
+  protected usesWayForPay(): boolean {
+    return ['wayforpay', 'cash_on_delivery'].includes(this.form().paymentMethod);
+  }
 
   protected async onDeliveryChange(service: string): Promise<void> {
     this.patch({ deliveryService: service, ...(service === 'nova_poshta' ? { street: '', building: '', apartment: '' } : {}) });
@@ -185,7 +198,7 @@ export class CheckoutPageComponent implements OnInit {
     this.submitting.set(true);
     this.error.set(null);
     try {
-      const isOnlinePayment = form.paymentMethod === 'wayforpay';
+      const isOnlinePayment = ['wayforpay', 'cash_on_delivery'].includes(form.paymentMethod);
       await this.cartService.prepareForCheckout();
       const payload: CreateSaleDto & { guestId?: string } = {
         guestId: this.cartService.getGuestIdValue(),

@@ -280,6 +280,12 @@ main {
   border-top: 1px solid #171714;
   border-bottom: 1px solid #171714;
 }
+.brand-link {
+  color: inherit;
+  text-decoration-color: currentColor;
+  text-underline-offset: .2em;
+}
+.brand-link:hover { opacity: .65; }
 .details h2,
 .collection h2 {
   margin: 0.5rem 0 1.5rem;

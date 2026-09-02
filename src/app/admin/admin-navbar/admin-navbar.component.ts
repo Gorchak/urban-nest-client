@@ -76,6 +76,7 @@ export class AdminNavbarComponent {
       this.navItem('Продажі', '/admin/sales', 'pi pi-shopping-cart'),
       this.navItem('Користувачі', '/admin/users', 'pi pi-users'),
       this.navItem('Фінанси', '/admin/finance', 'pi pi-wallet'),
+      this.navItem('Email-розсилка', '/admin/newsletter', 'pi pi-envelope'),
   ]);
 
   protected dropdownItems = [

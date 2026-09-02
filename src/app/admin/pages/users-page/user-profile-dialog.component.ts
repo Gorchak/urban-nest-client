@@ -55,6 +55,7 @@ interface EditableUserProfile {
   appMetadata: UserAppMetadata;
   customFields: CustomFieldDraft[];
   password: string;
+  newsletterSubscribed: boolean;
 }
 
 const emptyDelivery = (): Required<UserDeliveryProfile> => ({
@@ -79,6 +80,7 @@ const emptyProfile = (): EditableUserProfile => ({
   appMetadata: {},
   customFields: [],
   password: '',
+  newsletterSubscribed: false,
 });
 
 @Component({
@@ -135,6 +137,7 @@ export class UserProfileDialogComponent implements OnChanges {
       this.selectedNovaPoshtaCity.set(null);
       this.selectedNovaPoshtaWarehouse.set(null);
       void this.prepareNovaPoshtaData();
+      void this.loadNewsletterPreference(this.user.userId);
     } else if ((changes['visible']?.currentValue || changes['user']) && this.visible && !this.user) {
       this.editable.set(emptyProfile());
       this.selectedNovaPoshtaCity.set(null);
@@ -301,6 +304,8 @@ export class UserProfileDialogComponent implements OnChanges {
       if (this.user && current.password.trim()) {
         await this.usersService.updatePassword(this.user.userId, current.password.trim());
       }
+      const newsletterSubscribed = await this.usersService.setNewsletterPreference(saved.userId, current.newsletterSubscribed);
+      this.patch({ newsletterSubscribed });
 
       this.messageService.add({ severity: 'success', summary: 'Збережено', detail: 'Профіль користувача оновлено' });
       this.saved.emit(saved);
@@ -359,7 +364,19 @@ export class UserProfileDialogComponent implements OnChanges {
         .filter(([key]) => !knownAppFields.has(key))
         .map(([key, value]) => ({ key, value: this.stringifyFieldValue(value) })),
       password: '',
+      newsletterSubscribed: false,
     };
+  }
+
+  private async loadNewsletterPreference(userId: string): Promise<void> {
+    try {
+      const newsletterSubscribed = await this.usersService.getNewsletterPreference(userId);
+      this.patch({ newsletterSubscribed });
+    } catch {
+      // Profile editing remains available if newsletter status cannot be loaded.
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
   private customFieldsToMetadata(fields: CustomFieldDraft[]): UserAppMetadata {

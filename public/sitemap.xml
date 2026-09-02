@@ -21,6 +21,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://uliastore.com.ua/brand/have-a-rest</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://uliastore.com.ua/brand/inicio-de-marco</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -132,6 +137,11 @@
   </url>
   <url>
     <loc>https://uliastore.com.ua/category/svitshot-i-hudi</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/category/valiza</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -291,7 +301,32 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://uliastore.com.ua/product/carry-case-gray</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/carry-case-pink</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/carry-pouch</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/carry-pouch-cherry</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://uliastore.com.ua/product/chainik</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/chashka-indigo</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -301,7 +336,27 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://uliastore.com.ua/product/chashka-kit</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/chashka-naiv</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/chashka-ptashka</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://uliastore.com.ua/product/chashka-stavok</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/chashka-voloshki</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -332,6 +387,16 @@
   </url>
   <url>
     <loc>https://uliastore.com.ua/product/cukornyca</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/cykornica-blagist</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/cykornica-kotyki</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -436,6 +501,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://uliastore.com.ua/product/glechik-indigo</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://uliastore.com.ua/product/glechyk-zhyttj</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -462,6 +532,11 @@
   </url>
   <url>
     <loc>https://uliastore.com.ua/product/heartbreaker%20pink</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/hystka-kvity</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -511,6 +586,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://uliastore.com.ua/product/komir-bilyy</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://uliastore.com.ua/product/komirec</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -521,12 +601,22 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://uliastore.com.ua/product/kruzhka-golubka</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://uliastore.com.ua/product/kryla</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://uliastore.com.ua/product/kryla%20milk</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/kryzhka-kit</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -556,6 +646,16 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://uliastore.com.ua/product/masljanka</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/masljanka-velykden</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://uliastore.com.ua/product/mini</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -577,6 +677,11 @@
   </url>
   <url>
     <loc>https://uliastore.com.ua/product/mln-gold1</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/nabir-2-chashki</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -711,7 +816,47 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://uliastore.com.ua/product/shkarpetki</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://uliastore.com.ua/product/short%20denim</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/smart-holo-trip</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/smart-holo-trip-medium</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/smart-holo-trip-small</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/smart-sunny-lemon-small</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/smart-sweet-marshmallow-small</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/smart-travel-marks-medium</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/smart-travel-marks-small</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -826,7 +971,27 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://uliastore.com.ua/product/tarilka-derevo</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/tarilka-sad</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/tarilka-stavok</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://uliastore.com.ua/product/tarilka-zaec</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/tarivka-vedmid-gora</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

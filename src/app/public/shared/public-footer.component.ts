@@ -3,11 +3,13 @@ import { RouterLink } from '@angular/router';
 import { Category } from '../../core/models/category.model';
 import { CategoriesService } from '../../core/services/categories.service';
 import { toRouteSlug } from '../../core/utils/route-slug';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NewsletterService } from '../../core/services/newsletter.service';
 
 @Component({
   selector: 'app-public-footer',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, ReactiveFormsModule],
   template: `
     <footer>
       <div class="footer-top">
@@ -49,11 +51,15 @@ import { toRouteSlug } from '../../core/utils/route-slug';
 
         <div class="newsletter">
           <span>Новини Ulia</span>
-          <h2>Будь першою, хто побачить нові колекції.</h2>
-          <label>
-            <input type="email" placeholder="Ваш email" />
-            <button type="button" aria-label="Підписатися"><i class="ri-arrow-right-line"></i></button>
-          </label>
+          <h2>Підпишіться на оновлення та отримуйте інформацію про наші новинки.</h2>
+          <form (submit)="subscribe($event)" novalidate>
+            <label>
+              <input type="email" placeholder="Ваш email" aria-label="Email" autocomplete="email" [formControl]="email" />
+              <button type="submit" aria-label="Підписатися" [disabled]="submitting()"><span>Підписатися</span><i class="ri-arrow-right-line"></i></button>
+            </label>
+          </form>
+          @if (email.touched && email.invalid) { <small class="message error">Введіть коректну email-адресу.</small> }
+          @if (message()) { <small class="message" role="status" aria-live="polite" [class.error]="isError()">{{ message() }}</small> }
           <small>Підписуючись, ви погоджуєтесь отримувати новини магазину.</small>
         </div>
       </div>
@@ -87,8 +93,13 @@ import { toRouteSlug } from '../../core/utils/route-slug';
     .newsletter h2 { max-width:520px; margin:0 0 2rem; font-family:var(--un-serif, Georgia,serif); font-size:clamp(2rem,3.5vw,4.2rem); font-weight:400; letter-spacing:-.035em; line-height:.98; }
     .newsletter label { padding:.8rem 0; display:flex; border-bottom:1px solid rgba(0,0,0,.55); }
     .newsletter input { min-width:0; flex:1; border:0; outline:0; background:transparent; color:#000; font:inherit; }
-    .newsletter button { border:0; background:transparent; color:#000; font-size:22px; cursor:pointer; }
+    .newsletter button { display:flex;align-items:center;gap:8px;border:0;background:transparent;color:#000;font-size:13px;cursor:pointer; }
+    .newsletter button i { font-size:22px; }
     .newsletter small { display:block; margin-top:.8rem; color:#000; font-size:10px; line-height:1.5; }
+    .newsletter form { margin:0; }
+    .newsletter button:disabled { opacity:.45; cursor:wait; }
+    .newsletter .message { font-size:12px; }
+    .newsletter .message.error { color:#a3261e; }
     .footer-bottom { margin-top:clamp(4rem,8vw,8rem); padding-top:1.5rem; display:flex; justify-content:space-between; gap:1rem; border-top:1px solid rgba(0,0,0,.2); color:#000; font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
     .legal { flex-direction:row; gap:1.4rem; }
     .legal a { color:inherit; font-size:10px; }
@@ -116,9 +127,27 @@ import { toRouteSlug } from '../../core/utils/route-slug';
 })
 export class PublicFooterComponent implements OnInit {
   private categoriesService = inject(CategoriesService);
+  private newsletterService = inject(NewsletterService);
   protected categories = signal<Category[]>([]);
   protected year = new Date().getFullYear();
   protected openSection = signal<'catalog' | 'buyers' | null>('catalog');
+  protected email = new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] });
+  protected submitting = signal(false);
+  protected message = signal('');
+  protected isError = signal(false);
+  protected async subscribe(event?: Event): Promise<void> {
+    event?.preventDefault();
+    this.email.markAsTouched();
+    if (this.email.invalid || this.submitting()) return;
+    this.submitting.set(true); this.message.set('');
+    try {
+      this.message.set(await this.newsletterService.subscribe(this.email.value));
+      this.isError.set(false); this.email.reset();
+    } catch (error: any) {
+      this.message.set(error?.error?.message || 'Не вдалося оформити підписку. Спробуйте ще раз.');
+      this.isError.set(true);
+    } finally { this.submitting.set(false); }
+  }
   protected toggleSection(section: 'catalog' | 'buyers'): void {
     this.openSection.update((current) => current === section ? null : section);
   }
