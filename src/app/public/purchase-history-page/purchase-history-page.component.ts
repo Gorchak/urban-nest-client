@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject, 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '@auth0/auth0-angular';
+import { AuthService } from '../../core/services/auth.service';
 import { firstValueFrom } from 'rxjs';
 import { AdminAccessService } from '../../core/services/admin-access.service';
 import { CategoriesService } from '../../core/services/categories.service';

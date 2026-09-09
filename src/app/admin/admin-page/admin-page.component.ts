@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '@auth0/auth0-angular';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-admin-page',

@@ -20,7 +20,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { MessageService } from 'primeng/api';
-import { AuthService } from '@auth0/auth0-angular';
+import { AuthService } from '../../../core/services/auth.service';
 import { filter, firstValueFrom, take, timeout } from 'rxjs';
 
 import { SalesService } from '../../../core/services/sales.service';
@@ -44,7 +44,7 @@ import {
   SaleShippingAddress,
   SaleStatus,
 } from '../../../core/models/sale.model';
-import { Auth0User, UserDeliveryProfile } from '../../../core/models/user.model';
+import { User, UserDeliveryProfile } from '../../../core/models/user.model';
 import { formatCurrency } from '../../../core/utils/price-format';
 
 export const createEmptySale = (): CreateSaleDto => ({
@@ -527,8 +527,8 @@ export class SaleFormDialogComponent implements OnChanges {
         timeout({ first: 5000 }),
       ));
 
-      const authUserId = authUser.sub;
-      let profile: Auth0User | null = null;
+      const authUserId = authUser.userId;
+      let profile: User | null = null;
 
       if (authUserId) {
         try {
@@ -549,7 +549,7 @@ export class SaleFormDialogComponent implements OnChanges {
     }
   }
 
-  private applyActiveUserProfile(profile: Auth0User | null, authUser: any): void {
+  private applyActiveUserProfile(profile: User | null, authUser: any): void {
     const metadata = profile?.userMetadata || {};
     const delivery = metadata.delivery || {};
     const fallbackNames = this.splitDisplayName(profile?.name || authUser?.name || '');

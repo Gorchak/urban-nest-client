@@ -23,8 +23,8 @@ import { PasswordModule } from 'primeng/password';
 import { MessageService } from 'primeng/api';
 
 import {
-  Auth0User,
-  UpdateAuth0UserDto,
+  User,
+  UpdateUserDto,
   UserAppMetadata,
   UserDeliveryProfile,
   UserProfileMetadata,
@@ -110,11 +110,11 @@ export class UserProfileDialogComponent implements OnChanges {
   private cdr = inject(ChangeDetectorRef);
 
   @Input() visible = false;
-  @Input() user: Auth0User | null = null;
+  @Input() user: User | null = null;
   @Input() showAdminFields = true;
 
   @Output() visibleChange = new EventEmitter<boolean>();
-  @Output() saved = new EventEmitter<Auth0User>();
+  @Output() saved = new EventEmitter<User>();
 
   protected saving = signal(false);
   protected resettingPassword = signal(false);
@@ -282,7 +282,7 @@ export class UserProfileDialogComponent implements OnChanges {
         delivery: current.delivery,
       };
 
-      const payload: UpdateAuth0UserDto = {
+      const payload: UpdateUserDto = {
         userMetadata,
       };
       if (this.showAdminFields) {
@@ -331,13 +331,13 @@ export class UserProfileDialogComponent implements OnChanges {
       this.messageService.add({
         severity: 'success',
         summary: 'Надіслано',
-        detail: `Лист для відновлення пароля надіслано на ${result.email}`,
+        detail: `Лист для створення пароля надіслано на ${result.email}`,
       });
     } catch (err: any) {
       this.messageService.add({
         severity: 'error',
         summary: 'Помилка',
-        detail: err?.error?.message || 'Не вдалося надіслати відновлення пароля',
+        detail: err?.error?.message || 'Не вдалося надіслати створення пароля',
       });
     } finally {
       this.resettingPassword.set(false);
@@ -345,7 +345,7 @@ export class UserProfileDialogComponent implements OnChanges {
     }
   }
 
-  private toEditable(user: Auth0User): EditableUserProfile {
+  private toEditable(user: User): EditableUserProfile {
     const metadata = user.userMetadata || {};
     const delivery = { ...emptyDelivery(), ...(metadata.delivery || {}) };
     const knownAppFields = new Set(['isAdmin', 'isModerator']);

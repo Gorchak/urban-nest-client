@@ -1,5 +1,9 @@
 import { Routes } from '@angular/router';
 export const routes: Routes = [
+  { path: 'auth/login', data: { mode: 'login' }, loadComponent: () => import('./public/auth-page/auth-page.component').then((m) => m.AuthPageComponent) },
+  { path: 'auth/register', data: { mode: 'register' }, loadComponent: () => import('./public/auth-page/auth-page.component').then((m) => m.AuthPageComponent) },
+  { path: 'auth/forgot-password', data: { mode: 'forgot' }, loadComponent: () => import('./public/auth-page/auth-page.component').then((m) => m.AuthPageComponent) },
+  { path: 'auth/reset-password', data: { mode: 'reset' }, loadComponent: () => import('./public/auth-page/auth-page.component').then((m) => m.AuthPageComponent) },
   {
     path: '',
     pathMatch: 'full',

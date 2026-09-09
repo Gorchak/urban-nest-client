@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from '@auth0/auth0-angular';
+import { AuthService } from '../../core/services/auth.service';
 import { ButtonModule } from 'primeng/button';
 import { AdminAccessService, AdminAccessState } from '../../core/services/admin-access.service';
 

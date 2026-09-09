@@ -1,4 +1,4 @@
-export interface Auth0Identity {
+export interface UserIdentity {
   provider: string;
   connection: string;
   user_id: string;
@@ -32,12 +32,13 @@ export interface UserAppMetadata {
   [key: string]: unknown;
 }
 
-export interface Auth0User {
+export interface User {
   userId: string;
   email: string;
   emailVerified: boolean;
   phoneNumber?: string;
   phoneVerified?: boolean;
+  accountStatus?: 'pending' | 'active';
   name: string;
   nickname: string;
   picture: string;
@@ -45,13 +46,13 @@ export interface Auth0User {
   updatedAt: string;
   lastLogin: string | null;
   loginsCount: number;
-  identities: Auth0Identity[];
+  identities: UserIdentity[];
   userMetadata: UserProfileMetadata;
   appMetadata: UserAppMetadata;
 }
 
 export interface UsersListResponse {
-  data: Auth0User[];
+  data: User[];
   pagination: {
     total: number;
     page: number;
@@ -60,14 +61,14 @@ export interface UsersListResponse {
   };
 }
 
-export interface UpdateAuth0UserDto {
+export interface UpdateUserDto {
   email?: string;
   name?: string;
   userMetadata?: UserProfileMetadata;
   appMetadata?: UserAppMetadata;
 }
 
-export interface CreateAuth0UserDto extends UpdateAuth0UserDto {
+export interface CreateUserDto extends UpdateUserDto {
   phone?: string;
   password?: string;
 }

@@ -26,11 +26,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://uliastore.com.ua/brand/inicio-de-marco</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://uliastore.com.ua/brand/kachorovska</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -47,6 +42,11 @@
   </url>
   <url>
     <loc>https://uliastore.com.ua/brand/selvage</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/brand/vem-vet</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -146,6 +146,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://uliastore.com.ua/category/verhniy-odjag</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://uliastore.com.ua/category/zhaket-ta-zhylet</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -211,12 +216,12 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://uliastore.com.ua/product/bg105</loc>
+    <loc>https://uliastore.com.ua/product/bern</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://uliastore.com.ua/product/bg136</loc>
+    <loc>https://uliastore.com.ua/product/bg105</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -252,11 +257,6 @@
   </url>
   <url>
     <loc>https://uliastore.com.ua/product/blagist</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://uliastore.com.ua/product/blanca</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -386,6 +386,16 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://uliastore.com.ua/product/copenhagen</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/copenhagen-BEZH</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://uliastore.com.ua/product/cukornyca</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -421,6 +431,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://uliastore.com.ua/product/dzhynsy-MOM</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://uliastore.com.ua/product/dzhynsy-chorni</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -431,7 +446,17 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://uliastore.com.ua/product/dzhynsy-siri-mom</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://uliastore.com.ua/product/dzhynsy-siri1</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/dzhynsy-syni</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -492,11 +517,6 @@
   </url>
   <url>
     <loc>https://uliastore.com.ua/product/futbolka%20i%20said%201</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://uliastore.com.ua/product/futbolka%20jangol</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -626,6 +646,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://uliastore.com.ua/product/kyrtka-dzhins</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://uliastore.com.ua/product/la-nuit</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -652,6 +677,26 @@
   </url>
   <url>
     <loc>https://uliastore.com.ua/product/masljanka-velykden</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/milano</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/milano-BLUE</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/milano-maxi</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/milano-maxi-grey</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -706,16 +751,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://uliastore.com.ua/product/no-bra</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://uliastore.com.ua/product/no-bra1</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://uliastore.com.ua/product/noel</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -766,7 +801,12 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://uliastore.com.ua/product/quiet-queen1</loc>
+    <loc>https://uliastore.com.ua/product/rain</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/rain-green</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -812,11 +852,6 @@
   </url>
   <url>
     <loc>https://uliastore.com.ua/product/shiny1</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://uliastore.com.ua/product/shkarpetki</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -942,16 +977,6 @@
   </url>
   <url>
     <loc>https://uliastore.com.ua/product/svichka8</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://uliastore.com.ua/product/syknja%20shyfon</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://uliastore.com.ua/product/syknja%20shyfon1</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

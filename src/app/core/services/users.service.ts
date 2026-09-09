@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Auth0User, CreateAuth0UserDto, UpdateAuth0UserDto, UsersListResponse } from '../models/user.model';
+import { User, CreateUserDto, UpdateUserDto, UsersListResponse } from '../models/user.model';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -21,7 +21,7 @@ export class UsersService {
   private http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/users`;
 
-  users = signal<Auth0User[]>([]);
+  users = signal<User[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
 
@@ -36,7 +36,7 @@ export class UsersService {
       if (filter.search) params = params.set('search', filter.search);
 
       const response = await firstValueFrom(
-        this.http.get<ApiResponse<Auth0User[]>>(this.apiUrl, { params }),
+        this.http.get<ApiResponse<User[]>>(this.apiUrl, { params }),
       );
       const result = {
         data: response.data,
@@ -52,30 +52,30 @@ export class UsersService {
     }
   }
 
-  async updateUser(id: string, data: UpdateAuth0UserDto): Promise<Auth0User> {
+  async updateUser(id: string, data: UpdateUserDto): Promise<User> {
     const response = await firstValueFrom(
-      this.http.put<ApiResponse<Auth0User>>(`${this.apiUrl}/${encodeURIComponent(id)}`, data),
+      this.http.put<ApiResponse<User>>(`${this.apiUrl}/${encodeURIComponent(id)}`, data),
     );
     return response.data;
   }
 
-  async createUser(data: CreateAuth0UserDto): Promise<Auth0User> {
+  async createUser(data: CreateUserDto): Promise<User> {
     const response = await firstValueFrom(
-      this.http.post<ApiResponse<Auth0User>>(this.apiUrl, data),
+      this.http.post<ApiResponse<User>>(this.apiUrl, data),
     );
     return response.data;
   }
 
-  async getUserById(id: string): Promise<Auth0User> {
+  async getUserById(id: string): Promise<User> {
     const response = await firstValueFrom(
-      this.http.get<ApiResponse<Auth0User>>(`${this.apiUrl}/${encodeURIComponent(id)}`),
+      this.http.get<ApiResponse<User>>(`${this.apiUrl}/${encodeURIComponent(id)}`),
     );
     return response.data;
   }
 
-  async updatePassword(id: string, password: string): Promise<Auth0User> {
+  async updatePassword(id: string, password: string): Promise<User> {
     const response = await firstValueFrom(
-      this.http.post<ApiResponse<Auth0User>>(`${this.apiUrl}/${encodeURIComponent(id)}/password`, { password }),
+      this.http.post<ApiResponse<User>>(`${this.apiUrl}/${encodeURIComponent(id)}/password`, { password }),
     );
     return response.data;
   }

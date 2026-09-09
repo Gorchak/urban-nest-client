@@ -3,11 +3,11 @@
 /brand/bagllet
 /brand/gunia
 /brand/have-a-rest
-/brand/inicio-de-marco
 /brand/kachorovska
 /brand/mln
 /brand/okryk
 /brand/selvage
+/brand/vem-vet
 /brand/vika-adamska
 /brand/yasna
 /brand/zig-zag
@@ -27,6 +27,7 @@
 /category/svetry-i-kard
 /category/svitshot-i-hudi
 /category/valiza
+/category/verhniy-odjag
 /category/zhaket-ta-zhylet
 /contacts
 /delivery-and-payment
@@ -40,8 +41,8 @@
 /product/angel
 /product/angel1
 /product/asymmetric-play
+/product/bern
 /product/bg105
-/product/bg136
 /product/bg141
 /product/bg213
 /product/bg216
@@ -49,7 +50,6 @@
 /product/bianca
 /product/bianca-1
 /product/blagist
-/product/blanca
 /product/bluza%20black
 /product/bluza-blue
 /product/bluza-milk
@@ -75,6 +75,8 @@
 /product/cloudy%20
 /product/cloudy1
 /product/connie
+/product/copenhagen
+/product/copenhagen-BEZH
 /product/cukornyca
 /product/cykornica-blagist
 /product/cykornica-kotyki
@@ -82,9 +84,12 @@
 /product/day-off-black
 /product/day-off-blue
 /product/double-ruffles
+/product/dzhynsy-MOM
 /product/dzhynsy-chorni
 /product/dzhynsy-siri
+/product/dzhynsy-siri-mom
 /product/dzhynsy-siri1
+/product/dzhynsy-syni
 /product/emi
 /product/emily
 /product/emily1
@@ -97,7 +102,6 @@
 /product/freya-2
 /product/futbolka%20i%20said
 /product/futbolka%20i%20said%201
-/product/futbolka%20jangol
 /product/glechik-indigo
 /product/glechyk-zhyttj
 /product/golybka
@@ -123,12 +127,17 @@
 /product/kryla%20milk
 /product/kryzhka-kit
 /product/kyrtka%20krop
+/product/kyrtka-dzhins
 /product/la-nuit
 /product/lexy
 /product/lizette
 /product/maria
 /product/masljanka
 /product/masljanka-velykden
+/product/milano
+/product/milano-BLUE
+/product/milano-maxi
+/product/milano-maxi-grey
 /product/mini
 /product/mini%20nitza
 /product/mln-9-birthday-limited-ed
@@ -139,8 +148,6 @@
 /product/nerea1
 /product/nerea2
 /product/nitza
-/product/no-bra
-/product/no-bra1
 /product/noel
 /product/obsession
 /product/pilar
@@ -151,7 +158,8 @@
 /product/point%20lime
 /product/point%20pink
 /product/quiet-queen
-/product/quiet-queen1
+/product/rain
+/product/rain-green
 /product/raw-hem
 /product/ray
 /product/romantic
@@ -161,7 +169,6 @@
 /product/sercja1
 /product/shiny
 /product/shiny1
-/product/shkarpetki
 /product/short%20denim
 /product/smart-holo-trip
 /product/smart-holo-trip-medium
@@ -187,8 +194,6 @@
 /product/svichka6
 /product/svichka7
 /product/svichka8
-/product/syknja%20shyfon
-/product/syknja%20shyfon1
 /product/tacja
 /product/tarilca-tigr
 /product/tarilca-zaec1

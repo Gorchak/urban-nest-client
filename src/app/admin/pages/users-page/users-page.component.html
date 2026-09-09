@@ -5,7 +5,7 @@
     <div class="page-header">
       <div>
         <h1>Потрібно увійти</h1>
-        <p>Увійдіть через Auth0, щоб переглядати користувачів.</p>
+        <p>Увійдіть, щоб переглядати користувачів.</p>
       </div>
       <p-button label="Увійти" icon="pi pi-sign-in" (onClick)="login()" />
     </div>
@@ -15,7 +15,7 @@
   <div class="page-header">
     <div>
       <h1>Користувачі</h1>
-      <p>Профілі, права доступу і дані доставки з Auth0</p>
+      <p>Профілі, права доступу і дані доставки</p>
     </div>
     <div class="header-actions">
       <p-button label="Додати користувача" icon="pi pi-plus" (onClick)="openCreateUser()" />
@@ -77,6 +77,9 @@
         <td>
           <div class="email-cell">
             <span>{{ user.email }}</span>
+            @if (user.accountStatus === 'pending') {
+              <p-tag value="Очікує створення пароля" severity="info" />
+            }
             <p-tag [value]="user.emailVerified ? 'Підтверджено' : 'Не підтверджено'" [severity]="user.emailVerified ? 'success' : 'warning'" />
           </div>
         </td>

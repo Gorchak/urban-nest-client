@@ -18,10 +18,10 @@ import { ToastModule } from 'primeng/toast';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { MessageService } from 'primeng/api';
-import { AuthService } from '@auth0/auth0-angular';
+import { AuthService } from '../../../core/services/auth.service';
 import { catchError, filter, firstValueFrom, of, take, timeout } from 'rxjs';
 
-import { Auth0User } from '../../../core/models/user.model';
+import { User } from '../../../core/models/user.model';
 import { UsersService } from '../../../core/services/users.service';
 import { UserProfileDialogComponent } from './user-profile-dialog.component';
 import { AdminActionMenuComponent } from '../../components/admin-action-menu/admin-action-menu.component';
@@ -55,12 +55,12 @@ export class UsersPageComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private zone = inject(NgZone);
 
-  protected users = signal<Auth0User[]>([]);
+  protected users = signal<User[]>([]);
   protected pagination = signal({ total: 0, page: 1, limit: 20, pages: 0 });
   protected loading = signal(false);
   protected authRequired = signal(false);
   protected search = signal('');
-  protected selectedUser = signal<Auth0User | null>(null);
+  protected selectedUser = signal<User | null>(null);
   protected showProfileDialog = signal(false);
 
   async ngOnInit(): Promise<void> {
@@ -92,8 +92,8 @@ export class UsersPageComponent implements OnInit {
 
       this.messageService.add({
         severity: 'error',
-        summary: 'Auth0',
-        detail: err?.error?.message || 'Не вдалося отримати користувачів з Auth0',
+        summary: 'Користувачі',
+        detail: err?.error?.message || 'Не вдалося отримати користувачів',
       });
     } finally {
       this.zone.run(() => {
@@ -122,7 +122,7 @@ export class UsersPageComponent implements OnInit {
     await this.loadUsers();
   }
 
-  protected openProfile(user: Auth0User): void {
+  protected openProfile(user: User): void {
     this.selectedUser.set(user);
     this.showProfileDialog.set(true);
   }
@@ -132,7 +132,7 @@ export class UsersPageComponent implements OnInit {
     this.showProfileDialog.set(true);
   }
 
-  protected async onUserSaved(user: Auth0User): Promise<void> {
+  protected async onUserSaved(user: User): Promise<void> {
     this.zone.run(() => {
       this.users.update((items) => {
         const exists = items.some((item) => item.userId === user.userId);
@@ -146,7 +146,7 @@ export class UsersPageComponent implements OnInit {
     await this.loadUsers();
   }
 
-  protected displayName(user: Auth0User): string {
+  protected displayName(user: User): string {
     const metadata = user.userMetadata || {};
     return [metadata.lastName, metadata.firstName, metadata.middleName].filter(Boolean).join(' ').trim()
       || user.name
@@ -157,8 +157,8 @@ export class UsersPageComponent implements OnInit {
       || user.userId;
   }
 
-  protected providerLabel(user: Auth0User): string {
-    return user.identities?.[0]?.provider || 'auth0';
+  protected providerLabel(user: User): string {
+    return user.identities?.[0]?.provider || 'local';
   }
 
   private async waitForAuth(): Promise<void> {

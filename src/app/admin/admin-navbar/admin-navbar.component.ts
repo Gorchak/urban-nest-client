@@ -9,11 +9,11 @@ import { AvatarModule } from 'primeng/avatar';
 import { RippleModule } from 'primeng/ripple';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { AuthService } from '@auth0/auth0-angular';
+import { AuthService } from '../../core/services/auth.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, filter, firstValueFrom, map, of, take, timeout } from 'rxjs';
 import { UsersService } from '../../core/services/users.service';
-import { Auth0User } from '../../core/models/user.model';
+import { User } from '../../core/models/user.model';
 import { UserProfileDialogComponent } from '../pages/users-page/user-profile-dialog.component';
 
 interface MenuItem {
@@ -67,7 +67,7 @@ export class AdminNavbarComponent {
 
   protected isMobileMenuOpen = signal(false);
   protected showProfileDialog = signal(false);
-  protected profileUser = signal<Auth0User | null>(null);
+  protected profileUser = signal<User | null>(null);
 
   protected navItems = computed<MenuItem[]>(() => [
       this.navItem('Категорії', '/admin/categories', 'pi pi-list'),
@@ -118,8 +118,8 @@ export class AdminNavbarComponent {
         timeout({ first: 5000 }),
       ));
 
-      const profile = authUser.sub
-        ? await this.usersService.getUserById(authUser.sub)
+      const profile = authUser.userId
+        ? await this.usersService.getUserById(authUser.userId)
         : this.createFallbackProfile(authUser);
 
       this.profileUser.set(profile);
@@ -133,7 +133,7 @@ export class AdminNavbarComponent {
     }
   }
 
-  protected onProfileSaved(user: Auth0User): void {
+  protected onProfileSaved(user: User): void {
     this.profileUser.set(user);
   }
 
@@ -150,7 +150,7 @@ export class AdminNavbarComponent {
     };
   }
 
-  private createFallbackProfile(user: any): Auth0User {
+  private createFallbackProfile(user: any): User {
     const now = new Date().toISOString();
     return {
       userId: user.sub || '',

@@ -1,6 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { AuthService } from '@auth0/auth0-angular';
+import { AuthService } from './auth.service';
 import { catchError, filter, firstValueFrom, of, take, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AddCartItemDto, Cart, CartItem } from '../models/cart.model';
@@ -158,15 +158,7 @@ export class CartService {
     ));
     if (!authenticated) return false;
 
-    const claims$ = this.auth.idTokenClaims$;
-    if (!claims$?.pipe) return false;
-    const claims = await firstValueFrom(claims$.pipe(
-      take(1),
-      timeout({ first: 5000, with: () => of(null) }),
-      catchError(() => of(null)),
-    )) as any;
-    const expiresAt = Number(claims?.exp) * 1000;
-    return Boolean(claims?.__raw && Number.isFinite(expiresAt) && expiresAt > Date.now());
+    return Boolean(this.auth.token);
   }
 
   private async loadServerCart(): Promise<Cart> {

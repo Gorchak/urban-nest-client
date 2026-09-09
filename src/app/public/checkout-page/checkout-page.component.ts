@@ -2,13 +2,13 @@ import { ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild, inje
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { AuthService } from '@auth0/auth0-angular';
+import { AuthService } from '../../core/services/auth.service';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { firstValueFrom } from 'rxjs';
 import { AdminAccessService } from '../../core/services/admin-access.service';
 import { CartService } from '../../core/services/cart.service';
 import { SalesService } from '../../core/services/sales.service';
-import { Auth0User } from '../../core/models/user.model';
+import { User } from '../../core/models/user.model';
 import { CreateSaleDto, SalePaymentMethod } from '../../core/models/sale.model';
 import { NovaPoshtaArea, NovaPoshtaCity, NovaPoshtaService, NovaPoshtaWarehouse } from '../../core/services/nova-poshta.service';
 import { formatCurrency } from '../../core/utils/price-format';
@@ -47,7 +47,7 @@ export class CheckoutPageComponent implements OnInit {
   private route = inject(ActivatedRoute);
 
   protected isAuthenticated = signal(false);
-  protected user = signal<Auth0User | null>(null);
+  protected user = signal<User | null>(null);
   protected submitting = signal(false);
   protected successOrder = signal<string | null>(null);
   protected error = signal<string | null>(null);
@@ -301,7 +301,7 @@ export class CheckoutPageComponent implements OnInit {
     this.novaPoshtaLoading.set(true);
     try { this.areas.set(await this.novaPoshta.getAreas()); } finally { this.novaPoshtaLoading.set(false); }
   }
-  private prefill(user: Auth0User): void {
+  private prefill(user: User): void {
     const meta = user.userMetadata || {};
     const delivery = meta.delivery || {};
     this.form.set({

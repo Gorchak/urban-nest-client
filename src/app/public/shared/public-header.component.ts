@@ -1,14 +1,14 @@
-import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '@auth0/auth0-angular';
+import { AuthService } from '../../core/services/auth.service';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { firstValueFrom } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs';
 import { Category } from '../../core/models/category.model';
-import { Auth0User } from '../../core/models/user.model';
-import { AdminAccessService } from '../../core/services/admin-access.service';
+import { User } from '../../core/models/user.model';
 import { CategoriesService } from '../../core/services/categories.service';
 import { UserProfileDialogComponent } from '../../admin/pages/users-page/user-profile-dialog.component';
 import { CartService } from '../../core/services/cart.service';
@@ -267,7 +267,7 @@ import { FavoritesService } from '../../core/services/favorites.service';
 })
 export class PublicHeaderComponent implements OnInit, OnDestroy {
   private auth = inject(AuthService);
-  private adminAccess = inject(AdminAccessService);
+  private destroyRef = inject(DestroyRef);
   private categoriesService = inject(CategoriesService);
   private messageService = inject(MessageService);
   private elementRef = inject(ElementRef) as ElementRef<HTMLElement>;
@@ -276,11 +276,11 @@ export class PublicHeaderComponent implements OnInit, OnDestroy {
   protected favoritesService = inject(FavoritesService);
 
   protected categories = signal<Category[]>([]);
-  protected currentUser = signal<Auth0User | null>(null);
+  protected currentUser = signal<User | null>(null);
   protected loadingUser = signal(true);
   protected profileMenuOpen = signal(false);
   protected showProfileDialog = signal(false);
-  protected profileUser = signal<Auth0User | null>(null);
+  protected profileUser = signal<User | null>(null);
   protected activeCategory = signal<Category | null>(null);
   protected categoryMenuLeft = signal(0);
   protected mobileMenuOpen = signal(false);
@@ -308,21 +308,32 @@ export class PublicHeaderComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     void this.loadCategories();
-    try {
-      const access = await firstValueFrom(this.adminAccess.check());
-      this.currentUser.set(access.user);
-    } catch {
-      this.currentUser.set(null);
-    } finally {
-      this.loadingUser.set(false);
-    }
+
+    this.auth.isLoading$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((loading) => this.loadingUser.set(loading));
+
+    this.auth.user$
+      .pipe(
+        distinctUntilChanged((previous, current) => previous?.userId === current?.userId),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((user) => {
+        this.currentUser.set(user);
+        this.profileUser.set(user);
+        if (user) {
+          void this.favoritesService.load();
+          void this.cartService.load();
+        } else {
+          this.favoritesService.favorites.set([]);
+        }
+      });
 
     try {
       await this.cartService.load();
     } catch {
       this.cartService.cart.set(null);
     }
-    if (this.currentUser()) void this.favoritesService.load();
   }
 
   ngOnDestroy(): void {
@@ -330,28 +341,9 @@ export class PublicHeaderComponent implements OnInit, OnDestroy {
   }
 
   protected login(): void {
-    if (!this.isSecureAuthOrigin()) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Вхід недоступний',
-        detail: 'Auth0 потребує захищений HTTPS-домен. Перевірте SSL-сертифікат для uliastore.com.ua.',
-      });
-      return;
-    }
-
-    const login = this.auth.loginWithRedirect;
-    if (typeof login !== 'function') return;
-
     void this.auth.loginWithRedirect({
       appState: { target: window.location.pathname + window.location.search },
-      authorizationParams: { redirect_uri: window.location.origin },
     });
-  }
-  private isSecureAuthOrigin(): boolean {
-    return window.location.protocol === 'https:'
-      || window.location.hostname === 'localhost'
-      || window.location.hostname === '127.0.0.1'
-      || window.location.hostname === '[::1]';
   }
   protected childrenFor(parent: Category): Category[] {
     return this.categories()
@@ -453,14 +445,14 @@ export class PublicHeaderComponent implements OnInit, OnDestroy {
     this.profileUser.set(user);
     this.showProfileDialog.set(true);
   }
-  protected onProfileSaved(user: Auth0User): void {
+  protected onProfileSaved(user: User): void {
     this.profileUser.set(user);
     this.currentUser.set(user);
   }
-  protected displayName(user: Auth0User): string {
+  protected displayName(user: User): string {
     return [user.userMetadata?.firstName, user.userMetadata?.lastName].filter(Boolean).join(' ') || user.name || user.nickname || user.email;
   }
-  protected avatar(user: Auth0User): string {
+  protected avatar(user: User): string {
     return String(user.userMetadata?.avatarUrl || user.picture || '');
   }
   protected routeSlug(category: Category): string {
