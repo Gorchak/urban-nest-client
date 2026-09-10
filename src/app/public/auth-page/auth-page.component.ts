@@ -18,7 +18,14 @@ export class AuthPageComponent implements AfterViewInit {
   protected mode = this.route.snapshot.data['mode'] as AuthMode;
   protected isPasswordSetup = this.route.snapshot.queryParamMap.get('setup') === '1';
   protected loading = signal(false); protected error = signal(''); protected success = signal(''); protected showPassword = signal(false);
-  protected form = this.fb.nonNullable.group({ firstName: [''], lastName: [''], email: ['', [Validators.required, Validators.email]], phone: [''], password: ['', [Validators.required, Validators.minLength(8)]], confirmPassword: [''] });
+  protected form = this.fb.nonNullable.group({
+    firstName: ['', this.mode === 'register' ? [Validators.required] : []],
+    lastName: ['', this.mode === 'register' ? [Validators.required] : []],
+    email: ['', this.mode === 'reset' ? [] : [Validators.required, Validators.email]],
+    phone: [''],
+    password: ['', this.mode === 'forgot' ? [] : [Validators.required, Validators.minLength(8)]],
+    confirmPassword: ['', this.mode === 'register' || this.mode === 'reset' ? [Validators.required] : []],
+  });
   ngAfterViewInit(): void { if (this.mode === 'login' || this.mode === 'register') this.renderGoogleButton(); }
   private renderGoogleButton(attempt = 0): void {
     const target = this.googleButton?.nativeElement; const google = window.google;
@@ -36,11 +43,11 @@ export class AuthPageComponent implements AfterViewInit {
   }
   protected async submit(): Promise<void> {
     this.error.set(''); this.success.set('');
-    if (this.mode === 'register') { this.form.controls.firstName.addValidators(Validators.required); this.form.controls.lastName.addValidators(Validators.required); this.form.controls.confirmPassword.addValidators(Validators.required); }
-    if (this.mode === 'reset') { this.form.controls.email.clearValidators(); this.form.controls.confirmPassword.addValidators(Validators.required); }
-    if (this.mode === 'forgot') this.form.controls.password.clearValidators();
-    this.form.updateValueAndValidity();
-    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.error.set('Перевірте правильність заповнення полів');
+      return;
+    }
     const value = this.form.getRawValue();
     if ((this.mode === 'register' || this.mode === 'reset') && value.password !== value.confirmPassword) { this.error.set('Паролі не збігаються'); return; }
     this.loading.set(true);
