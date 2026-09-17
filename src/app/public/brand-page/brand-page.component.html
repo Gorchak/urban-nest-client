@@ -5,16 +5,6 @@
     <div class="state"><h1>{{ error() }}</h1><a routerLink="/">На головну</a></div>
   } @else {
     @if (brand(); as current) {
-      <section class="hero">
-        <div class="logo">
-          @if (current.logo) { <app-optimized-image [src]="current.logo" [alt]="current.name" [width]="320" [height]="240" [priority]="true" fit="contain" sizes="320px" srcset="180w, 240w, 320w" /> }
-          @else { <span>{{ current.name.charAt(0) }}</span> }
-        </div>
-        <div>
-          <span class="eyebrow">Бренд</span><h1>{{ current.name }}</h1>
-          @if (current.description) { <p>{{ current.description }}</p> }
-        </div>
-      </section>
       <section class="catalog">
         <header><div><span class="eyebrow">Колекція</span><h2>Товари {{ current.name }}</h2></div><span>{{ products().length }} товарів</span></header>
         @if (products().length) {

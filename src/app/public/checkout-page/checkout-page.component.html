@@ -31,17 +31,24 @@
           <h2>Контактні дані</h2>
           <div class="grid">
             <label [class.field-error]="hasFieldError('firstName')">
-              Ім'я
-              <input [ngModel]="form().firstName" (ngModelChange)="patch({ firstName: $event })" name="firstName" />
+              Ім'я *
+              <input required [ngModel]="form().firstName" (ngModelChange)="patch({ firstName: $event })" name="firstName" />
               @if (fieldError('firstName')) { <small>{{ fieldError('firstName') }}</small> }
             </label>
-            <label>
-              Прізвище
-              <input [ngModel]="form().lastName" (ngModelChange)="patch({ lastName: $event })" name="lastName" />
+            <label [class.field-error]="hasFieldError('lastName')">
+              Прізвище *
+              <input required [ngModel]="form().lastName" (ngModelChange)="patch({ lastName: $event })" name="lastName" />
+              @if (fieldError('lastName')) { <small>{{ fieldError('lastName') }}</small> }
             </label>
-            <label>
-              Email
-              <input type="email" [ngModel]="form().email" (ngModelChange)="patch({ email: $event })" name="email" />
+            <label [class.field-error]="hasFieldError('middleName')">
+              По батькові *
+              <input required [ngModel]="form().middleName" (ngModelChange)="patch({ middleName: $event })" name="middleName" />
+              @if (fieldError('middleName')) { <small>{{ fieldError('middleName') }}</small> }
+            </label>
+            <label [class.field-error]="hasFieldError('email')">
+              Email *
+              <input required type="email" [ngModel]="form().email" (ngModelChange)="patch({ email: $event })" name="email" />
+              @if (fieldError('email')) { <small>{{ fieldError('email') }}</small> }
             </label>
             <label [class.field-error]="hasFieldError('phone')">
               Телефон
@@ -70,7 +77,7 @@
                   [forceSelection]="false" [minLength]="0" [delay]="250" [disabled]="novaPoshtaLoading()"
                   [ngModel]="selectedArea()" (ngModelChange)="onAreaModelChange($event)"
                   (completeMethod)="searchAreas($event.query)" (onSelect)="onAreaChange($event.value.Ref)"
-                  name="areaRef" placeholder="Почніть вводити область" />
+                  name="areaRef" placeholder="Введіть область" />
                 @if (fieldError('areaRef')) { <small>{{ fieldError('areaRef') }}</small> }
               </label>
               <label [class.field-error]="hasFieldError('cityRef')">
@@ -79,7 +86,7 @@
                   [forceSelection]="false" [minLength]="0" [delay]="250" [disabled]="!form().region"
                   [ngModel]="selectedCity()" (ngModelChange)="onCityModelChange($event)"
                   (completeMethod)="searchCities($event.query)" (onSelect)="onCityChange($event.value.Ref)"
-                  name="cityRef" placeholder="Почніть вводити місто" />
+                  name="cityRef" placeholder="Введіть місто" />
                 @if (fieldError('cityRef')) { <small>{{ fieldError('cityRef') }}</small> }
               </label>
               <label [class.field-error]="hasFieldError('warehouseRef')">
@@ -126,7 +133,6 @@
             Спосіб оплати
             <select [ngModel]="form().paymentMethod" (ngModelChange)="patch({ paymentMethod: $event })" name="payment">
               <option value="cash_on_delivery">При отриманні</option>
-              <option value="bank_transfer">Банківський переказ</option>
               <option value="wayforpay">Онлайн оплата / WayForPay</option>
             </select>
           </label>
@@ -138,7 +144,6 @@
               } @else {
                 <p>Після оформлення замовлення ви перейдете на захищену платіжну сторінку WayForPay.</p>
               }
-              <p>Комісія платіжного сервісу становить 2% ({{ formatPrice(wayForPayFee()) }}) і буде додана до суми оплати.</p>
               <strong>До оплати через WayForPay: {{ formatPrice(wayForPayCharge()) }}</strong>
             </div>
           }
@@ -174,7 +179,6 @@
         }
         <div class="total"><span>Разом за товари</span><strong>{{ formatPrice(cartService.subtotal()) }}</strong></div>
         @if (usesWayForPay()) {
-          <div class="payment-summary-row"><span>Комісія WayForPay 2%</span><strong>{{ formatPrice(wayForPayFee()) }}</strong></div>
           <div class="payment-summary-row payment-summary-row--charge"><span>Зараз до оплати</span><strong>{{ formatPrice(wayForPayCharge()) }}</strong></div>
         }
       </aside>

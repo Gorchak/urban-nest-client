@@ -24,6 +24,7 @@
       <div class="form-grid">
         <label>Ім'я *<input pInputText [ngModel]="editableSale().customer.firstName" (ngModelChange)="patchCustomer({ firstName: $event })" /></label>
         <label>Прізвище<input pInputText [ngModel]="editableSale().customer.lastName" (ngModelChange)="patchCustomer({ lastName: $event })" /></label>
+        <label>По батькові<input pInputText [ngModel]="editableSale().customer.middleName" (ngModelChange)="patchCustomer({ middleName: $event })" /></label>
         <label>Телефон *<input pInputText [ngModel]="editableSale().customer.phone" (ngModelChange)="patchCustomer({ phone: $event })" /></label>
         <label>Email<input pInputText [ngModel]="editableSale().customer.email" (ngModelChange)="patchCustomer({ email: $event })" /></label>
       </div>

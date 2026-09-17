@@ -21,6 +21,7 @@ export class AuthPageComponent implements AfterViewInit {
   protected form = this.fb.nonNullable.group({
     firstName: ['', this.mode === 'register' ? [Validators.required] : []],
     lastName: ['', this.mode === 'register' ? [Validators.required] : []],
+    middleName: ['', this.mode === 'register' ? [Validators.required] : []],
     email: ['', this.mode === 'reset' ? [] : [Validators.required, Validators.email]],
     phone: [''],
     password: ['', this.mode === 'forgot' ? [] : [Validators.required, Validators.minLength(8)]],

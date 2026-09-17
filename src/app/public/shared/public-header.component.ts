@@ -108,7 +108,7 @@ import { FavoritesService } from '../../core/services/favorites.service';
             </div>
           }
          } @else {
-          <button type="button" class="login-button" aria-label="Увійти або зареєструватися" (click)="login()"><i class="ri-login-box-line"></i> Увійти</button>
+          <button type="button" class="login-button" aria-label="Увійти або зареєструватися" (click)="login()"><i class="ri-login-box-line"></i><span>Увійти</span></button>
          }
         }
       </div>
@@ -243,6 +243,7 @@ import { FavoritesService } from '../../core/services/favorites.service';
       .admin-link,.user-loading { display:none; }
       .login-button,.user-button { width:40px; height:44px; padding:0; display:grid; place-items:center; border-radius:0; position:relative; z-index:4; }
       .login-button { font-size:0; }
+      .login-button span { display:none; }
       .login-button i { font-size:21px; }
       .user-button { gap:0; }
       .user-button span,.user-button > i:last-child { display:none; }

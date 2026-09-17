@@ -19,6 +19,7 @@ export type SalePaymentStatus = 'unpaid' | 'paid' | 'partially_paid' | 'refunded
 export interface SaleCustomer {
   firstName: string;
   lastName: string;
+  middleName: string;
   phone: string;
   email: string;
 }
@@ -53,7 +54,6 @@ export interface SalePayment {
   cardDetails?: string | null;
   tokenizationType?: string | null;
   basePaymentAmount?: number;
-  serviceFee?: number;
   chargedAmount?: number;
   balanceDue?: number;
   googlePay?: {

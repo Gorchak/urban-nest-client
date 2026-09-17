@@ -194,18 +194,6 @@ main {
   font-size: 8px;
   opacity: 0.65;
 }
-.service-notes {
-  margin-top: 2.5rem;
-  padding-top: 1.25rem;
-  display: grid;
-  gap: 0.7rem;
-  border-top: 1px solid rgba(23, 23, 20, 0.25);
-  font-size: 11px;
-}
-.service-notes span {
-  display: flex;
-  gap: 0.6rem;
-}
 .add-to-cart {
   width: 100%;
   margin-top: 2rem;
@@ -449,7 +437,6 @@ main {
   .variants button { min-width:58px;min-height:48px; }
   .add-to-cart { min-height:52px;margin-top:1.5rem; }
   .favorite-button { min-height:50px; }
-  .service-notes { margin-top:2rem; }
   .details {
     margin-top:4rem;
     padding:2.5rem 0;

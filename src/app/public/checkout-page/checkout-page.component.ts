@@ -15,7 +15,7 @@ import { formatCurrency } from '../../core/utils/price-format';
 import { OptimizedImageComponent } from '../../shared/components/optimized-image/optimized-image.component';
 
 interface CheckoutForm {
-  firstName: string; lastName: string; email: string; phone: string;
+  firstName: string; lastName: string; middleName: string; email: string; phone: string;
   deliveryService: string; areaRef: string; region: string; cityRef: string; city: string;
   warehouseRef: string; warehouse: string; street: string; building: string; apartment: string; postalCode: string;
   paymentMethod: SalePaymentMethod; notes: string; doNotCall: boolean;
@@ -24,7 +24,7 @@ interface CheckoutForm {
 type CheckoutFormErrors = Partial<Record<keyof CheckoutForm, string>>;
 
 const emptyForm = (): CheckoutForm => ({
-  firstName: '', lastName: '', email: '', phone: '',
+  firstName: '', lastName: '', middleName: '', email: '', phone: '',
   deliveryService: 'nova_poshta', areaRef: '', region: '', cityRef: '', city: '',
   warehouseRef: '', warehouse: '', street: '', building: '', apartment: '', postalCode: '',
   paymentMethod: 'cash_on_delivery', notes: '', doNotCall: false,
@@ -98,11 +98,8 @@ export class CheckoutPageComponent implements OnInit {
     const subtotal = this.cartService.subtotal();
     return this.form().paymentMethod === 'cash_on_delivery' ? 300 : subtotal;
   }
-  protected wayForPayFee(): number {
-    return Math.round(this.wayForPayBaseAmount() * 0.02 * 100) / 100;
-  }
   protected wayForPayCharge(): number {
-    return Math.round((this.wayForPayBaseAmount() + this.wayForPayFee()) * 100) / 100;
+    return this.wayForPayBaseAmount();
   }
   protected usesWayForPay(): boolean {
     return ['wayforpay', 'cash_on_delivery'].includes(this.form().paymentMethod);
@@ -204,7 +201,7 @@ export class CheckoutPageComponent implements OnInit {
         guestId: this.cartService.getGuestIdValue(),
         orderNumber: `UN-${Date.now().toString(36).toUpperCase()}`,
         userId: this.user()?.userId ?? null, status: isOnlinePayment ? 'pending_payment' : 'processing',
-        customer: { firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone },
+        customer: { firstName: form.firstName, lastName: form.lastName, middleName: form.middleName, email: form.email, phone: form.phone },
         shippingAddress: {
           country: 'Ukraine', city: form.city, cityRef: form.cityRef, region: form.region, areaRef: form.areaRef,
           street: form.street, building: form.building, apartment: form.apartment, postalCode: form.postalCode,
@@ -234,6 +231,10 @@ export class CheckoutPageComponent implements OnInit {
   private validateForm(form: CheckoutForm): boolean {
     const errors: CheckoutFormErrors = {};
     if (!form.firstName.trim()) errors.firstName = 'Вкажіть імʼя';
+    if (!form.lastName.trim()) errors.lastName = 'Вкажіть прізвище';
+    if (!form.middleName.trim()) errors.middleName = 'Вкажіть по батькові';
+    if (!form.email.trim()) errors.email = 'Вкажіть email';
+    else if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) errors.email = 'Вкажіть коректний email';
     if (!form.phone.trim()) errors.phone = 'Вкажіть номер телефону';
     if (form.deliveryService === 'nova_poshta') {
       if (!form.region.trim()) errors.areaRef = 'Вкажіть область';
@@ -305,7 +306,7 @@ export class CheckoutPageComponent implements OnInit {
     const meta = user.userMetadata || {};
     const delivery = meta.delivery || {};
     this.form.set({
-      ...emptyForm(), firstName: String(meta.firstName || ''), lastName: String(meta.lastName || ''),
+      ...emptyForm(), firstName: String(meta.firstName || ''), lastName: String(meta.lastName || ''), middleName: String(meta.middleName || ''),
       email: user.email || '', phone: String(meta.phone || ''), deliveryService: delivery.service || 'nova_poshta',
       areaRef: delivery.areaRef || '', region: delivery.region || '', cityRef: delivery.cityRef || '', city: delivery.city || '',
       warehouseRef: delivery.warehouseRef || '', warehouse: delivery.warehouse || '',

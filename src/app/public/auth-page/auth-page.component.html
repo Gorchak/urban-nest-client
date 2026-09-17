@@ -17,6 +17,7 @@
             <label><input formControlName="firstName" placeholder=" " autocomplete="given-name"><span>Ім’я</span></label>
             <label><input formControlName="lastName" placeholder=" " autocomplete="family-name"><span>Прізвище</span></label>
           </div>
+          <label><input formControlName="middleName" placeholder=" " autocomplete="additional-name"><span>По батькові</span></label>
         }
         @if (mode !== 'reset') { <label><input type="email" formControlName="email" placeholder=" " autocomplete="email"><span>Електронна пошта</span></label> }
         @if (mode === 'register') { <label><input type="tel" formControlName="phone" placeholder=" " autocomplete="tel"><span>Телефон із попереднього замовлення (необов’язково)</span></label> }
@@ -27,8 +28,8 @@
         @if (error()) { <div class="notice error" role="alert">{{ error() }}</div> }
         @if (mode === 'login') { <a class="forgot" routerLink="/auth/forgot-password">Забули пароль?</a> }
         @if (mode === 'login' || mode === 'register') {
-          <div class="google-auth"><div #googleButton class="google-button"></div></div>
           <div class="divider"><span>або</span></div>
+          <div class="google-auth"><div #googleButton class="google-button"></div></div>
         }
         <button class="primary" type="submit" [disabled]="loading()">{{ loading() ? 'ЗАЧЕКАЙТЕ…' : mode === 'login' ? 'УВІЙТИ' : mode === 'register' ? 'СТВОРИТИ ОБЛІКОВИЙ ЗАПИС' : mode === 'forgot' ? 'НАДІСЛАТИ ПОСИЛАННЯ' : 'ЗБЕРЕГТИ ПАРОЛЬ' }}</button>
       </form>

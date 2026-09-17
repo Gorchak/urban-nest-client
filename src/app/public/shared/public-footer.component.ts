@@ -21,7 +21,6 @@ import { NewsletterService } from '../../core/services/newsletter.service';
           <div class="socials">
             <a href="https://www.instagram.com/uliaconceptstore/" target="_blank" rel="noopener noreferrer" aria-label="Ulia Concept Store в Instagram"><i class="ri-instagram-line"></i></a>
             <a href="https://www.threads.com/@uliaconceptstore?xmt=AQG0YtmoxgntwsnMmwzw-ISicsNFIvF-Buuq30Yucc9q1aA" target="_blank" rel="noopener noreferrer" aria-label="Ulia Concept Store у Threads"><i class="ri-threads-line"></i></a>
-            <a href="https://t.me" target="_blank" rel="noreferrer" aria-label="Telegram"><i class="ri-telegram-2-line"></i></a>
           </div>
         </div>
 

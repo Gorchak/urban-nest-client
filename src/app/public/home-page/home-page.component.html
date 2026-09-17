@@ -72,7 +72,7 @@
           @for (section of sections(); track section.category._id; let sectionIndex = $index) {
             <section class="product-row">
               <header class="section-header">
-                <div><span class="eyebrow">Добірка 0{{ sectionIndex + 1 }}</span><h2>{{ section.title }}</h2></div>
+                <div><h2>{{ section.title }}</h2></div>
                 <a [routerLink]="['/category', routeSlug(section.category)]">Усі товари <i class="ri-arrow-right-line"></i></a>
               </header>
               <div class="products">

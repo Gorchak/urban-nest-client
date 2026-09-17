@@ -44,7 +44,7 @@ import { CheckboxService, CheckboxIntegrationStatus } from '../../../core/servic
 const emptySale = (): CreateSaleDto => ({
   orderNumber: `UN-${Date.now().toString().slice(-6)}`,
   status: 'pending_payment',
-  customer: { firstName: '', lastName: '', phone: '', email: '' },
+  customer: { firstName: '', lastName: '', middleName: '', phone: '', email: '' },
   shippingAddress: {
     country: 'Ukraine',
     city: '',
@@ -499,7 +499,7 @@ export class SalesPageComponent implements OnInit {
   }
 
   protected customerName(sale: Sale): string {
-    return `${sale.customer.firstName} ${sale.customer.lastName}`.trim();
+    return [sale.customer.lastName, sale.customer.firstName, sale.customer.middleName].filter(Boolean).join(' ').trim();
   }
 
   private cloneSale(sale: Sale): CreateSaleDto {

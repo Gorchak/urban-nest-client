@@ -50,7 +50,7 @@ import { formatCurrency } from '../../../core/utils/price-format';
 export const createEmptySale = (): CreateSaleDto => ({
   orderNumber: `UN-${Date.now().toString().slice(-6)}`,
   status: 'pending_payment',
-  customer: { firstName: '', lastName: '', phone: '', email: '' },
+  customer: { firstName: '', lastName: '', middleName: '', phone: '', email: '' },
   shippingAddress: {
     country: 'Ukraine',
     city: '',
@@ -566,7 +566,8 @@ export class SaleFormDialogComponent implements OnChanges {
       customer: {
         ...sale.customer,
         firstName: this.keepOrFill(sale.customer.firstName, firstName),
-        lastName: this.keepOrFill(sale.customer.lastName, [lastName, middleName].filter(Boolean).join(' ')),
+        lastName: this.keepOrFill(sale.customer.lastName, lastName),
+        middleName: this.keepOrFill(sale.customer.middleName, middleName),
         phone: this.keepOrFill(sale.customer.phone, phone),
         email: this.keepOrFill(sale.customer.email, email),
       },
@@ -731,7 +732,7 @@ export class SaleFormDialogComponent implements OnChanges {
     return JSON.parse(JSON.stringify({
       orderNumber: sale.orderNumber,
       status: sale.status,
-      customer: sale.customer,
+      customer: { ...sale.customer, middleName: sale.customer.middleName || '' },
       shippingAddress: sale.shippingAddress,
       payment: sale.payment,
       items: sale.items,

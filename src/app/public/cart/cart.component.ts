@@ -54,7 +54,7 @@ export class CartComponent {
         orderNumber: `QO-${Date.now().toString(36).toUpperCase()}`,
         userId: null,
         status: 'processing',
-        customer: { firstName: '', lastName: '', phone, email: '' },
+        customer: { firstName: '', lastName: '', middleName: '', phone, email: '' },
         shippingAddress: { country: 'Ukraine', city: '', region: '', street: '', building: '', apartment: '', postalCode: '', deliveryService: '', warehouse: '', trackingNumber: '' },
         payment: { method: 'cash_on_delivery', status: 'unpaid', transactionId: '', paidAt: null },
         items: [],
