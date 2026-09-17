@@ -63,6 +63,7 @@
 /product/carry-pouch
 /product/carry-pouch-cherry
 /product/chainik
+/product/chainik-ZAEC1
 /product/chashka-indigo
 /product/chashka-jangol
 /product/chashka-kit
@@ -105,6 +106,7 @@
 /product/glechik-indigo
 /product/glechyk-zhyttj
 /product/golybka
+/product/gunia%2FVAZA
 /product/haise-lounge
 /product/heart
 /product/heartbreaker

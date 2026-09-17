@@ -326,6 +326,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://uliastore.com.ua/product/chainik-ZAEC1</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://uliastore.com.ua/product/chashka-indigo</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -532,6 +537,11 @@
   </url>
   <url>
     <loc>https://uliastore.com.ua/product/golybka</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uliastore.com.ua/product/gunia%2FVAZA</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

@@ -1,6 +1,37 @@
 <main>
   @if (loading()) {
-    <div class="state">Завантажуємо товар...</div>
+    <div class="product-skeleton" aria-label="Завантаження товару" aria-busy="true">
+      <nav class="product-skeleton__breadcrumbs">
+        <span class="product-skeleton__block"></span><span class="product-skeleton__block"></span><span class="product-skeleton__block"></span>
+      </nav>
+      <section class="product product-skeleton__product">
+        <div class="gallery product-skeleton__gallery">
+          <div class="thumbs product-skeleton__thumbs">
+            @for (_ of [1, 2, 3, 4]; track $index) { <span class="product-skeleton__block"></span> }
+          </div>
+          <span class="main-image product-skeleton__block product-skeleton__image"></span>
+        </div>
+        <div class="summary product-skeleton__summary">
+          <span class="product-skeleton__block product-skeleton__sku"></span>
+          <span class="product-skeleton__block product-skeleton__title"></span>
+          <span class="product-skeleton__block product-skeleton__lead"></span>
+          <span class="product-skeleton__block product-skeleton__lead product-skeleton__lead--short"></span>
+          <span class="product-skeleton__block product-skeleton__price"></span>
+          <span class="product-skeleton__block product-skeleton__availability"></span>
+          <div class="product-skeleton__variants">
+            <span class="product-skeleton__block product-skeleton__variant-label"></span>
+            <div>@for (_ of [1, 2, 3]; track $index) { <span class="product-skeleton__block"></span> }</div>
+          </div>
+          <span class="product-skeleton__block product-skeleton__button"></span>
+          <span class="product-skeleton__block product-skeleton__button"></span>
+          <span class="product-skeleton__block product-skeleton__button product-skeleton__button--outline"></span>
+        </div>
+      </section>
+      <section class="details product-skeleton__details">
+        <div><span class="product-skeleton__block product-skeleton__detail-label"></span><span class="product-skeleton__block product-skeleton__detail-title"></span><span class="product-skeleton__block product-skeleton__detail-copy"></span><span class="product-skeleton__block product-skeleton__detail-copy product-skeleton__detail-copy--short"></span></div>
+        <div class="product-skeleton__specs">@for (_ of [1, 2, 3]; track $index) { <span class="product-skeleton__block"></span> }</div>
+      </section>
+    </div>
   } @else if (error()) {
     <div class="state"><h1>{{ error() }}</h1><a routerLink="/">На головну</a></div>
   } @else {

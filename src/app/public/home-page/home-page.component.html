@@ -11,13 +11,27 @@
 
   <main>
     @if (loading()) {
-      <section class="loading-heading">
-        <div class="skeleton skeleton--eyebrow"></div>
-        <div class="skeleton skeleton--title"></div>
+      <section class="home-skeleton" aria-label="Завантаження каталогу" aria-busy="true">
+        <header class="section-header skeleton-header">
+          <div>
+            <span class="skeleton skeleton--eyebrow"></span>
+            <span class="skeleton skeleton--title"></span>
+          </div>
+        </header>
+        <div class="loading-grid">
+          @for (item of [1, 2, 3, 4, 5]; track item) {
+            <article class="loading-card">
+              <span class="skeleton loading-card__media"></span>
+              <div class="loading-card__body">
+                <span class="skeleton loading-card__sku"></span>
+                <span class="skeleton loading-card__name"></span>
+                <span class="skeleton loading-card__name loading-card__name--short"></span>
+                <span class="skeleton loading-card__price"></span>
+              </div>
+            </article>
+          }
+        </div>
       </section>
-      <div class="loading-grid">
-        @for (item of [1, 2, 3, 4, 5]; track item) { <div class="skeleton loading-card"></div> }
-      </div>
     } @else if (error()) {
       <section class="state">
         <i class="ri-wifi-off-line"></i>

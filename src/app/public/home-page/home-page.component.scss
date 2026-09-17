@@ -181,10 +181,10 @@ main {
 .state p {
   margin: 0 0 1.5rem;
 }
-.loading-heading {
-  padding-top: 7rem;
-}
+.home-skeleton { padding-top: clamp(4rem, 8vw, 4rem); }
+.skeleton-header > div { width: 100%; }
 .skeleton {
+  display: block;
   background: linear-gradient(
     100deg,
     rgba(255, 255, 255, 0.18) 20%,
@@ -195,24 +195,30 @@ main {
   animation: shimmer 1.4s infinite;
 }
 .skeleton--eyebrow {
-  width: 180px;
-  height: 10px;
-  margin-bottom: 2rem;
+  width: 150px;
+  height: 12px;
+  margin-bottom: .7rem;
 }
 .skeleton--title {
-  width: min(520px, 70%);
-  height: 100px;
+  width: min(390px, 70%);
+  height: clamp(46px, 6vw, 92px);
 }
 .loading-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 1px;
-  margin-top: 2rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border-left: 1px solid var(--line);
 }
 .loading-card {
-  aspect-ratio: 3/4;
-  background-color: var(--un-soft, #f5f5f2);
+  min-width: 0;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
+.loading-card__media { width: 100%; aspect-ratio: 3/4; background-color: var(--un-soft, #f5f5f2); }
+.loading-card__body { padding: 15px 12px 17px; display: grid; gap: .55rem; }
+.loading-card__sku { width: 34%; height: 8px; }
+.loading-card__name { width: 82%; height: 14px; margin-top: .1rem; }
+.loading-card__name--short { width: 58%; margin-top: -.25rem; }
+.loading-card__price { width: 40%; height: 14px; margin-top: .45rem; }
 @keyframes shimmer {
   to {
     background-position: -200% 0;
@@ -271,8 +277,10 @@ main {
   }
   .state { min-height: 55vh; }
   .state h1 { font-size: 2.3rem; }
-  .loading-heading { padding-top: 4rem; }
-  .skeleton--title { height: 64px; }
+  .home-skeleton { padding-top: 3.5rem; }
+  .skeleton--title { width: min(290px, 85%); height: clamp(44px, 14vw, 64px); }
+  .loading-card__body { padding: 11px 9px 13px; }
+  .loading-card__name { height: 11px; }
 }
 
 @media (max-width: 380px) {

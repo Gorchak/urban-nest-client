@@ -1,6 +1,9 @@
 <main>
   @if (loading()) {
-    <div class="category-skeleton" aria-hidden="true">
+    <div class="category-skeleton" aria-label="Завантаження категорії" aria-busy="true">
+      <nav class="skeleton-breadcrumbs">
+        <span class="skeleton-block"></span><span class="skeleton-block"></span>
+      </nav>
       <section class="skeleton-catalog">
         <header>
           <div>
