@@ -64,8 +64,6 @@ article h3 { margin: 0 0 .4rem; font-size: 12px; }
 article span { font-size: 10px; opacity: .6; }
 article small { margin-top: .35rem; display: block; color: var(--un-accent, #9f3526); font-size: 10px; font-weight: 700; }
 .total { padding-top: 1.5rem; display: flex; justify-content: space-between; font-size: 20px; }
-.payment-summary-row { padding-top: .75rem; display: flex; justify-content: space-between; gap: 1rem; font-size: 13px; }
-.payment-summary-row--charge { font-size: 16px; }
 .success { min-height: 65vh; display: grid; place-content: center; justify-items: center; text-align: center; }
 .success i { font-size: 60px; color: var(--un-green, #3f6f4a); }
 .success a { width: auto; margin-top: 1rem; }

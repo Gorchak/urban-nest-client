@@ -178,9 +178,6 @@
           </article>
         }
         <div class="total"><span>Разом за товари</span><strong>{{ formatPrice(cartService.subtotal()) }}</strong></div>
-        @if (usesWayForPay()) {
-          <div class="payment-summary-row payment-summary-row--charge"><span>Зараз до оплати</span><strong>{{ formatPrice(wayForPayCharge()) }}</strong></div>
-        }
       </aside>
     </div>
   }
